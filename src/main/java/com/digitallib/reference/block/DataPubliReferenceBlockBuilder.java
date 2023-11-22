@@ -16,7 +16,20 @@ public class DataPubliReferenceBlockBuilder extends BasicReferenceBlock{
         if(data.isDataIncerta()){
             return data.getAno();
         }
-        return String.format("%s %s %s", data.getDia(), getExtendedMonth(data.getMes()), data.getAno());
+        StringBuilder stringBuilder = new StringBuilder();
+
+        if(data.getMes() > 0 && data.getMes() < 13) {
+
+            if(data.getDia() > 0 && data.getDia() < 31) {
+                stringBuilder.append(data.getDia());
+                stringBuilder.append(" ");
+            }
+
+            stringBuilder.append(getExtendedMonth(data.getMes()));
+            stringBuilder.append(" ");
+        }
+        stringBuilder.append(data.getAno());
+        return stringBuilder.toString();
     }
 
     private String getExtendedMonth(Integer mes) {

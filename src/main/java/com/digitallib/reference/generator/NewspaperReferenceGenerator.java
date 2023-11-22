@@ -13,11 +13,11 @@ public class NewspaperReferenceGenerator extends BaseReferenceGenerator {
         referenceBlockBuilders.add(new AutorReferenceBlockBuilder());
         referenceBlockBuilders.add(new TitleReferenceBlockBuilder(false, false, "."));
         referenceBlockBuilders.add(new EncontradoEmReferenceBlockBuilder(true, false, ","));
-        referenceBlockBuilders.add(new LocalReferenceBlockBuilder(true, false, ","));
-        referenceBlockBuilders.add(new AnoPubliReferenceBlockBuilder(true, false, ","));
-        referenceBlockBuilders.add(new NumPubliReferenceBlockBuilder(true, false, ","));
-        referenceBlockBuilders.add(new DataPubliReferenceBlockBuilder(true, false, ","));
-        referenceBlockBuilders.add(new PagPubliReferenceBlockBuilder(true, false, "."));
+        referenceBlockBuilders.add(new LocalReferenceBlockBuilder(false, false, ","));
+        referenceBlockBuilders.add(new AnoPubliReferenceBlockBuilder(false, false, ","));
+        referenceBlockBuilders.add(new NumPubliReferenceBlockBuilder(false, false, ","));
+        referenceBlockBuilders.add(new DataPubliReferenceBlockBuilder(false, false, ","));
+        referenceBlockBuilders.add(new PagPubliReferenceBlockBuilder(false, false, "."));
         return referenceBlockBuilders;
     }
 }

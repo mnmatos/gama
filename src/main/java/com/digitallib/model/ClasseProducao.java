@@ -8,14 +8,14 @@ import java.util.Map;
 
 public enum ClasseProducao {
 
-    PRODUCAO_INTELECTUAL ("1. Produção Intelectual"),
-    DOCUMENTOS_AUDIOVISUAIS("2. Documentos Audiovisuais"),
-    ESBOCOS_NOTAS("3. Esboços e notas"),
-    MEMORABILIA("4. Memorabilia"),
-    RECEPCAO("5. Recepção"),
-    VIDA("6. Vida"),
+    PRODUCAO_INTELECTUAL ("01. Produção Intelectual"),
+    DOCUMENTOS_AUDIOVISUAIS("02. Documentos Audiovisuais"),
+    ESBOCOS_NOTAS("03. Esboços e notas"),
+    MEMORABILIA("04. Memorabilia"),
+    RECEPCAO("05. Recepção"),
+    VIDA("06. Vida"),
 
-    PUBLICACOES_IMPRENSA("7. Publicações na imprensa");
+    PUBLICACOES_IMPRENSA("07. Publicações na imprensa");
 
     private static Map<String, ClasseProducao> classeMap = new HashMap<String, ClasseProducao>();
     private String printableName;

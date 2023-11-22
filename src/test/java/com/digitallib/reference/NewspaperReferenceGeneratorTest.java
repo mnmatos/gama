@@ -1,6 +1,6 @@
 package com.digitallib.reference;
 
-import com.digitallib.manager.EntityManager;
+import com.digitallib.exception.ReferenceBlockBuilderException;
 import com.digitallib.model.ClasseProducao;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
@@ -8,6 +8,9 @@ import com.digitallib.reference.generator.NewspaperReferenceGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+
+import java.util.Collections;
 
 import static com.digitallib.model.SubClasseProducao.ENSAIO;
 
@@ -17,12 +20,12 @@ class NewspaperReferenceGeneratorTest {
 
     //{"dia":22,"mes":10,"ano":"1927","dataIncerta":false},"num_publicacao":953,"ano_volume":"22","pagina_inicio":3
     @Test
-    void generate() {
+    void generate() throws ReferenceBlockBuilderException {
         Documento doc = new Documento();
         doc.setClasseProducao(ClasseProducao.PRODUCAO_INTELECTUAL);
         doc.setSubClasseProducao(ENSAIO);
         doc.setTitulo("Direitos femininos");
-        doc.setAutor("Alcina Gomes Dantas");
+        doc.setAutores(Collections.singletonList("Alcina Gomes Dantas"));
         doc.setEncontradoEm("Folha do Norte");
         doc.setLugarPublicacao("5");
         doc.setAnoVolume("22");
@@ -41,6 +44,6 @@ class NewspaperReferenceGeneratorTest {
         Reference reference = newspaperReferenceGenerator.generate(doc);
 
         logger.info(reference.toString());
-
+        Assertions.assertEquals("DANTAS, Alcina. Direitos femininos. Folha do Norte, Feira de Santana, ano 22, n. 953, 22 out. 1927, p. 3. ", reference.toString());
     }
 }

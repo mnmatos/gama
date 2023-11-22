@@ -1,6 +1,7 @@
 package com.digitallib.manager;
 
 import com.digitallib.JsonGenerator;
+import com.digitallib.exception.EntityNotFoundException;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
 import org.apache.commons.io.FileUtils;
@@ -80,9 +81,11 @@ public class EntityManager {
         return Paths.get(String.format("%s/%s.json", REPO, id));
     }
 
-    public static Entity getEntryById (String codigo){
+    public static Entity getEntryById (String codigo) throws EntityNotFoundException {
         if (codigo == null) return null;
-        return getEntries().stream().filter(d -> d.getId().startsWith(codigo)).collect(Collectors.toList()).get(0);
+        List<Entity> entitiesList = getEntries().stream().filter(d -> d.getId().startsWith(codigo)).collect(Collectors.toList());
+        if(entitiesList.size()==0) throw new EntityNotFoundException("Entity not found for code " + codigo);
+        return entitiesList.get(0);
     }
 
     public static List<Entity> getEntryByType (EntityType type){

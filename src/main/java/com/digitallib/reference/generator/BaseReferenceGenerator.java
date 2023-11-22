@@ -1,5 +1,6 @@
 package com.digitallib.reference.generator;
 
+import com.digitallib.exception.ReferenceBlockBuilderException;
 import com.digitallib.model.Documento;
 import com.digitallib.reference.Reference;
 import com.digitallib.reference.block.ReferenceBlock;
@@ -13,10 +14,10 @@ public abstract class BaseReferenceGenerator implements ReferenceGenerator {
     protected abstract List<ReferenceBlockBuilder> getReferenceBuildingBlock();
 
     @Override
-    public Reference generate(Documento documento) {
+    public Reference generate(Documento documento) throws ReferenceBlockBuilderException {
         List<ReferenceBlock> referenceBlocks = new ArrayList<>();
         for (ReferenceBlockBuilder builder : getReferenceBuildingBlock()) {
-            referenceBlocks.add(builder.build(documento));
+            referenceBlocks.addAll(builder.build(documento));
         }
         return new Reference(referenceBlocks);
     }

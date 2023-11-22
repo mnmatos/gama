@@ -15,7 +15,7 @@ public enum TipoNBR {
     DOCUMENTO_DIGITAL("Documento Digital", new DigitalDocumentReferenceGenerator()),
     IMAGEM("Imagem", new ImageReferenceGenerator()),
     VIDEO("Vídeo", new VideoReferenceGenerator()),
-    CORRESPONDENCIA("Correspondencia", new MailReferenceGenerator()),
+    CORRESPONDENCIA("Correspondência", new MailReferenceGenerator()),
     DOCUMENTOS_CIVIS("Documentos Civis", new CivilianDocumentReferenceGenerator());
 
     private static Map<String, TipoNBR> classeMap = new HashMap<String, TipoNBR>();

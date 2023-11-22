@@ -10,10 +10,8 @@ import com.intellij.uiDesigner.core.Spacer;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class EntitySelector extends JDialog {
@@ -94,8 +92,9 @@ public class EntitySelector extends JDialog {
     private void loadEntities(EntityType type) {
         entityListModel.clear();
         List<Entity> entities = EntityManager.getEntryByType(type);
-        for (Entity entity : entities) {
-            entityListModel.add(0, entity.getName());
+        List<Entity> orderedEntities = entities.stream().sorted(Comparator.comparing(Entity::getName)).collect(Collectors.toList());
+        for (Entity entity : orderedEntities) {
+            entityListModel.addElement(entity.getName());
             entityMap.put(entity.getName(), entity);
         }
     }

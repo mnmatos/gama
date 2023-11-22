@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentList extends JDialog {
+    public static final String ACTIONS_HEADER = "Ações";
     private JTable tabela_poemas;
     private JPanel contentPanel;
     private JButton add_button;
@@ -143,7 +144,7 @@ public class DocumentList extends JDialog {
     }
 
     private void refreshTable() {
-        String[] colunas = {"Código", "Título", "classe", "Periódico", "ações"};
+        String[] colunas = {"Código", "Título", "Classe", "Encontrado em", ACTIONS_HEADER};
 
         List<Documento> documentos = getDocumentosFiltrados();
         numDocField.setText(String.format("Número de documentos: %d", documentos.size()));
@@ -163,8 +164,8 @@ public class DocumentList extends JDialog {
 
 
         ButtonEditor editor = new ButtonEditor();
-        tabela_poemas.getColumn("ações").setCellRenderer(editor);
-        tabela_poemas.getColumn("ações").setCellEditor(editor);
+        tabela_poemas.getColumn(ACTIONS_HEADER).setCellRenderer(editor);
+        tabela_poemas.getColumn(ACTIONS_HEADER).setCellEditor(editor);
         refreshIndexes(documentos);
     }
 
@@ -295,7 +296,7 @@ public class DocumentList extends JDialog {
         numDocField.setText("Label");
         buttonBanel.add(numDocField, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         exportButton = new JButton();
-        exportButton.setText("Export");
+        exportButton.setText("Exportar");
         buttonBanel.add(exportButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label1 = new JLabel();
         label1.setText("Documentos");

@@ -1,5 +1,6 @@
 package com.digitallib;
 
+import com.digitallib.exception.EntityNotFoundException;
 import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.EntityManager;
 import com.digitallib.manager.RepositoryManager;
@@ -15,6 +16,9 @@ import org.apache.logging.log4j.Logger;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileSystemView;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -51,7 +55,6 @@ public class DocumentCreator extends JDialog {
     private JComboBox tipo_drop;
     private JTextField instituicaoCustodiaField;
     private JCheckBox dataIncertaCheckBox;
-    private JList listaArquivos;
     private JButton addReferenciaInstituicaoButton;
     private JSpinner mesSpinner;
     private JSpinner diaSpinner;
@@ -73,6 +76,9 @@ public class DocumentCreator extends JDialog {
     private JTextField disponivelField;
     private JTextField acessoField;
     private JComboBox tipoNbrDrop;
+    private JButton addAuthorButton;
+    private JList authorList;
+    private JTree fileTree;
 
     private Entity lugarPublicacao;
 
@@ -80,11 +86,17 @@ public class DocumentCreator extends JDialog {
     List<File> files = new ArrayList<>();
     DefaultListModel pessoaLocalListModel = new DefaultListModel();
 
-    DefaultListModel arquivoModel = new DefaultListModel();
+    DefaultListModel authorListModel = new DefaultListModel();
     Map<String, String> citacoes = new HashMap<>();
     List<String> filteredSubClassOptions = new ArrayList<>();
 
+    Map<String, String> authorMap = new HashMap<>();
+
     String editedDocCode = null;
+
+
+    private DefaultTreeModel treeModel;
+    private DefaultMutableTreeNode root;
 
     private Logger logger = LogManager.getLogger();
 
@@ -100,10 +112,9 @@ public class DocumentCreator extends JDialog {
         ineditoCheckBox.setSelected(document.isInedito());
         danosAoSuporteCheckBox.setSelected(document.isDanosSuporte());
         addCitacoes(document.getCitacoes());
+        if (document.getAutores() != null) addAutores(document.getAutores());
 
-
-        lugarPublicacao = EntityManager.getEntryById(document.getLugarPublicacao());
-        if (lugarPublicacao != null) lugarPublicacaoText.setText(lugarPublicacao.getName());
+        setLugarPublicacao(document.getLugarPublicacao());
 
         //Publication
         if (document.getTipoNbr() != null) tipoNbrDrop.setSelectedItem(document.getTipoNbr().print());
@@ -118,10 +129,44 @@ public class DocumentCreator extends JDialog {
         LoadDateFields(document);
 
         File folder = new File(getPathFromCode(document.getCodigo()));
+        root = new DefaultMutableTreeNode(new FileNode(folder));
+        treeModel = new DefaultTreeModel(root);
+
         for (File file : folder.listFiles()) {
-            if (!file.getName().equals(document.getCodigo() + ".json")) files.add(file);
+            if (!file.getName().equals(document.getCodigo() + ".json")) {
+                files.add(file);
+            }
         }
+        fileTree.setModel(treeModel);
         refreshArquivoList();
+    }
+
+    private void setLugarPublicacao(String codigo) {
+        try {
+            lugarPublicacao = EntityManager.getEntryById(codigo);
+            if (lugarPublicacao != null) lugarPublicacaoText.setText(lugarPublicacao.getName());
+        } catch (EntityNotFoundException e) {
+            logger.error(e);
+        }
+    }
+
+    public class FileNode {
+
+        private File file;
+
+        public FileNode(File file) {
+            this.file = file;
+        }
+
+        @Override
+        public String toString() {
+            String name = file.getName();
+            if (name.equals("")) {
+                return file.getAbsolutePath();
+            } else {
+                return name;
+            }
+        }
     }
 
     private void LoadDateFields(Documento document) {
@@ -159,7 +204,7 @@ public class DocumentCreator extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 
         listaCitacao.setModel(pessoaLocalListModel);
-        listaArquivos.setModel(arquivoModel);
+        authorList.setModel(authorListModel);
 
         addReferenciaPessoaButton.addActionListener(e -> {
             getCitacaoFromDialog(EntityType.PESSOA);
@@ -175,6 +220,10 @@ public class DocumentCreator extends JDialog {
 
         localPublicacaoButton.addActionListener(e -> {
             getLugarPublicacaoFromDialog();
+        });
+
+        addAuthorButton.addActionListener(e -> {
+            getAuthorFromDialog();
         });
 
         jfc.setDialogTitle("Multiple file and directory selection:");
@@ -204,18 +253,41 @@ public class DocumentCreator extends JDialog {
             }
         });
 
-        listaArquivos.addMouseListener(new MouseAdapter() {
+        authorList.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
                 if (e.getClickCount() == 2) {
+                    authorMap.remove(authorList.getSelectedValue());
+                    authorListModel.remove(authorList.getSelectedIndex());
+                }
+            }
+        });
+
+        fileTree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                if (e.getClickCount() == 2) {
                     if (editedDocCode != null) {
-                        String path = getPathFromCode(editedDocCode);
-                        File fileFolder = new File(path);
-                        try {
-                            Process p = new ProcessBuilder("explorer.exe", "/select," + fileFolder.getCanonicalPath()).start();
-                        } catch (IOException ex) {
-                            logger.error(ex);
+                        if (fileTree.getSelectionPath().equals(fileTree.getPathForRow(0))) {
+                            String path = getPathFromCode(editedDocCode);
+                            File fileFolder = new File(path);
+                            try {
+                                Process p = new ProcessBuilder("explorer.exe", "/select," + fileFolder.getCanonicalPath()).start();
+                            } catch (IOException ex) {
+                                logger.error(ex);
+                            }
+                        } else {
+                            String fileName = fileTree.getSelectionPath().getPath()[1].toString();
+                            logger.debug("selected:" + fileName);
+                            if (editedDocCode == null) {
+                                files.remove(fileName);
+                                refreshArquivoList();
+                            } else {
+                                OpenFileRemovalConfirmation(fileName);
+                            }
                         }
                     } else {
                         logger.error("Folder info is null");
@@ -225,13 +297,47 @@ public class DocumentCreator extends JDialog {
         });
     }
 
+    private void OpenFileRemovalConfirmation(String fileName) {
+        int result = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), String.format("Você tem certeza que qeur remover o arquivo %s?", fileName), "Atenção!!",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (result == JOptionPane.YES_OPTION) {
+            File[] filesOnFolder = new File(getPathFromCode(editedDocCode)).listFiles();
+            for (File file : filesOnFolder) {
+                if (file.getName().equals(fileName)) {
+                    file.delete();
+                }
+            }
+
+            files.removeIf(file -> file.getName().equals(fileName));
+            refreshArquivoList();
+        }
+    }
+
     private void getLugarPublicacaoFromDialog() {
         EntitySelector dialog = new EntitySelector(EntityType.LOCAL);
         dialog.pack();
         List<String> codigos = dialog.showDialog();
         if (codigos.size() > 0) {
-            lugarPublicacao = EntityManager.getEntryById(codigos.get(0));
-            if (lugarPublicacao != null) lugarPublicacaoText.setText(lugarPublicacao.getName());
+            setLugarPublicacao(codigos.get(0));
+        }
+    }
+
+    private void getAuthorFromDialog() {
+        EntitySelector dialog = new EntitySelector(EntityType.PESSOA);
+        dialog.pack();
+        List<String> codigos = dialog.showDialog();
+        if (codigos.size() > 0) {
+            for (String cod : codigos) {
+                Entity author = null;
+                try {
+                    author = EntityManager.getEntryById(cod);
+                    authorMap.put(author.getName(), author.getId());
+                } catch (EntityNotFoundException e) {
+                    logger.error(e);
+                }
+                if (author != null) authorListModel.add(authorListModel.size(), author.getName());
+            }
         }
     }
 
@@ -242,13 +348,15 @@ public class DocumentCreator extends JDialog {
     }
 
     private void refreshArquivoList() {
-        arquivoModel.clear();
+        root.removeAllChildren();
         files.forEach(x -> {
             if (x.isFile()) {
-                arquivoModel.add(0, x.getName());
                 logger.info(x.getName());
+                DefaultMutableTreeNode child = new DefaultMutableTreeNode(new FileNode(x));
+                root.add(child);
             }
         });
+        treeModel.reload();
     }
 
     private void initializeClasseDropdown() {
@@ -278,13 +386,39 @@ public class DocumentCreator extends JDialog {
 
     private void addCitacoes(List<String> codigos) {
         for (String novoCodigo : codigos) {
-            Entity entity = EntityManager.getEntryById(novoCodigo);
-            citacoes.put(entity.getName(), novoCodigo);
+            Entity entity = null;
+            try {
+                entity = EntityManager.getEntryById(novoCodigo);
+                citacoes.put(entity.getName(), novoCodigo);
+            } catch (EntityNotFoundException e) {
+                logger.error(e);
+            }
         }
         pessoaLocalListModel.clear();
         for (Map.Entry<String, String> codigo : citacoes.entrySet()) {
-            Entity entity = EntityManager.getEntryById(codigo.getValue());
-            pessoaLocalListModel.add(0, entity.getName());
+            try {
+                Entity entity = EntityManager.getEntryById(codigo.getValue());
+                pessoaLocalListModel.add(0, entity.getName());
+            } catch (EntityNotFoundException e) {
+                logger.error(e);
+            }
+        }
+    }
+
+    private void addAutores(List<String> authorList) {
+        Map<String, Entity> entityMap = new HashMap<>();
+        for (String cod : authorList) {
+            try {
+                Entity entity = EntityManager.getEntryById(cod);
+                authorMap.put(entity.getName(), cod);
+                entityMap.put(entity.getName(), entity);
+            } catch (EntityNotFoundException e) {
+                logger.error(e);
+            }
+        }
+        authorListModel.clear();
+        for (Map.Entry<String, String> codigo : authorMap.entrySet()) {
+            authorListModel.add(authorListModel.size(), entityMap.get(codigo.getValue()));
         }
     }
 
@@ -305,6 +439,7 @@ public class DocumentCreator extends JDialog {
         documento.setClasseProducao(ClasseProducao.fromPosition(classe_drop.getSelectedIndex()));
         documento.setSubClasseProducao(SubClasseProducao.forCode(tipo_drop.getSelectedItem().toString().substring(0, 3)));
         documento.setTitulo(tituloField.getText());
+        documento.setAutores(new ArrayList<>(authorMap.values()));
         documento.setEncontradoEm(encontradoEmField.getText());
         documento.setInstituicaoCustodia(instituicaoCustodiaField.getText());
         documento.setInedito(ineditoCheckBox.isSelected());
@@ -326,7 +461,7 @@ public class DocumentCreator extends JDialog {
 
 
         documento.setCitacoes(new ArrayList<>(citacoes.values()));
-        documento.setArquivos(Arrays.stream(arquivoModel.toArray()).map(o -> o instanceof String ? o.toString() : "").collect(Collectors.toList()));
+        documento.setArquivos(Arrays.stream(files.toArray()).map(o -> o instanceof File ? ((File) o).getName() : "").collect(Collectors.toList()));
         if (editedDocCode != null) {
             checkIfNewCode(documento);
         } else {
@@ -461,7 +596,7 @@ public class DocumentCreator extends JDialog {
         painelPrincipal.setLayout(new GridLayoutManager(10, 12, new Insets(0, 0, 20, 0), -1, -1));
         painelScroll.setViewportView(painelPrincipal);
         painelGeral = new JPanel();
-        painelGeral.setLayout(new GridLayoutManager(7, 2, new Insets(10, 10, 10, 10), -1, -1));
+        painelGeral.setLayout(new GridLayoutManager(9, 3, new Insets(10, 10, 10, 10), -1, -1));
         painelPrincipal.add(painelGeral, new GridConstraints(0, 0, 8, 11, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         painelGeral.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final JLabel label1 = new JLabel();
@@ -475,35 +610,47 @@ public class DocumentCreator extends JDialog {
         painelGeral.add(label3, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label4 = new JLabel();
         label4.setText("Instituição de custódia");
-        painelGeral.add(label4, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(label4, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label5 = new JLabel();
         label5.setText("Encontrado em");
-        painelGeral.add(label5, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(label5, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
         label6.setText("Coluna");
-        painelGeral.add(label6, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(label6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tipo_drop = new JComboBox();
-        painelGeral.add(tipo_drop, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(tipo_drop, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         classe_drop = new JComboBox();
         final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
         classe_drop.setModel(defaultComboBoxModel1);
-        painelGeral.add(classe_drop, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(classe_drop, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tituloField = new JTextField();
-        painelGeral.add(tituloField, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        painelGeral.add(tituloField, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         instituicaoCustodiaField = new JTextField();
-        painelGeral.add(instituicaoCustodiaField, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        painelGeral.add(instituicaoCustodiaField, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         encontradoEmField = new JTextField();
         encontradoEmField.setText("");
-        painelGeral.add(encontradoEmField, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        painelGeral.add(encontradoEmField, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         colunaSpinner = new JSpinner();
-        painelGeral.add(colunaSpinner, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(colunaSpinner, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         danosAoSuporteCheckBox = new JCheckBox();
         danosAoSuporteCheckBox.setHorizontalAlignment(0);
         danosAoSuporteCheckBox.setText("Danos ao suporte");
-        painelGeral.add(danosAoSuporteCheckBox, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(danosAoSuporteCheckBox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         ineditoCheckBox = new JCheckBox();
         ineditoCheckBox.setText("Inédito");
-        painelGeral.add(ineditoCheckBox, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        painelGeral.add(ineditoCheckBox, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label7 = new JLabel();
+        label7.setText("Autor(a)");
+        painelGeral.add(label7, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        addAuthorButton = new JButton();
+        addAuthorButton.setText("Adicionar Autor");
+        painelGeral.add(addAuthorButton, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        painelGeral.add(scrollPane1, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, 1, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        authorList = new JList();
+        scrollPane1.setViewportView(authorList);
+        final Spacer spacer2 = new Spacer();
+        painelGeral.add(spacer2, new GridConstraints(8, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_CAN_GROW, null, null, new Dimension(-1, 50), 0, false));
         refPanel = new JPanel();
         refPanel.setLayout(new GridLayoutManager(3, 2, new Insets(10, 10, 10, 10), -1, -1));
         painelPrincipal.add(refPanel, new GridConstraints(8, 0, 1, 11, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -531,23 +678,23 @@ public class DocumentCreator extends JDialog {
         referenciaContentPainel.add(referenciaScrollPanel, new GridConstraints(0, 0, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         listaCitacao = new JList();
         referenciaScrollPanel.setViewportView(listaCitacao);
-        final JLabel label7 = new JLabel();
-        label7.setText("Citações");
-        refPanel.add(label7, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setText("Citações");
+        refPanel.add(label8, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         painelPublicacao = new JPanel();
         painelPublicacao.setLayout(new GridLayoutManager(10, 6, new Insets(10, 10, 10, 10), -1, -1));
         painelPrincipal.add(painelPublicacao, new GridConstraints(0, 11, 8, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         painelPublicacao.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
-        final JLabel label8 = new JLabel();
-        label8.setText("Ano/Volume");
-        painelPublicacao.add(label8, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Ano/Volume");
+        painelPublicacao.add(label9, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         anoVolumeField = new JTextField();
         painelPublicacao.add(anoVolumeField, new GridConstraints(4, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final Spacer spacer2 = new Spacer();
-        painelPublicacao.add(spacer2, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label9 = new JLabel();
-        label9.setText("Número de publicação");
-        painelPublicacao.add(label9, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        painelPublicacao.add(spacer3, new GridConstraints(4, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label10 = new JLabel();
+        label10.setText("Número de publicação");
+        painelPublicacao.add(label10, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         numPubliSpinner = new JSpinner();
         painelPublicacao.add(numPubliSpinner, new GridConstraints(5, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         painelData = new JPanel();
@@ -559,86 +706,86 @@ public class DocumentCreator extends JDialog {
         dataIncertaCheckBox = new JCheckBox();
         dataIncertaCheckBox.setText("Data incerta?");
         painelData.add(dataIncertaCheckBox, new GridConstraints(2, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label10 = new JLabel();
-        label10.setText("Ano");
-        painelData.add(label10, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer3 = new Spacer();
-        painelData.add(spacer3, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JLabel label11 = new JLabel();
-        label11.setText("DATA");
-        painelData.add(label11, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label11.setText("Ano");
+        painelData.add(label11, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer4 = new Spacer();
+        painelData.add(spacer4, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JLabel label12 = new JLabel();
-        label12.setText("Dia");
-        painelData.add(label12, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label12.setText("DATA");
+        painelData.add(label12, new GridConstraints(0, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setText("Dia");
+        painelData.add(label13, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         diaSpinner = new JSpinner();
         painelData.add(diaSpinner, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label13 = new JLabel();
-        label13.setText("Mês");
-        painelData.add(label13, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label14 = new JLabel();
+        label14.setText("Mês");
+        painelData.add(label14, new GridConstraints(1, 3, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         mesSpinner = new JSpinner();
         painelData.add(mesSpinner, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final Spacer spacer4 = new Spacer();
-        painelData.add(spacer4, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label14 = new JLabel();
-        label14.setText("Página/folha");
-        painelPublicacao.add(label14, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        painelData.add(spacer5, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label15 = new JLabel();
+        label15.setText("Página/folha");
+        painelPublicacao.add(label15, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         paginaSpinner = new JSpinner();
         painelPublicacao.add(paginaSpinner, new GridConstraints(6, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label15 = new JLabel();
-        label15.setText("Quantidade de páginas/folhas");
-        painelPublicacao.add(label15, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label16 = new JLabel();
+        label16.setText("Quantidade de páginas/folhas");
+        painelPublicacao.add(label16, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         numPaginaSpinner = new JSpinner();
         painelPublicacao.add(numPaginaSpinner, new GridConstraints(7, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label16 = new JLabel();
-        label16.setText("Informações de publicação e monografi");
-        painelPublicacao.add(label16, new GridConstraints(0, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label17 = new JLabel();
-        label17.setText("Lugar");
-        painelPublicacao.add(label17, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label17.setText("Informações de publicação e monografia");
+        painelPublicacao.add(label17, new GridConstraints(0, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label18 = new JLabel();
+        label18.setText("Lugar");
+        painelPublicacao.add(label18, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         lugarPublicacaoText = new JTextField();
         lugarPublicacaoText.setEnabled(false);
         painelPublicacao.add(lugarPublicacaoText, new GridConstraints(3, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         localPublicacaoButton = new JButton();
         localPublicacaoButton.setText("Selecionar lugar");
         painelPublicacao.add(localPublicacaoButton, new GridConstraints(3, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label18 = new JLabel();
-        label18.setText("Monografia/Publicação periódica");
-        painelPublicacao.add(label18, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label19 = new JLabel();
+        label19.setText("Monografia/Publicação periódica");
+        painelPublicacao.add(label19, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         monografiaField = new JTextField();
         monografiaField.setText("");
         painelPublicacao.add(monografiaField, new GridConstraints(2, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         eletronicoPanel = new JPanel();
         eletronicoPanel.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
         painelPublicacao.add(eletronicoPanel, new GridConstraints(9, 0, 1, 6, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
-        final JLabel label19 = new JLabel();
-        label19.setText("Disponível em");
-        eletronicoPanel.add(label19, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label20 = new JLabel();
-        label20.setText("Meio Eletrônico");
-        eletronicoPanel.add(label20, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label20.setText("Disponível em");
+        eletronicoPanel.add(label20, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label21 = new JLabel();
-        label21.setText("Acesso em");
-        eletronicoPanel.add(label21, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label21.setText("Meio Eletrônico");
+        eletronicoPanel.add(label21, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label22 = new JLabel();
+        label22.setText("Acesso em");
+        eletronicoPanel.add(label22, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         disponivelField = new JTextField();
         disponivelField.setText("");
         eletronicoPanel.add(disponivelField, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final Spacer spacer5 = new Spacer();
-        eletronicoPanel.add(spacer5, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final Spacer spacer6 = new Spacer();
+        eletronicoPanel.add(spacer6, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         acessoField = new JTextField();
         eletronicoPanel.add(acessoField, new GridConstraints(2, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label22 = new JLabel();
-        label22.setText("Tipo NBR");
-        painelPublicacao.add(label22, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label23 = new JLabel();
+        label23.setText("Tipo NBR");
+        painelPublicacao.add(label23, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tipoNbrDrop = new JComboBox();
         painelPublicacao.add(tipoNbrDrop, new GridConstraints(1, 3, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         arquivoPanel = new JScrollPane();
         painelPrincipal.add(arquivoPanel, new GridConstraints(8, 11, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        listaArquivos = new JList();
-        arquivoPanel.setViewportView(listaArquivos);
+        fileTree = new JTree();
+        arquivoPanel.setViewportView(fileTree);
         attachFilesButton = new JButton();
         attachFilesButton.setText("Anexar arquivos");
         painelPrincipal.add(attachFilesButton, new GridConstraints(9, 11, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        label13.setLabelFor(mesSpinner);
+        label14.setLabelFor(mesSpinner);
     }
 
     /**

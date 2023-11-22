@@ -16,8 +16,8 @@ public class Documento {
 
     @JsonProperty("subclasse_producao")
     SubClasseProducao subClasseProducao;
-    @JsonProperty("autor")
-    String autor;
+    @JsonProperty("autores")
+    List<String> autores;
     @JsonProperty("titulo")
     String titulo;
 
@@ -122,12 +122,12 @@ public class Documento {
         this.anoVolume = anoVolume;
     }
 
-    public String getAutor() {
-        return autor;
+    public List<String> getAutores() {
+        return autores;
     }
 
-    public void setAutor(String autor) {
-        this.autor = autor;
+    public void setAutores(List<String> autores) {
+        this.autores = autores;
     }
 
     public String getTitulo() {
@@ -326,7 +326,7 @@ public class Documento {
         if(titulo == null || titulo.isEmpty()) return  defaultValue;
 
         else {
-            HashSet<String> excluido = new HashSet<>(Arrays.asList("uma", "um", "me", "te","do", "dos", "no", "nos","da", "das", "na", "nas", "de", "o", "a", "e", "as", "os", "nas", "nos", "com", "que", "qual", "quais"));
+            HashSet<String> excluido = new HashSet<>(Arrays.asList("uma", "um", " uns", "umas","me", "te","do", "dos", "no", "nos","da", "das", "na", "nas", "de", "o", "a", "e", "as", "os", "nas", "nos", "com", "que", "qual", "quais"));
             StringBuilder initials = new StringBuilder();
             titulo = titulo.replaceAll("[^A-Za-z0-9 ]","").replaceAll(" +", " ");
             for (String s : titulo.split(" ")) {

@@ -1,6 +1,7 @@
 package com.digitallib.exporter.docx;
 
 import com.digitallib.exporter.LibExporter;
+import com.digitallib.model.ClasseProducao;
 import com.digitallib.model.Documento;
 import com.digitallib.model.entity.Entity;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DocxExporter implements LibExporter {
 
@@ -36,10 +38,22 @@ public class DocxExporter implements LibExporter {
 
         configPage(body);
         TableContentBuilder tableContentBuilder = new TableContentBuilder(document.createTable());
-        for(Documento docToExport: docsToExport) {
-            tableContentBuilder.addDocument(docToExport);
+        for (ClasseProducao classe : ClasseProducao.values()){
+
+            List<Documento> filteredDoc = docsToExport.stream().filter(doc -> doc.getClasseProducao().equals(classe)).collect(Collectors.toList());
+            if(filteredDoc.size() > 0){
+                tableContentBuilder.addSection(classe);
+                for(Documento docToExport: filteredDoc) {
+                    tableContentBuilder.addDocument(docToExport);
+                }
+            }
         }
 
+
+        exportToDoc(document);
+    }
+
+    private void exportToDoc(XWPFDocument document) throws IOException {
         String exportFolder = "export";
         Files.createDirectories(Paths.get(exportFolder));
         File file = new File(String.format("%s/%s", exportFolder, fileName));
