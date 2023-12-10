@@ -124,7 +124,7 @@ public class DocumentList extends JDialog {
     }
 
     private void initializeClasseDropdown() {
-        final DefaultComboBoxModel model = new DefaultComboBoxModel(new String[]{"Tudo", "01 Produção intelectual", "02 Documentos audiovisuais", "03 Esboços e Notas", "04 Memorabilia", "05 Recepção da obra", "06 Vida"});
+        final DefaultComboBoxModel model = new DefaultComboBoxModel(new String[]{"Tudo", "01 Produção intelectual", "02 Documentos audiovisuais", "03 Esboços e Notas", "04 Memorabilia", "05 Recepção da obra", "06 Vida", "07. Publicações na imprensa", "08. Correspondência"});
         classeFilter.setModel(model);
         classeFilter.addActionListener(e -> {
             toogleTestemunhoFilter();

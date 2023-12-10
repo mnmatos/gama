@@ -31,7 +31,9 @@ public enum SubClasseProducao {
     CERTIDAO("06a", "Certidão de inteiro teor"),
     VARIA("06b", "Varia"),
 
-    NOTICIAS("07a", "Notícias relacionadas com a autora");
+    NOTICIAS("07a", "Notícias relacionadas com a autora"),
+    CORRESPONDENCIA_ENVIADA("08a", "Enviada"),
+    CORRESPONDENCIA_RECEBIDA("08b", "Recebida");
 
 
     private static Map<String, SubClasseProducao> subClasseMap = new LinkedHashMap<>();
@@ -63,7 +65,11 @@ public enum SubClasseProducao {
 
         subClasseMap.put("06a", CERTIDAO);
         subClasseMap.put("06b", VARIA);
+
         subClasseMap.put("07a", NOTICIAS);
+
+        subClasseMap.put("08a", CORRESPONDENCIA_ENVIADA);
+        subClasseMap.put("08b", CORRESPONDENCIA_RECEBIDA);
 
     }
 

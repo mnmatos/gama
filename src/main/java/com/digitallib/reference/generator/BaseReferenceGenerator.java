@@ -19,6 +19,15 @@ public abstract class BaseReferenceGenerator implements ReferenceGenerator {
         for (ReferenceBlockBuilder builder : getReferenceBuildingBlock()) {
             referenceBlocks.addAll(builder.build(documento));
         }
+
+        ReferenceBlock lastBlock = null;
+        for(ReferenceBlock referenceBlock : referenceBlocks) {
+            if(!referenceBlock.getContent().isEmpty()) lastBlock = referenceBlock;
+        }
+        lastBlock.setContent(lastBlock.getContent().trim());
+        if(lastBlock != null && !lastBlock.getContent().endsWith(".")){ //Make sure it ends with .
+            lastBlock.setContent(lastBlock.getContent().substring(0,lastBlock.getContent().length() - 1)+".");
+        }
         return new Reference(referenceBlocks);
     }
 }

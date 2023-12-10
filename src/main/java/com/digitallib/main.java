@@ -5,7 +5,13 @@ import com.digitallib.manager.RepositoryManager;
 public class main {
 
     public static void main(String[] args) {
-        RepositoryManager.getEntries();
+        removeEntries(new String[]{"", ""});
+    }
+
+    static void removeEntries(String[] entries){
+        for (String entry : entries){
+            RepositoryManager.removeEntry(entry);
+        }
     }
 
 

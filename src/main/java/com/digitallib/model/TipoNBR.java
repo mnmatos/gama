@@ -9,14 +9,15 @@ import java.util.Map;
 
 public enum TipoNBR {
 
-    JORNAL ("Jornal", new NewspaperReferenceGenerator()),
-    MONOGRAFIA("Monografia", new MonographReferenceGenerator()),
-    ENTREVISTA("Entrevista", new InterviewReferenceGenerator()),
-    DOCUMENTO_DIGITAL("Documento Digital", new DigitalDocumentReferenceGenerator()),
-    IMAGEM("Imagem", new ImageReferenceGenerator()),
-    VIDEO("Vídeo", new VideoReferenceGenerator()),
-    CORRESPONDENCIA("Correspondência", new MailReferenceGenerator()),
-    DOCUMENTOS_CIVIS("Documentos Civis", new CivilianDocumentReferenceGenerator());
+    JORNAL ("Jornal", new NewspaperReferenceGenerator()), //7.7.7
+    MONOGRAFIA_LIVRO("Livro", new BookReferenceGenerator()), //7.1
+    MONOGRAFIA_ACADEMICO("Trabalho acadêmico", new AcademicReferenceGenerator()), //7.1.2
+    ARTIGO("Artigo", new PaperReferenceGenerator()), //7.7.5
+    ENTREVISTA("Entrevista", new InterviewReferenceGenerator()), //8.1.1.9
+    IMAGEM("Imagem", new ImageReferenceGenerator()),  //7.15
+    VIDEO_ONLINE("Vídeo online", new OnlineVideoReferenceGenerator()), //7.13.2
+    CORRESPONDENCIA("Correspondência", new MailReferenceGenerator()), //7.5
+    DOCUMENTOS_CIVIS("Documentos civis", new CivilianDocumentReferenceGenerator()); //7.12
 
     private static Map<String, TipoNBR> classeMap = new HashMap<String, TipoNBR>();
     private String printableName;
@@ -24,11 +25,13 @@ public enum TipoNBR {
 
     static {
         classeMap.put("jornal", JORNAL);
-        classeMap.put("monografia", MONOGRAFIA);
+        classeMap.put("monografia_livro", MONOGRAFIA_LIVRO);
+        classeMap.put("monografia_academico", MONOGRAFIA_ACADEMICO);
+        classeMap.put("artigo", ARTIGO);
         classeMap.put("entrevista", ENTREVISTA);
-        classeMap.put("documento_digital", DOCUMENTO_DIGITAL);
         classeMap.put("imagem", IMAGEM);
-        classeMap.put("video", VIDEO);
+        classeMap.put("video_online", VIDEO_ONLINE);
+        classeMap.put("correspondencia", CORRESPONDENCIA);
         classeMap.put("documentos_civis", DOCUMENTOS_CIVIS);
     }
 

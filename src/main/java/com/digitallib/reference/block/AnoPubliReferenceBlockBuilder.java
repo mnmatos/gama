@@ -2,7 +2,7 @@ package com.digitallib.reference.block;
 
 import com.digitallib.model.Documento;
 
-public class AnoPubliReferenceBlockBuilder extends BasicReferenceBlock{
+public class AnoPubliReferenceBlockBuilder extends BasicReferenceBlockBuilder {
 
     public AnoPubliReferenceBlockBuilder(boolean bold, boolean italic, String separator) {
         super(bold, italic, separator);
@@ -10,8 +10,8 @@ public class AnoPubliReferenceBlockBuilder extends BasicReferenceBlock{
 
     @Override
     protected String getContent(Documento doc) {
-        if(doc.getAnoVolume() != null) {
-            return String.format("ano %s", doc.getAnoVolume());
+        if(doc.getAno() != null && doc.getAno() != "") {
+            return String.format("ano %s", doc.getAno());
         } else {
             return "";
         }

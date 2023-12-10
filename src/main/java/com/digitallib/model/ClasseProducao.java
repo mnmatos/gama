@@ -15,7 +15,11 @@ public enum ClasseProducao {
     RECEPCAO("05. Recepção"),
     VIDA("06. Vida"),
 
-    PUBLICACOES_IMPRENSA("07. Publicações na imprensa");
+    PUBLICACOES_IMPRENSA("07. Publicações na imprensa"),
+
+    CORRESPONDENCIA ("08. Correspondência");
+
+
 
     private static Map<String, ClasseProducao> classeMap = new HashMap<String, ClasseProducao>();
     private String printableName;
@@ -27,7 +31,8 @@ public enum ClasseProducao {
         classeMap.put("memorabilia", MEMORABILIA);
         classeMap.put("recepcao", RECEPCAO);
         classeMap.put("vida", VIDA);
-        classeMap.put("publicacoes_imprensa", VIDA);
+        classeMap.put("publicacoes_imprensa", PUBLICACOES_IMPRENSA);
+        classeMap.put("correspondencia", CORRESPONDENCIA);
     }
 
     ClasseProducao(String printableName) {

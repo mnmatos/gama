@@ -6,7 +6,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>digital-library-api</artifactId>
-    <version>1.1.6</version>
+    <version>1.2.0</version>
 
     <properties>
         <maven.compiler.source>9</maven.compiler.source>

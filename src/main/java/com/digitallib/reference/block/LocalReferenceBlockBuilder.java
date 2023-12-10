@@ -6,7 +6,7 @@ import com.digitallib.manager.EntityManager;
 import com.digitallib.model.Documento;
 import com.digitallib.model.entity.Entity;
 
-public class LocalReferenceBlockBuilder extends BasicReferenceBlock {
+public class LocalReferenceBlockBuilder extends BasicReferenceBlockBuilder {
 
     public LocalReferenceBlockBuilder(boolean bold, boolean italic, String separator) {
         super(bold, italic, separator);
@@ -20,7 +20,10 @@ public class LocalReferenceBlockBuilder extends BasicReferenceBlock {
         } catch (EntityNotFoundException e) {
             throw new ReferenceBlockBuilderException(e.getMessage());
         }
-        if (entity == null) return "SL";
+        if (entity == null){
+            italic=true;
+            return "[S.l.]";
+        }
         return entity.getName();
     }
 }

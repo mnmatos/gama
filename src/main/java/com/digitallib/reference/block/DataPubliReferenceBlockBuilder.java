@@ -3,7 +3,9 @@ package com.digitallib.reference.block;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
 
-public class DataPubliReferenceBlockBuilder extends BasicReferenceBlock{
+import static com.digitallib.utils.ReferenceUtils.getExtendedMonth;
+
+public class DataPubliReferenceBlockBuilder extends BasicReferenceBlockBuilder {
 
     public DataPubliReferenceBlockBuilder(boolean bold, boolean italic, String separator) {
         super(bold, italic, separator);
@@ -18,9 +20,9 @@ public class DataPubliReferenceBlockBuilder extends BasicReferenceBlock{
         }
         StringBuilder stringBuilder = new StringBuilder();
 
-        if(data.getMes() > 0 && data.getMes() < 13) {
+        if(data.getMes() != null && (data.getMes() > 0 && data.getMes() < 13)) {
 
-            if(data.getDia() > 0 && data.getDia() < 31) {
+            if(data.getDia() != null && data.getDia() > 0 && data.getDia() < 31) {
                 stringBuilder.append(data.getDia());
                 stringBuilder.append(" ");
             }
@@ -30,10 +32,5 @@ public class DataPubliReferenceBlockBuilder extends BasicReferenceBlock{
         }
         stringBuilder.append(data.getAno());
         return stringBuilder.toString();
-    }
-
-    private String getExtendedMonth(Integer mes) {
-        String[] monthArray = {"jan.", "fev.", "mar.", "abr.", "maio.", "jun.", "jul.", "ago.", "set.", "out.", "nov.", "dez."};
-        return monthArray[mes-1];
     }
 }

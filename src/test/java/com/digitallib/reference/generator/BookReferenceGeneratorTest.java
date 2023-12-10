@@ -1,49 +1,59 @@
-package com.digitallib.reference;
+package com.digitallib.reference.generator;
 
 import com.digitallib.exception.ReferenceBlockBuilderException;
 import com.digitallib.model.ClasseProducao;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
-import com.digitallib.reference.generator.NewspaperReferenceGenerator;
+import com.digitallib.model.entity.Entity;
+import com.digitallib.reference.Reference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 import static com.digitallib.model.SubClasseProducao.ENSAIO;
+import static com.digitallib.utils.TestUtils.registerAuthor;
 
-class NewspaperReferenceGeneratorTest {
+class BookReferenceGeneratorTest {
 
     private Logger logger = LogManager.getLogger();
 
-    //{"dia":22,"mes":10,"ano":"1927","dataIncerta":false},"num_publicacao":953,"ano_volume":"22","pagina_inicio":3
     @Test
     void generate() throws ReferenceBlockBuilderException {
+        Documento doc = createBaseDocument();
+
+        BookReferenceGenerator bookReferenceGenerator = new BookReferenceGenerator();
+        Reference reference = bookReferenceGenerator.generate(doc);
+
+        logger.info(reference.toString());
+        Assertions.assertEquals("DANTAS, Alcina. Livro falso. 4. ed. Feira de Santana: Editora falsa, 1927. ", reference.toString());
+
+    }
+
+    private static Documento createBaseDocument() {
         Documento doc = new Documento();
         doc.setClasseProducao(ClasseProducao.PRODUCAO_INTELECTUAL);
         doc.setSubClasseProducao(ENSAIO);
-        doc.setTitulo("Direitos femininos");
-        doc.setAutores(Collections.singletonList("Alcina Gomes Dantas"));
+        doc.setTitulo("Livro falso");
         doc.setEncontradoEm("Folha do Norte");
         doc.setLugarPublicacao("5");
-        doc.setAnoVolume("22");
+        doc.setAno("22");
+
+        Entity author = registerAuthor("Alcina Dantas");
+        doc.setAutores(Collections.singletonList(author.getId()));
+
 
         DataDocumento dataDocumento = new DataDocumento();
-        dataDocumento.setDia(22);
-        dataDocumento.setMes(10);
         dataDocumento.setAno("1927");
         dataDocumento.setDataIncerta(false);
         doc.setDataDocumento(dataDocumento);
 
+        doc.setEdicao(4);
+        doc.setEditora("Editora falsa");
         doc.setPaginaInicio(3);
         doc.setNumPublicacao(953);
-
-        NewspaperReferenceGenerator newspaperReferenceGenerator = new NewspaperReferenceGenerator();
-        Reference reference = newspaperReferenceGenerator.generate(doc);
-
-        logger.info(reference.toString());
-        Assertions.assertEquals("DANTAS, Alcina. Direitos femininos. Folha do Norte, Feira de Santana, ano 22, n. 953, 22 out. 1927, p. 3. ", reference.toString());
+        return doc;
     }
 }

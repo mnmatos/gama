@@ -98,6 +98,7 @@ public class RepositoryManager {
     private static Documento getDoc(Path javaFile) {
         try {
 //            aplicarRetrocompatibilidadeInstituicao(javaFile);
+//            aplicarRetrocompatibilidadeTitulo(javaFile);
             Documento doc = JsonGenerator.GenerateDocFromJson(new String(Files.readAllBytes(javaFile)));
 //            aplicarRetrocompatibilidadeData(doc);
             updateEntry(doc, new ArrayList<>());
@@ -115,6 +116,14 @@ public class RepositoryManager {
             content = content.replaceAll("periodico", "encontrado_em");
             Files.write(javaFile, content.getBytes(charset));
         }
+    }
+
+    private static void aplicarRetrocompatibilidadeTitulo(Path javaFile) throws IOException {
+        Charset charset = StandardCharsets.UTF_8;
+        String content = new String(Files.readAllBytes(javaFile), charset);
+        content = content.replaceAll("monografia", "titulo_publicacao");
+        content = content.replaceAll("ano_volume", "ano");
+        Files.write(javaFile, content.getBytes(charset));
     }
 
     public static void aplicarRetrocompatibilidadeData(Documento documento) {

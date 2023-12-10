@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.digitallib.utils.TextUtils.getAcronimo;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Documento {
 
@@ -21,8 +23,17 @@ public class Documento {
     @JsonProperty("titulo")
     String titulo;
 
+    @JsonProperty("sub_titulo")
+    String subtitulo;
+
     @JsonProperty("codigo")
     String codigo;
+
+    @JsonProperty("transcricao")
+    String transcricao;
+
+    @JsonProperty("descricao")
+    String descricao;
 
     @JsonProperty("inedito")
     boolean inedito;
@@ -45,17 +56,33 @@ public class Documento {
     @JsonProperty("data_aproximada")
     String dataAproximada;
 
-    @JsonProperty("monografia")
-    String monografia;
+    @JsonProperty("titulo_publicacao")
+    String tituloPublicacao;
+
+    @JsonProperty("subtitulo_publicacao")
+    String subtituloPublicacao;
 
     @JsonProperty("tipo_nbr")
     TipoNBR tipoNbr;
 
+    @JsonProperty("autores_publicacao")
+    List<String> autoresPubli;
+
     @JsonProperty("num_publicacao")
     Integer numPublicacao;
 
-    @JsonProperty("ano_volume")
-    String anoVolume;
+    @JsonProperty("edicao")
+    Integer edicao;
+
+    @JsonProperty("editora")
+    String editora;
+
+
+    @JsonProperty("ano")
+    String ano;
+
+    @JsonProperty("volume")
+    String volume;
 
     @JsonProperty("pagina_inicio")
     Integer paginaInicio;
@@ -82,6 +109,9 @@ public class Documento {
     @JsonProperty("arquivos")
     List<String> arquivos;
 
+    @JsonProperty("info_adicionais")
+    InfoAdicionais infoAdicionais;
+
     public ClasseProducao getClasseProducao() {
         return classeProducao;
     }
@@ -98,12 +128,36 @@ public class Documento {
         this.subClasseProducao = subClasseProducao;
     }
 
+    public String getTranscricao() {
+        return transcricao;
+    }
+
+    public void setTranscricao(String transcricao) {
+        this.transcricao = transcricao;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
     public TipoNBR getTipoNbr() {
         return tipoNbr;
     }
 
     public void setTipoNbr(TipoNBR tipoNbr) {
         this.tipoNbr = tipoNbr;
+    }
+
+    public List<String> getAutoresPubli() {
+        return autoresPubli;
+    }
+
+    public void setAutoresPubli(List<String> autoresPubli) {
+        this.autoresPubli = autoresPubli;
     }
 
     public String getLugarPublicacao() {
@@ -114,12 +168,20 @@ public class Documento {
         this.lugarPublicacao = lugarPublicacao;
     }
 
-    public String getAnoVolume() {
-        return anoVolume;
+    public String getAno() {
+        return ano;
     }
 
-    public void setAnoVolume(String anoVolume) {
-        this.anoVolume = anoVolume;
+    public void setAno(String ano) {
+        this.ano = ano;
+    }
+
+    public String getVolume() {
+        return volume;
+    }
+
+    public void setVolume(String volume) {
+        this.volume = volume;
     }
 
     public List<String> getAutores() {
@@ -136,6 +198,14 @@ public class Documento {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
+    }
+
+    public String getSubtitulo() {
+        return subtitulo;
+    }
+
+    public void setSubtitulo(String subtitulo) {
+        this.subtitulo = subtitulo;
     }
 
     public String getCodigo() {
@@ -218,12 +288,36 @@ public class Documento {
         this.coluna = coluna;
     }
 
-    public String getMonografia() {
-        return monografia;
+    public String getTituloPublicacao() {
+        return tituloPublicacao;
     }
 
-    public void setMonografia(String monografia) {
-        this.monografia = monografia;
+    public void setTituloPublicacao(String tituloPublicacao) {
+        this.tituloPublicacao = tituloPublicacao;
+    }
+
+    public String getSubtituloPublicacao() {
+        return subtituloPublicacao;
+    }
+
+    public void setSubtituloPublicacao(String subtituloPublicacao) {
+        this.subtituloPublicacao = subtituloPublicacao;
+    }
+
+    public Integer getEdicao() {
+        return edicao;
+    }
+
+    public void setEdicao(Integer edicao) {
+        this.edicao = edicao;
+    }
+
+    public String getEditora() {
+        return editora;
+    }
+
+    public void setEditora(String editora) {
+        this.editora = editora;
     }
 
     public String getDisponivelEm() {
@@ -274,6 +368,14 @@ public class Documento {
         this.arquivos = arquivos;
     }
 
+    public InfoAdicionais getInfoAdicionais() {
+        return infoAdicionais;
+    }
+
+    public void setInfoAdicionais(InfoAdicionais infoAdicionais) {
+        this.infoAdicionais = infoAdicionais;
+    }
+
     public void generateCodigo() {
         codigo = generateCodigoWithoutAppendix();
         if (RepositoryManager.getDocCodeSet().contains(codigo)){
@@ -294,6 +396,7 @@ public class Documento {
             case MEMORABILIA:
             case RECEPCAO:
             case VIDA:
+            case PUBLICACOES_IMPRENSA:
                 codigoBuilder.append(getAcronimo(this.titulo, "ST")).append(".");
                 codigoBuilder.append(getDateForCode()).append(".");
                 codigoBuilder.append(getAcronimo(this.encontradoEm, "SL")).append(".");
@@ -306,6 +409,12 @@ public class Documento {
                 break;
             case ESBOCOS_NOTAS:
                 codigoBuilder.append(getAcronimo(this.titulo, "ST"));
+                break;
+            case CORRESPONDENCIA:
+                codigoBuilder.append(getAcronimo(this.titulo, "ST")).append(".");
+                codigoBuilder.append(getDateForCode()).append(".");
+                codigoBuilder.append(getAcronimo(this.encontradoEm, "SL"));
+                break;
         }
         return codigoBuilder.toString();
     }
@@ -320,28 +429,5 @@ public class Documento {
         } else {
             return "00";
         }
-    }
-
-    private String getAcronimo(String titulo, String defaultValue) {
-        if(titulo == null || titulo.isEmpty()) return  defaultValue;
-
-        else {
-            HashSet<String> excluido = new HashSet<>(Arrays.asList("uma", "um", " uns", "umas","me", "te","do", "dos", "no", "nos","da", "das", "na", "nas", "de", "o", "a", "e", "as", "os", "nas", "nos", "com", "que", "qual", "quais"));
-            StringBuilder initials = new StringBuilder();
-            titulo = titulo.replaceAll("[^A-Za-z0-9 ]","").replaceAll(" +", " ");
-            for (String s : titulo.split(" ")) {
-                if(!excluido.contains(s.toLowerCase())) {
-                    if (isNumeric(s)){
-                        initials.append(s);
-                    }
-                    else initials.append(new StringBuilder().append(s.charAt(0)).toString().toUpperCase());
-                }
-            }
-            return initials.toString();
-        }
-    }
-
-    public static boolean isNumeric(String str) {
-        return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
     }
 }

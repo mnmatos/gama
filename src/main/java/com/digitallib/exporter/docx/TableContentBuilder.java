@@ -39,7 +39,8 @@ public class TableContentBuilder {
 
         writeWithBasicFont(cell, classe.print(), 2);
 
-        for (int i = 1; i < tableRow.getTableCells().size(); i++){
+        int rowsToRemove = tableRow.getTableCells().size();
+        for (int i = 1; i < rowsToRemove; i++){
             tableRow.removeCell(1);
         }
     }
@@ -47,7 +48,7 @@ public class TableContentBuilder {
     TableContentBuilder addDocument(Documento doc) {
         XWPFTableRow tableRow = table.createRow();
         try {
-            writeWithBasicFont(tableRow.getCell(0), String.valueOf(doc.getArquivos() != null ? doc.getArquivos().size() : 0), 1);
+            writeWithBasicFont(tableRow.getCell(0), "1", 1);
             TipoNBR tipoNbr = doc.getTipoNbr() == null ? TipoNBR.JORNAL : doc.getTipoNbr();
             setReferenceCell(doc, tableRow.getCell(1), tipoNbr);
             writeWithBasicFont(tableRow.getCell(2), doc.getEncontradoEm(), 1);
