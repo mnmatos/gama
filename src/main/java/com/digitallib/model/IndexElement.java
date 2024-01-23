@@ -2,19 +2,19 @@ package com.digitallib.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class DocumentResume {
+public class IndexElement {
     @JsonProperty("titulo")
     String titulo;
 
     @JsonProperty("codigo")
     String codigo;
 
-    public DocumentResume() {
+    public IndexElement() {
     }
 
-    public DocumentResume(Documento doc) {
-        this.titulo = doc.getTitulo();
-        this.codigo = doc.getCodigo();
+    public IndexElement(String titulo, String codigo) {
+        this.titulo = titulo;
+        this.codigo = codigo;
     }
 
     public String getTitulo() {

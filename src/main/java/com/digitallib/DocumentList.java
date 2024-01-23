@@ -1,7 +1,9 @@
 package com.digitallib;
 
 import com.digitallib.exporter.docx.DocxExporter;
+import com.digitallib.manager.EntityManager;
 import com.digitallib.manager.RepositoryManager;
+import com.digitallib.manager.index.DocByEntityIndexManager;
 import com.digitallib.manager.index.EntityIndexManager;
 import com.digitallib.manager.index.SubClassIndexManager;
 import com.digitallib.model.ClasseProducao;
@@ -111,7 +113,8 @@ public class DocumentList extends JDialog {
 
     private void refreshIndexes(List<Documento> documents) {
         new SubClassIndexManager().updateIndex(documents);
-        new EntityIndexManager().updateIndex(documents);
+        new DocByEntityIndexManager().updateIndex(documents);
+        new EntityIndexManager().updateIndex(EntityManager.getEntries());
     }
 
     private void refreshFilters() {

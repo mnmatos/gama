@@ -11,10 +11,10 @@ public class PagesReferenceBlockBuilder extends BasicReferenceBlockBuilder {
     @Override
     protected String getContent(Documento doc) {
         if(doc.getPaginaInicio() == null || doc.getPaginaInicio() == 0) return "";
-        if(doc.getNumPagina() == null || doc.getNumPagina() == 0){
+        if(doc.getNumPagina() == null || doc.getNumPagina() <= 1){
             return String.format("p. %d", doc.getPaginaInicio());
         } else {
-            return String.format("p. %d-%d", doc.getPaginaInicio(), doc.getPaginaInicio()+doc.getNumPagina());
+            return String.format("p. %d-%d", doc.getPaginaInicio(), doc.getPaginaInicio()+doc.getNumPagina()-1);
         }
     }
 }

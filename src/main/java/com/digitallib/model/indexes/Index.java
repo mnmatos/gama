@@ -1,26 +1,26 @@
 package com.digitallib.model.indexes;
 
-import com.digitallib.model.DocumentResume;
+import com.digitallib.model.IndexElement;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Index {
 
-    List<DocumentResume> documentos = new ArrayList<>();
+    List<IndexElement> documentos = new ArrayList<>();
 
     public Index() {
     }
 
-    public Index(List<DocumentResume> documentos) {
+    public Index(List<IndexElement> documentos) {
         this.documentos = documentos;
     }
 
-    public List<DocumentResume> getDocumentos() {
+    public List<IndexElement> getDocumentos() {
         return documentos;
     }
 
-    public void setDocumentos(List<DocumentResume> documentos) {
+    public void setDocumentos(List<IndexElement> documentos) {
         this.documentos = documentos;
     }
 }
