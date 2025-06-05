@@ -1,6 +1,7 @@
 package com.digitallib.model;
 
 import com.digitallib.manager.RepositoryManager;
+import com.digitallib.utils.ConfigReader;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -390,7 +391,8 @@ public class Documento {
 
     public String generateCodigoWithoutAppendix() {
         StringBuilder codigoBuilder = new StringBuilder();
-        codigoBuilder.append("AAD."+this.subClasseProducao.getCode()).append(".");
+        String acervo = ConfigReader.getProperty("repository_folder");
+        codigoBuilder.append(acervo+"."+this.subClasseProducao.getCode()).append(".");
         switch (this.classeProducao) {
             case PRODUCAO_INTELECTUAL:
             case MEMORABILIA:

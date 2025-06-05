@@ -405,15 +405,17 @@ public class DocumentCreator extends JDialog {
     }
 
     private void refreshArquivoList() {
-        root.removeAllChildren();
-        files.forEach(x -> {
-            if (x.isFile()) {
-                logger.info(x.getName());
-                DefaultMutableTreeNode child = new DefaultMutableTreeNode(new FileNode(x));
-                root.add(child);
-            }
-        });
-        treeModel.reload();
+        if (root != null) {
+            root.removeAllChildren();
+            files.forEach(x -> {
+                if (x.isFile()) {
+                    logger.info(x.getName());
+                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(new FileNode(x));
+                    root.add(child);
+                }
+            });
+            treeModel.reload();
+        }
     }
 
     private void initializeClasseDropdown() {

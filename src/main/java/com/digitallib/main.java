@@ -1,18 +1,31 @@
 package com.digitallib;
 
-import com.digitallib.manager.RepositoryManager;
+import com.digitallib.utils.ConfigReader;
+
+import javax.swing.*;
 
 public class main {
 
+    public static final String ACERVO = "acervo";
+
     public static void main(String[] args) {
-        removeEntries(new String[]{"", ""});
+        initializeAcervo();
+        DocumentList.main(args);
     }
 
-    static void removeEntries(String[] entries){
-        for (String entry : entries){
-            RepositoryManager.removeEntry(entry);
+    private static void initializeAcervo() {
+        String acervo = ConfigReader.getProperty(ACERVO);
+        if (acervo == null) {
+            String input = JOptionPane.showInputDialog(null, "Antes de continuar, insira a sigla de seu Acervo", "Atenção!", JOptionPane.QUESTION_MESSAGE);
+
+            if (input != null && !input.trim().isEmpty()) {
+                ConfigReader.setProperty(ACERVO, input);
+                System.out.println("You entered: " + input);
+            } else {
+                System.out.println("No input provided.");
+                throw new RuntimeException("No acervo provided");
+            }
         }
     }
-
 
 }

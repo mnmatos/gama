@@ -1,8 +1,10 @@
 package com.digitallib.manager;
 
 import com.digitallib.JsonGenerator;
+import com.digitallib.main;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
+import com.digitallib.utils.ConfigReader;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -23,7 +25,6 @@ import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class RepositoryManager {
 
-    public static final String REPO = "repo/documents/";
     public static void addEntry(Documento documento, List<File> files){
         try {
             String jsonText = GenerateJsonFromDoc(documento);
@@ -78,7 +79,7 @@ public class RepositoryManager {
 
     public static List<Documento> getEntries(){
         List<Documento> documentos = new ArrayList<>();
-        try (Stream<Path> paths = Files.walk(Paths.get(REPO))) {
+        try (Stream<Path> paths = Files.walk(getRepoPath())) {
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> documentos.add(getDoc(javaPath)));
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,13 +89,28 @@ public class RepositoryManager {
 
     public static HashSet<String> getDocCodeSet(){
         HashSet<String> documentCodes = new HashSet<>();
-        try (Stream<Path> paths = Files.walk(Paths.get(REPO))) {
+        try (Stream<Path> paths = Files.walk(getRepoPath())) {
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> documentCodes.add(getDoc(javaPath).getCodigo()));
         } catch (Exception e) {
             e.printStackTrace();
         }
         return documentCodes;
     }
+
+    private static Path getRepoPath(){
+        String folder = ConfigReader.getProperty("repository_folder");
+        if(folder == null) {
+            folder = "./";
+        }
+        Path path = Paths.get(folder +  "repo/documents/");
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return path;
+    }
+
     private static Documento getDoc(Path javaFile) {
         try {
 //            aplicarRetrocompatibilidadeInstituicao(javaFile);
@@ -143,10 +159,9 @@ public class RepositoryManager {
 
     public static String getPathFromCode(String code) {
         String[] splitCode = code.split("\\.");
-        String path = REPO;
+        String path = getRepoPath().toString();
         for (String sub : splitCode){
-            if (path.equals(REPO)) path += sub;
-            else path += "/"+sub;
+            path += "/"+sub;
         }
         return path;
     }
