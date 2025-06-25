@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.util.*;
 
+import static com.digitallib.main.ACERVO;
 import static com.digitallib.utils.TextUtils.getAcronimo;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -19,8 +20,10 @@ public class Documento {
 
     @JsonProperty("subclasse_producao")
     SubClasseProducao subClasseProducao;
+
     @JsonProperty("autores")
     List<String> autores;
+
     @JsonProperty("titulo")
     String titulo;
 
@@ -112,6 +115,9 @@ public class Documento {
 
     @JsonProperty("info_adicionais")
     InfoAdicionais infoAdicionais;
+
+    @JsonProperty("texto_teatral")
+    TextoTeatral textoTeatro;
 
     public ClasseProducao getClasseProducao() {
         return classeProducao;
@@ -377,59 +383,15 @@ public class Documento {
         this.infoAdicionais = infoAdicionais;
     }
 
-    public void generateCodigo() {
-        codigo = generateCodigoWithoutAppendix();
-        if (RepositoryManager.getDocCodeSet().contains(codigo)){
-            for (int i = 1; i < 1000; i++){
-                if(!RepositoryManager.getDocCodeSet().contains(codigo+String.format(".%03d", i))){
-                    codigo += String.format(".%03d", i);
-                    break;
-                }
-            }
-        }
+    public TextoTeatral getTextoTeatro() {
+        return textoTeatro;
     }
 
-    public String generateCodigoWithoutAppendix() {
-        StringBuilder codigoBuilder = new StringBuilder();
-        String acervo = ConfigReader.getProperty("repository_folder");
-        codigoBuilder.append(acervo+"."+this.subClasseProducao.getCode()).append(".");
-        switch (this.classeProducao) {
-            case PRODUCAO_INTELECTUAL:
-            case MEMORABILIA:
-            case RECEPCAO:
-            case VIDA:
-            case PUBLICACOES_IMPRENSA:
-                codigoBuilder.append(getAcronimo(this.titulo, "ST")).append(".");
-                codigoBuilder.append(getDateForCode()).append(".");
-                codigoBuilder.append(getAcronimo(this.encontradoEm, "SL")).append(".");
-                codigoBuilder.append(getAcronimo(this.instituicaoCustodia, "SL"));
-                break;
-            case DOCUMENTOS_AUDIOVISUAIS:
-                codigoBuilder.append(getAcronimo(this.titulo, "ST")).append(".");
-                codigoBuilder.append(getDateForCode()).append(".");
-                codigoBuilder.append(getAcronimo(this.instituicaoCustodia, "SL"));
-                break;
-            case ESBOCOS_NOTAS:
-                codigoBuilder.append(getAcronimo(this.titulo, "ST"));
-                break;
-            case CORRESPONDENCIA:
-                codigoBuilder.append(getAcronimo(this.titulo, "ST")).append(".");
-                codigoBuilder.append(getDateForCode()).append(".");
-                codigoBuilder.append(getAcronimo(this.encontradoEm, "SL"));
-                break;
-        }
-        return codigoBuilder.toString();
+    public void setTextoTeatro(TextoTeatral textoTeatro) {
+        this.textoTeatro = textoTeatro;
     }
 
     public static boolean isInteger(String str) {
         return str.matches("\\d+");
-    }
-
-    private String getDateForCode() {
-        if(dataDocumento != null && dataDocumento.getAno()!=null && !dataDocumento.isDataIncerta()) {
-            return String.valueOf(dataDocumento.getAno()).substring(2);
-        } else {
-            return "00";
-        }
     }
 }

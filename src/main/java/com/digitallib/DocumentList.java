@@ -119,7 +119,7 @@ public class DocumentList extends JDialog {
 
     private void refreshFilters() {
         Filter filterCodigo = new Filter("Código", d -> filtroCodigo.getText().equals("") || d.getCodigo().startsWith(filtroCodigo.getText()));
-        Filter filterClasse = new Filter("Classe", d -> classeFilter.getSelectedIndex() < 1 || d.getClasseProducao().equals(ClasseProducao.fromPosition(classeFilter.getSelectedIndex() - 1)));
+        Filter filterClasse = new Filter("Série", d -> classeFilter.getSelectedIndex() < 1 || d.getClasseProducao().equals(ClasseProducao.fromPosition(classeFilter.getSelectedIndex() - 1)));
         Filter filterTestemunho = new Filter("Testemunho", d -> testemunhoFilter.getSelectedIndex() < 1 || (d.isInedito() == (testemunhoFilter.getSelectedIndex() == 1)));
         filterList.add(filterCodigo);
         filterList.add(filterClasse);
@@ -147,7 +147,7 @@ public class DocumentList extends JDialog {
     }
 
     private void refreshTable() {
-        String[] colunas = {"Código", "Título", "Classe", "Encontrado em", ACTIONS_HEADER};
+        String[] colunas = {"Código", "Título", "Série", "Encontrado em", ACTIONS_HEADER};
 
         List<Documento> documentos = getDocumentosFiltrados();
         numDocField.setText(String.format("Número de documentos: %d", documentos.size()));
@@ -321,7 +321,7 @@ public class DocumentList extends JDialog {
         filtroCodigo = new JTextField();
         FilterPanel.add(filtroCodigo, new GridConstraints(0, 8, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label3 = new JLabel();
-        label3.setText("Classe");
+        label3.setText("Série");
         FilterPanel.add(label3, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         classeFilter = new JComboBox();
         FilterPanel.add(classeFilter, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
