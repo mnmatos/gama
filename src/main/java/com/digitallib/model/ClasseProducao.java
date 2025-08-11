@@ -1,42 +1,42 @@
 package com.digitallib.model;
 
+import com.digitallib.utils.ConfigReader;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public enum ClasseProducao {
 
-    PRODUCAO_INTELECTUAL ("01. Produção Intelectual"),
-    DOCUMENTOS_AUDIOVISUAIS("02. Documentos Audiovisuais"),
-    ESBOCOS_NOTAS("03. Esboços e notas"),
-    MEMORABILIA("04. Memorabilia"),
-    RECEPCAO("05. Recepção"),
-    VIDA("06. Vida"),
+    PRODUCAO_INTELECTUAL ("01","producao_intelectual", "Produção Intelectual"),
+    DOCUMENTOS_AUDIOVISUAIS("02","documentos_audiovisuais", "Documentos Audiovisuais"),
+    ESBOCOS_NOTAS("03","esbocos_e_notas","Esboços e notas"),
+    MEMORABILIA("04", "memorabilia", "Memorabilia"),
+    RECEPCAO("05", "recepcao", "Recepção"),
+    VARIA("06",  "varia", "Varia"),
 
-    PUBLICACOES_IMPRENSA("07. Publicações na imprensa"),
+    PUBLICACOES_IMPRENSA("07","publicacoes_imprensa","Publicações na imprensa"),
 
-    CORRESPONDENCIA ("08. Correspondência");
+    CORRESPONDENCIA ("08", "correspondencia", "Correspondência");
 
 
 
     private static Map<String, ClasseProducao> classeMap = new HashMap<String, ClasseProducao>();
+    private final String code;
+    private final String propertyName;
     private String printableName;
 
     static {
-        classeMap.put("producao_intelectual", PRODUCAO_INTELECTUAL);
-        classeMap.put("documentos_audiovisuais", DOCUMENTOS_AUDIOVISUAIS);
-        classeMap.put("esbocos_e_notas", ESBOCOS_NOTAS);
-        classeMap.put("memorabilia", MEMORABILIA);
-        classeMap.put("recepcao", RECEPCAO);
-        classeMap.put("vida", VIDA);
-        classeMap.put("publicacoes_imprensa", PUBLICACOES_IMPRENSA);
-        classeMap.put("correspondencia", CORRESPONDENCIA);
+        List<ClasseProducao> classeList = Arrays.asList(PRODUCAO_INTELECTUAL, DOCUMENTOS_AUDIOVISUAIS, ESBOCOS_NOTAS,MEMORABILIA, RECEPCAO, VARIA, PUBLICACOES_IMPRENSA, CORRESPONDENCIA);
+        for (ClasseProducao classe : classeList){
+            classeMap.put(classe.propertyName, classe);
+        }
     }
 
-    ClasseProducao(String printableName) {
-        this.printableName = printableName;
+    ClasseProducao(String defaultCode, String propertyName, String displayName) {
+        this.propertyName = propertyName;
+        this.code = ConfigReader.getProperty("code_"+propertyName, defaultCode);
+        this.printableName = String.format("%s. %s", code, displayName);
     }
 
     @JsonCreator

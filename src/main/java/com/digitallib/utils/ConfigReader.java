@@ -7,7 +7,12 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ConfigReader {
+
     public static String getProperty(String key) {
+        return getProperty(key, null);
+    }
+
+    public static String getProperty(String key, String defaultValue) {
         String configFilePath = "config.properties";
         File configFile = new File(configFilePath);
 
@@ -29,7 +34,7 @@ public class ConfigReader {
         Properties properties = new Properties();
         try (FileReader reader = new FileReader(configFile)) {
             properties.load(reader);
-            return properties.getProperty(key);
+            return properties.getProperty(key, defaultValue);
         } catch (IOException e) {
             System.err.println("Error reading config file: " + e.getMessage());
         }

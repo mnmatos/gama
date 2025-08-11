@@ -32,7 +32,7 @@ public class CodeGeneratorImpl implements CodeGenerator{
             case PRODUCAO_INTELECTUAL:
             case MEMORABILIA:
             case RECEPCAO:
-            case VIDA:
+            case VARIA:
             case PUBLICACOES_IMPRENSA:
                 codigoBuilder.append(getAcronimo(documento.getTitulo(), "ST")).append(".");
                 codigoBuilder.append(getDateForCode(documento)).append(".");

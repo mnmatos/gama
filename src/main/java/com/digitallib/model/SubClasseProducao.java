@@ -29,7 +29,7 @@ public enum SubClasseProducao {
     MEMORIAL_E_BIOGRAFICOS("05c", "Memorial e demais estudos biográficos sobre a autora"),
     POETAS("05d", "Poetas"),
     CERTIDAO("06a", "Certidão de inteiro teor"),
-    VARIA("06b", "Varia"),
+    VIDA("06b", "Vida"),
 
     NOTICIAS("07a", "Notícias relacionadas com a autora"),
     CORRESPONDENCIA_ENVIADA("08a", "Enviada"),
@@ -41,35 +41,35 @@ public enum SubClasseProducao {
     private String code;
 
     static {
-        subClasseMap.put("01a", POESIA);
-        subClasseMap.put("01b", CONTO);
-        subClasseMap.put("01c", ENSAIO);
-        subClasseMap.put("01d", PEÇAS_TEATRAIS);
-        subClasseMap.put("01e", CANCOES);
-        subClasseMap.put("01f", DISCURSOS);
-        subClasseMap.put("01g", MANIFESTO);
-        subClasseMap.put("01h", HOMENAGEM);
+        subClasseMap.put(POESIA.getCode(), POESIA);
+        subClasseMap.put(CONTO.getCode(), CONTO);
+        subClasseMap.put(ENSAIO.getCode(), ENSAIO);
+        subClasseMap.put(PEÇAS_TEATRAIS.getCode(), PEÇAS_TEATRAIS);
+        subClasseMap.put(CANCOES.getCode(), CANCOES);
+        subClasseMap.put(DISCURSOS.getCode(), DISCURSOS);
+        subClasseMap.put(MANIFESTO.getCode(), MANIFESTO);
+        subClasseMap.put(HOMENAGEM.getCode(), HOMENAGEM);
 
-        subClasseMap.put("02a", FOTOS_AUTORA);
-        subClasseMap.put("02b", ENTREVISTAS);
+        subClasseMap.put(FOTOS_AUTORA.getCode(), FOTOS_AUTORA);
+        subClasseMap.put(ENTREVISTAS.getCode(), ENTREVISTAS);
 
-        subClasseMap.put("03a", NOTAS_MANUSCRITAS);
+        subClasseMap.put(NOTAS_MANUSCRITAS.getCode(), NOTAS_MANUSCRITAS);
 
-        subClasseMap.put("04a", DOC_DIVERSOS);
-        subClasseMap.put("04b", HOMENAGEM_IN_MEMORIAM);
+        subClasseMap.put(DOC_DIVERSOS.getCode(), DOC_DIVERSOS);
+        subClasseMap.put(HOMENAGEM_IN_MEMORIAM.getCode(), HOMENAGEM_IN_MEMORIAM);
 
-        subClasseMap.put("05a", CRITICA_UNIVERSITARIA);
-        subClasseMap.put("05b", CRITICA_ACADEMIA_FEIRA);
-        subClasseMap.put("05c", MEMORIAL_E_BIOGRAFICOS);
-        subClasseMap.put("05d", POETAS);
+        subClasseMap.put(CRITICA_UNIVERSITARIA.getCode(), CRITICA_UNIVERSITARIA);
+        subClasseMap.put(CRITICA_ACADEMIA_FEIRA.getCode(), CRITICA_ACADEMIA_FEIRA);
+        subClasseMap.put(MEMORIAL_E_BIOGRAFICOS.getCode(), MEMORIAL_E_BIOGRAFICOS);
+        subClasseMap.put(POETAS.getCode(), POETAS);
 
-        subClasseMap.put("06a", CERTIDAO);
-        subClasseMap.put("06b", VARIA);
+        subClasseMap.put(CERTIDAO.getCode(), CERTIDAO);
+        subClasseMap.put(VIDA.getCode(), VIDA);
 
-        subClasseMap.put("07a", NOTICIAS);
+        subClasseMap.put(NOTICIAS.getCode(), NOTICIAS);
 
-        subClasseMap.put("08a", CORRESPONDENCIA_ENVIADA);
-        subClasseMap.put("08b", CORRESPONDENCIA_RECEBIDA);
+        subClasseMap.put(CORRESPONDENCIA_ENVIADA.getCode(), CORRESPONDENCIA_ENVIADA);
+        subClasseMap.put(CORRESPONDENCIA_RECEBIDA.getCode(), CORRESPONDENCIA_RECEBIDA);
 
     }
 
