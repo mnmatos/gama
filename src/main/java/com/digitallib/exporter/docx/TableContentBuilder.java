@@ -1,7 +1,7 @@
 package com.digitallib.exporter.docx;
 
 import com.digitallib.exception.ReferenceBlockBuilderException;
-import com.digitallib.model.ClasseProducao;
+import com.digitallib.model.Classe;
 import com.digitallib.model.Documento;
 import com.digitallib.model.TipoNBR;
 import com.digitallib.reference.Reference;
@@ -30,14 +30,14 @@ public class TableContentBuilder {
     }
 
 
-    public void addSection(ClasseProducao classe) {
+    public void addSection(Classe classe) {
         XWPFTableRow tableRow = table.createRow();
         XWPFTableCell cell = tableRow.getCell(0);
         if (cell.getCTTc().getTcPr() == null) cell.getCTTc().addNewTcPr();
         if (cell.getCTTc().getTcPr().getGridSpan() == null) cell.getCTTc().getTcPr().addNewGridSpan();
         cell.getCTTc().getTcPr().getGridSpan().setVal(BigInteger.valueOf(4));
 
-        writeWithBasicFont(cell, classe.print(), 2);
+        writeWithBasicFont(cell, classe.getDesc(), 2);
 
         int rowsToRemove = tableRow.getTableCells().size();
         for (int i = 1; i < rowsToRemove; i++){

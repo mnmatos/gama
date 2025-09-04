@@ -6,21 +6,22 @@ import com.digitallib.utils.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import static com.digitallib.main.ACERVO;
 import static com.digitallib.utils.TextUtils.getAcronimo;
 
 public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
 
     private Logger logger = LogManager.getLogger();
-    private static final String CODE_FORMAT = "code_format";
 
     @Override
     public String generateCodeWithoutAppendix(Documento documento) {
 
-        String classe = documento.getClasseProducao().toValue();
-        String format = ConfigReader.getProperty(String.format("%s_%s", CODE_FORMAT, classe));
+        String format = documento.getClasseProducao().getFormat();
         String[] CodeFields = format.split("\\.");
 
         StringBuilder codeBuilder = new StringBuilder();
+        String acervo = ConfigReader.getProperty(ACERVO);
+        codeBuilder.append(acervo+"."+documento.getSubClasseProducao().getCode());
         for (String field : CodeFields) {
             if (codeBuilder.length() > 0 ) codeBuilder.append(".");
             switch (field) {

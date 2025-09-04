@@ -1,9 +1,9 @@
 package com.digitallib.exporter.docx;
 
 import com.digitallib.exporter.LibExporter;
-import com.digitallib.model.ClasseProducao;
+import com.digitallib.manager.CategoryManager;
+import com.digitallib.model.Classe;
 import com.digitallib.model.Documento;
-import com.digitallib.model.entity.Entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -17,7 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,6 +25,8 @@ public class DocxExporter implements LibExporter {
 
     private Logger logger = LogManager.getLogger();
     private String fileName;
+
+    CategoryManager categoryManager = new CategoryManager();
 
     public DocxExporter(String fileName) {
         this.fileName = fileName;
@@ -38,7 +39,7 @@ public class DocxExporter implements LibExporter {
 
         configPage(body);
         TableContentBuilder tableContentBuilder = new TableContentBuilder(document.createTable());
-        for (ClasseProducao classe : ClasseProducao.values()){
+        for (Classe classe : categoryManager.getClasses()){
 
             List<Documento> filteredDoc = docsToExport.stream().filter(doc -> doc.getClasseProducao().equals(classe)).collect(Collectors.toList());
             if(filteredDoc.size() > 0){

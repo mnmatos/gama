@@ -1,10 +1,7 @@
 package com.digitallib.reference.generator;
 
 import com.digitallib.exception.ReferenceBlockBuilderException;
-import com.digitallib.model.ClasseProducao;
-import com.digitallib.model.DataDocumento;
-import com.digitallib.model.Documento;
-import com.digitallib.model.InfoAdicionais;
+import com.digitallib.model.*;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.reference.Reference;
 import org.apache.logging.log4j.LogManager;
@@ -14,10 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Locale;
 
-import static com.digitallib.model.SubClasseProducao.ENSAIO;
 import static com.digitallib.utils.TestUtils.registerAuthor;
 
 class PaperReferenceGeneratorTest {
@@ -37,8 +33,9 @@ class PaperReferenceGeneratorTest {
 
     private static Documento createBaseDocument() {
         Documento doc = new Documento();
-        doc.setClasseProducao(ClasseProducao.PRODUCAO_INTELECTUAL);
-        doc.setSubClasseProducao(ENSAIO);
+        SubClasse testSubClass = new SubClasse("01a", "test_sub_class", "Test sub", new ArrayList<>());
+        doc.setClasseProducao(new Classe("01", "test_class", "Test Class", Collections.singletonList(testSubClass)));
+        doc.setSubClasseProducao(testSubClass);
         doc.setTitulo("Titulo do artigo");
         doc.setSubtitulo("Subtitulo do artigo");
         doc.setTituloPublicacao("Titulo da revista");

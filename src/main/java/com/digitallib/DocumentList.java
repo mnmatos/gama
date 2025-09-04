@@ -1,12 +1,13 @@
 package com.digitallib;
 
 import com.digitallib.exporter.docx.DocxExporter;
+import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.manager.index.DocByEntityIndexManager;
 import com.digitallib.manager.index.EntityIndexManager;
 import com.digitallib.manager.index.SubClassIndexManager;
-import com.digitallib.model.ClasseProducao;
+import com.digitallib.model.Classe;
 import com.digitallib.model.Documento;
 import com.digitallib.model.ui.Filter;
 import com.intellij.uiDesigner.core.GridConstraints;
@@ -46,6 +47,7 @@ public class DocumentList extends JDialog {
     private List<Filter> filterList = new ArrayList<>();
 
     private Logger logger = LogManager.getLogger();
+    CategoryManager categoryManager = new CategoryManager();
 
     public DocumentList() {
         setContentPane(contentPanel);
@@ -119,7 +121,7 @@ public class DocumentList extends JDialog {
 
     private void refreshFilters() {
         Filter filterCodigo = new Filter("Código", d -> filtroCodigo.getText().equals("") || d.getCodigo().startsWith(filtroCodigo.getText()));
-        Filter filterClasse = new Filter("Série", d -> classeFilter.getSelectedIndex() < 1 || d.getClasseProducao().equals(ClasseProducao.fromPosition(classeFilter.getSelectedIndex() - 1)));
+        Filter filterClasse = new Filter("Série", d -> classeFilter.getSelectedIndex() < 1 || d.getClasseProducao().equals(categoryManager.getClasseForIndex(classeFilter.getSelectedIndex() - 1)));
         Filter filterTestemunho = new Filter("Testemunho", d -> testemunhoFilter.getSelectedIndex() < 1 || (d.isInedito() == (testemunhoFilter.getSelectedIndex() == 1)));
         filterList.add(filterCodigo);
         filterList.add(filterClasse);
@@ -127,7 +129,7 @@ public class DocumentList extends JDialog {
     }
 
     private void initializeClasseDropdown() {
-        final DefaultComboBoxModel model = new DefaultComboBoxModel(new String[]{"Tudo", "01 Produção intelectual", "02 Documentos audiovisuais", "03 Esboços e Notas", "04 Memorabilia", "05 Recepção da obra", "06 Vida", "07. Publicações na imprensa", "08. Correspondência"});
+        final DefaultComboBoxModel model = new DefaultComboBoxModel(categoryManager.getClasseAndCodeAsStringArray());
         classeFilter.setModel(model);
         classeFilter.addActionListener(e -> {
             toogleTestemunhoFilter();
@@ -157,7 +159,7 @@ public class DocumentList extends JDialog {
         for (int i = 0; i < documentos.size(); i++) {
             dados[i][0] = documentos.get(i).getCodigo();
             dados[i][1] = documentos.get(i).getTitulo();
-            dados[i][2] = documentos.get(i).getClasseProducao().print();
+            dados[i][2] = documentos.get(i).getClasseProducao().getDesc();
             dados[i][3] = documentos.get(i).getEncontradoEm();
             dados[i][4] = documentos.get(i).getCodigo();
         }

@@ -3,6 +3,7 @@ package com.digitallib;
 import com.digitallib.code.CodeManager;
 import com.digitallib.exception.EntityNotFoundException;
 import com.digitallib.exception.ValidationException;
+import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.*;
@@ -134,12 +135,14 @@ public class DocumentCreator extends JDialog {
 
     private Logger logger = LogManager.getLogger();
 
+    CategoryManager categoryManager = new CategoryManager();
+
     public DocumentCreator(Documento document) {
         this();
         //General
         editedDocCode = document.getCodigo();
-        classe_drop.setSelectedIndex(document.getClasseProducao().getPosition());
-        tipo_drop.setSelectedItem(document.getSubClasseProducao().print());
+        classe_drop.setSelectedIndex(categoryManager.getPositionInList(document.getClasseProducao()));
+        tipo_drop.setSelectedItem(document.getSubClasseProducao().getDesc());
         tituloField.setText(document.getTitulo());
         subtituloField.setText(document.getSubtitulo());
         encontradoEmField.setText(document.getEncontradoEm());
@@ -313,10 +316,12 @@ public class DocumentCreator extends JDialog {
         for (JPanel panel : optPanels) {
             tabbedPane1.remove(panel);
         }
-        switch (getSubClasseProducao()) {
-            case PEÇAS_TEATRAIS:
-                tabbedPane1.add("Teatro", teatroPanel);
-                break;
+        for (String extensions : getSelectedCLass().getSubclasses().get(tipo_drop.getSelectedIndex()).getExtensions()) {
+            switch (extensions) {
+                case "teatro_info":
+                    tabbedPane1.add("Teatro", teatroPanel);
+                    break;
+            }
         }
     }
 
@@ -451,10 +456,10 @@ public class DocumentCreator extends JDialog {
 
     private void initializeClasseDropdown() {
 
-        final DefaultComboBoxModel model = new DefaultComboBoxModel(ClasseProducao.getAsStringList());
+        final DefaultComboBoxModel model = new DefaultComboBoxModel(categoryManager.getClasseAsStringArray());
         classe_drop.setModel(model);
-        refreshSubClassDialog(classe_drop.getSelectedIndex() + 1);
-        classe_drop.addActionListener(e -> refreshSubClassDialog(classe_drop.getSelectedIndex() + 1));
+        refreshSubClassDialog(classe_drop.getSelectedIndex());
+        classe_drop.addActionListener(e -> refreshSubClassDialog(classe_drop.getSelectedIndex()));
     }
 
     private void initializeTipoNbrDropdown() {
@@ -464,9 +469,8 @@ public class DocumentCreator extends JDialog {
 
     private void refreshSubClassDialog(int index) {
         filteredSubClassOptions.clear();
-        for (Map.Entry<String, SubClasseProducao> entry : SubClasseProducao.getSubClasseMap().entrySet()) {
-            if (entry.getKey().startsWith(String.format("%02d", index)))
-                filteredSubClassOptions.add(entry.getValue().print());
+        for (SubClasse sub : categoryManager.getSubClassesForIndex(index)) {
+                filteredSubClassOptions.add(sub.getDesc());
         }
         final DefaultComboBoxModel model = new DefaultComboBoxModel(filteredSubClassOptions.toArray());
         tipo_drop.setModel(model);
@@ -522,10 +526,11 @@ public class DocumentCreator extends JDialog {
 
     private void createDoc() throws ValidationException {
         Documento documento = new Documento();
+        Classe classe = getSelectedCLass();
 
         //General
-        documento.setClasseProducao(ClasseProducao.fromPosition(classe_drop.getSelectedIndex()));
-        documento.setSubClasseProducao(getSubClasseProducao());
+        documento.setClasseProducao(classe);
+        documento.setSubClasseProducao(classe.getSubclasses().get(tipo_drop.getSelectedIndex()));
         documento.setTitulo(tituloField.getText());
         documento.setSubtitulo(subtituloField.getText());
         documento.setAutores(new ArrayList<>(authorMap.values()));
@@ -569,8 +574,8 @@ public class DocumentCreator extends JDialog {
         }
     }
 
-    private SubClasseProducao getSubClasseProducao() {
-        return SubClasseProducao.forCode(tipo_drop.getSelectedItem().toString().substring(0, 3));
+    private Classe getSelectedCLass() {
+        return categoryManager.getClasseForIndex(classe_drop.getSelectedIndex());
     }
 
     private InfoAdicionais getInfoAdicionais() {

@@ -1,25 +1,30 @@
 package com.digitallib.model;
 
-import com.digitallib.manager.RepositoryManager;
-import com.digitallib.utils.ConfigReader;
+import com.digitallib.serialization.ClasseDeserializer;
+import com.digitallib.serialization.ClasseSerializer;
+import com.digitallib.serialization.SubClasseDeserializer;
+import com.digitallib.serialization.SubClasseSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.time.LocalDate;
 import java.util.*;
-
-import static com.digitallib.main.ACERVO;
-import static com.digitallib.utils.TextUtils.getAcronimo;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Documento {
 
     @JsonProperty("classe_producao")
-    ClasseProducao classeProducao;
+    @JsonSerialize(using = ClasseSerializer.class, as=Classe.class)
+    @JsonDeserialize(using = ClasseDeserializer.class, as=Classe.class)
+    Classe classeProducao;
 
     @JsonProperty("subclasse_producao")
-    SubClasseProducao subClasseProducao;
+    @JsonSerialize(using = SubClasseSerializer.class, as=SubClasse.class)
+    @JsonDeserialize(using = SubClasseDeserializer.class, as=SubClasse.class)
+    SubClasse subClasseProducao;
 
     @JsonProperty("autores")
     List<String> autores;
@@ -119,19 +124,19 @@ public class Documento {
     @JsonProperty("texto_teatral")
     TextoTeatral textoTeatro;
 
-    public ClasseProducao getClasseProducao() {
+    public Classe getClasseProducao() {
         return classeProducao;
     }
 
-    public void setClasseProducao(ClasseProducao classeProducao) {
+    public void setClasseProducao(Classe classeProducao) {
         this.classeProducao = classeProducao;
     }
 
-    public SubClasseProducao getSubClasseProducao() {
+    public SubClasse getSubClasseProducao() {
         return subClasseProducao;
     }
 
-    public void setSubClasseProducao(SubClasseProducao subClasseProducao) {
+    public void setSubClasseProducao(SubClasse subClasseProducao) {
         this.subClasseProducao = subClasseProducao;
     }
 

@@ -1,0 +1,108 @@
+classes:
+  - name: producao_intelectual
+    code: "01"
+    desc: Produção Intelectual
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: poesia
+        desc: Poesia
+        code: "01a"
+      - name: conto
+        desc: Conto
+        code: "01b"
+      - name: ensaio
+        desc: Ensaio
+        code: "01c"
+      - name: pecas_teatrais
+        desc: Peças teatrais
+        code: "01d"
+        extensions:
+          - teatro_info
+      - name: cancoes
+        desc: Canções
+        code: "01e"
+      - name: discursos
+        desc: Discursos
+        code: "01f"
+      - name: manifesto
+        desc: Manifestos
+        code: "01g"
+  - name: documentos_audiovisuais
+    code: "02"
+    desc: Documentos Audiovisuais
+    format: titulo.data.instituicao
+    subclasses:
+      - name: homenagem
+        desc: Homenagem
+        code: "01h"
+      - name: fotos_autora
+        desc: Fotos
+        code: "02a"
+      - name: entrevistas
+        desc: Entrevistas
+        code: "02b"
+  - name: esbocos_e_notas
+    code: "03"
+    desc: Esboços e notas
+    format: titulo
+    subclasses:
+      - name: notas_manuscritas
+        desc: Notas manuscritas
+        code: "03a"
+  - name: memorabilia
+    code: "04"
+    desc: Memorabilia
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: doc_diversos
+        desc: Documentos diversos relacionados com a autora
+        code: "04a"
+  - name: recepcao
+    code: "05"
+    desc: Recepção
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: critica_universitaria
+        desc: Crítica acadêmica universitária
+        code: "05a"
+      - name: critica_academia_feira
+        desc: Crítica da Academia Feirense de Letras e Artes
+        code: "05b"
+      - name: memorial_e_biograficos
+        desc: Memorial e demais estudos biográficos sobre a autora
+        code: "05c"
+      - name: poetas
+        desc: Poetas
+        code: "05d"
+  - name: varia
+    code: "06"
+    desc: Varia
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: certidao
+        desc: Certidão de inteiro teor
+        code: "06a"
+      - name: vida
+        desc: Vida
+        code: "06b"
+  - name: publicacoes_imprensa
+    code: "07"
+    desc: Publicações na imprensa
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: noticias
+        desc: Notícias relacionadas com a autora
+        code: "07a"
+  - name: correspondencia
+    code: "08"
+    desc: Correspondência
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: correspondencia_enviada
+        desc: Enviada
+        code: "08a"
+      - name: correspondencia_recebida
+        desc: Recebida
+        code: "08b"
+
+

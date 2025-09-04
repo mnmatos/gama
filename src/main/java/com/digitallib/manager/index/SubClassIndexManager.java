@@ -2,7 +2,7 @@ package com.digitallib.manager.index;
 
 import com.digitallib.model.IndexElement;
 import com.digitallib.model.Documento;
-import com.digitallib.model.SubClasseProducao;
+import com.digitallib.model.SubClasse;
 import com.digitallib.model.indexes.Index;
 
 import java.io.IOException;
@@ -14,14 +14,14 @@ import java.util.Map;
 
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
-public class SubClassIndexManager extends IndexManager<SubClasseProducao> {
+public class SubClassIndexManager extends IndexManager<SubClasse> {
 
     public final String SUB_REPO = "/subClass";
 
     public void updateIndex(List documento){
         try {
-            Map<SubClasseProducao, List<IndexElement>> docByIndex = getResumeIndexTypeList(documento);
-            for (Map.Entry<SubClasseProducao, List<IndexElement>> entry : docByIndex.entrySet()){
+            Map<SubClasse, List<IndexElement>> docByIndex = getResumeIndexTypeList(documento);
+            for (Map.Entry<SubClasse, List<IndexElement>> entry : docByIndex.entrySet()){
                 String jsonText = GenerateJsonFromDoc(new Index(entry.getValue()));
                 Files.createDirectories(getRepoPath(REPO));
                 saveFiles(getIndexName(entry.getKey()), jsonText);
@@ -35,19 +35,19 @@ public class SubClassIndexManager extends IndexManager<SubClasseProducao> {
     protected String getSubRepoFolder() {
         return SUB_REPO;
     }
-    List<SubClasseProducao> getIndexKeyFromDocument(Documento documento) {
+    List<SubClasse> getIndexKeyFromDocument(Documento documento) {
         return List.of(documento.getSubClasseProducao());
     }
 
     @Override
-    protected String getIndexName(SubClasseProducao indexObj) {
+    protected String getIndexName(SubClasse indexObj) {
         return indexObj.getCode();
     }
 
-    Map<SubClasseProducao, List<IndexElement>> getResumeIndexTypeList(List<Documento> documentos) {
-        Map<SubClasseProducao, List<IndexElement>> resumes = new HashMap<>();
+    Map<SubClasse, List<IndexElement>> getResumeIndexTypeList(List<Documento> documentos) {
+        Map<SubClasse, List<IndexElement>> resumes = new HashMap<>();
         documentos.stream().forEach(documento -> {
-            List<SubClasseProducao> indexes = getIndexKeyFromDocument(documento);
+            List<SubClasse> indexes = getIndexKeyFromDocument(documento);
             indexes.forEach(o -> {
                 if (!resumes.containsKey(o))
                     resumes.put(o, new ArrayList<>());

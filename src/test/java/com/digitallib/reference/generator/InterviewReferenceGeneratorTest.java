@@ -1,10 +1,7 @@
 package com.digitallib.reference.generator;
 
 import com.digitallib.exception.ReferenceBlockBuilderException;
-import com.digitallib.model.ClasseProducao;
-import com.digitallib.model.DataDocumento;
-import com.digitallib.model.Documento;
-import com.digitallib.model.InfoAdicionais;
+import com.digitallib.model.*;
 import com.digitallib.reference.Reference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,9 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
-
-import static com.digitallib.model.SubClasseProducao.ENSAIO;
 
 class InterviewReferenceGeneratorTest {
 
@@ -34,8 +30,9 @@ class InterviewReferenceGeneratorTest {
 
     private static Documento createBaseDocument() {
         Documento doc = new Documento();
-        doc.setClasseProducao(ClasseProducao.PRODUCAO_INTELECTUAL);
-        doc.setSubClasseProducao(ENSAIO);
+        SubClasse testSubClass = new SubClasse("01a", "test_sub_class", "Test sub", new ArrayList<>());
+        doc.setClasseProducao(new Classe("01", "test_class", "Test Class", Collections.singletonList(testSubClass)));
+        doc.setSubClasseProducao(testSubClass);
         doc.setAutores(Collections.singletonList("1"));
         doc.setTitulo("Entrevista com pessoa X");
         doc.setLugarPublicacao("5");

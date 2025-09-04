@@ -5,6 +5,15 @@ public class DataDocumento {
     Integer mes;
     String ano;
 
+    public DataDocumento() {
+    }
+
+    public DataDocumento(Integer dia, Integer mes, String ano) {
+        this.dia = dia;
+        this.mes = mes;
+        this.ano = ano;
+    }
+
     boolean dataIncerta = false;
 
     public Integer getDia() {
