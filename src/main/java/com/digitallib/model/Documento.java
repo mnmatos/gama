@@ -121,6 +121,9 @@ public class Documento {
     @JsonProperty("info_adicionais")
     InfoAdicionais infoAdicionais;
 
+    @JsonProperty("trabalhos_relacionados")
+    List<Relacao> trabalhosRelacionados;
+
     @JsonProperty("texto_teatral")
     TextoTeatral textoTeatro;
 
@@ -398,5 +401,13 @@ public class Documento {
 
     public static boolean isInteger(String str) {
         return str.matches("\\d+");
+    }
+
+    public List<Relacao> getTrabalhosRelacionados() {
+        return trabalhosRelacionados;
+    }
+
+    public void setTrabalhosRelacionados(List<Relacao> trabalhosRelacionados) {
+        this.trabalhosRelacionados = trabalhosRelacionados;
     }
 }

@@ -1,5 +1,6 @@
 package com.digitallib.code;
 
+import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.Documento;
 import com.digitallib.utils.ConfigReader;
@@ -11,7 +12,7 @@ import static com.digitallib.utils.TextUtils.getAcronimo;
 
 public class CodeGeneratorImpl implements CodeGenerator{
     @Override
-    public String generateCode(Documento documento) {
+    public String generateCode(Documento documento) throws ValidationException {
         String codigo = generateCodeWithoutAppendix(documento);
         codigo = getCodeAfterDuplicationCheck(codigo, RepositoryManager.getDocCodeSet());
         documento.setCodigo(codigo);
@@ -31,7 +32,7 @@ public class CodeGeneratorImpl implements CodeGenerator{
     }
 
     @Override
-    public String generateCodeWithoutAppendix(Documento documento) {
+    public String generateCodeWithoutAppendix(Documento documento) throws ValidationException {
         StringBuilder codigoBuilder = new StringBuilder();
         String acervo = ConfigReader.getProperty(ACERVO);
         codigoBuilder.append(acervo+"."+documento.getSubClasseProducao().getCode()).append(".");
@@ -63,11 +64,14 @@ public class CodeGeneratorImpl implements CodeGenerator{
         return codigoBuilder.toString();
     }
 
-    protected String getDateForCode(Documento documento) {
-        if(documento.getDataDocumento() != null && documento.getDataDocumento().getAno()!=null && !documento.getDataDocumento().isDataIncerta()) {
+    protected String getDateForCode(Documento documento) throws ValidationException {
+        if(documento.getDataDocumento().isDataIncerta()){
+            return "00";
+        }
+        else if(documento.getDataDocumento() != null && !documento.getDataDocumento().getAno().isEmpty()) {
             return String.valueOf(documento.getDataDocumento().getAno()).substring(2);
         } else {
-            return "00";
+            throw new ValidationException("Data é obrigatório!");
         }
     }
 }

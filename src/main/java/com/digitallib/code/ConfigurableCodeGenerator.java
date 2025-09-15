@@ -1,5 +1,6 @@
 package com.digitallib.code;
 
+import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.Documento;
 import com.digitallib.utils.ConfigReader;
@@ -14,7 +15,7 @@ public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
     private Logger logger = LogManager.getLogger();
 
     @Override
-    public String generateCodeWithoutAppendix(Documento documento) {
+    public String generateCodeWithoutAppendix(Documento documento) throws ValidationException {
 
         String format = documento.getClasseProducao().getFormat();
         String[] CodeFields = format.split("\\.");
@@ -26,6 +27,7 @@ public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
             if (codeBuilder.length() > 0 ) codeBuilder.append(".");
             switch (field) {
                 case "titulo":
+                    if(documento.getTitulo().isEmpty()) throw new ValidationException("Titulo é obrigatório!");
                     codeBuilder.append(getAcronimo(documento.getTitulo(), "ST"));
                     break;
                 case "data":

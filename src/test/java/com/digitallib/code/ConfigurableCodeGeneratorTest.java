@@ -1,5 +1,6 @@
 package com.digitallib.code;
 
+import com.digitallib.exception.ValidationException;
 import com.digitallib.model.Classe;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
@@ -26,7 +27,7 @@ class ConfigurableCodeGeneratorTest {
     }
 
     @Test
-    void generateCodeWithoutAppendix() {
+    void generateCodeWithoutAppendix() throws ValidationException {
         Documento documento = getBasicDocumento();
         documento.getClasseProducao().setFormat("titulo.data.encontrado_em.instituicao");
 

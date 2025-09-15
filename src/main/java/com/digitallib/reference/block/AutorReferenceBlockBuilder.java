@@ -17,14 +17,14 @@ public class AutorReferenceBlockBuilder implements ReferenceBlockBuilder {
     public List<ReferenceBlock> build(Documento doc) throws ReferenceBlockBuilderException {
         try {
             List<String> authors = doc.getAutores();
-            return getReferenceBlocksForAuthor(authors, doc);
+            return getReferenceBlocksForAuthor(authors);
         } catch (EntityNotFoundException e){
             logger.error(e);
             throw new ReferenceBlockBuilderException(e.getMessage());
         }
     }
 
-    protected List<ReferenceBlock> getReferenceBlocksForAuthor(List<String> authors, Documento doc) throws EntityNotFoundException {
+    protected List<ReferenceBlock> getReferenceBlocksForAuthor(List<String> authors) throws EntityNotFoundException {
         StringBuilder nameBuilder = new StringBuilder();
         if (authors != null && authors.size() > 0) {
             switch (authors.size()) {

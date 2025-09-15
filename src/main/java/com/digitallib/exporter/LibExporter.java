@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface LibExporter {
 
-    void export(List<Documento> doc) throws IOException;
+    void export(List<Documento> doc);
 }

@@ -1,6 +1,6 @@
 package com.digitallib.exporter.docx;
 
-import com.digitallib.exporter.LibExporter;
+import com.digitallib.exporter.BaseFileExporter;
 import com.digitallib.manager.CategoryManager;
 import com.digitallib.model.Classe;
 import com.digitallib.model.Documento;
@@ -12,28 +12,22 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTPageSz;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTSectPr;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.STPageOrientation;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DocxExporter implements LibExporter {
+public class InventarioExporter extends BaseFileExporter {
 
     private Logger logger = LogManager.getLogger();
-    private String fileName;
 
     CategoryManager categoryManager = new CategoryManager();
 
-    public DocxExporter(String fileName) {
-        this.fileName = fileName;
+    public InventarioExporter() {
     }
 
     @Override
-    public void export(List<Documento> docsToExport) throws IOException {
+    public void export(List<Documento> docsToExport) {
         XWPFDocument document = new XWPFDocument();
         CTBody body = document.getDocument().getBody();
 
@@ -50,18 +44,7 @@ public class DocxExporter implements LibExporter {
             }
         }
 
-
-        exportToDoc(document);
-    }
-
-    private void exportToDoc(XWPFDocument document) throws IOException {
-        String exportFolder = "export";
-        Files.createDirectories(Paths.get(exportFolder));
-        File file = new File(String.format("%s/%s", exportFolder, fileName));
-        FileOutputStream out = new FileOutputStream(file);
-        document.write(out);
-        out.close();
-        logger.info(fileName+" written successfully");
+        createFile(document, "inventário");
     }
 
     private static void configPage(CTBody body) {

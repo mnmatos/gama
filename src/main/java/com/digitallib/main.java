@@ -10,7 +10,9 @@ public class main {
 
     public static void main(String[] args) {
         initializeAcervo();
-        DocumentList.main(args);
+        SwingUtilities.invokeLater(() -> {
+            new MainApp().setVisible(true);
+        });
     }
 
     private static void initializeAcervo() {

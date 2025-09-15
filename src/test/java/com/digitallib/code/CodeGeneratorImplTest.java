@@ -1,5 +1,6 @@
 package com.digitallib.code;
 
+import com.digitallib.exception.ValidationException;
 import com.digitallib.model.Classe;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
@@ -27,7 +28,7 @@ class CodeGeneratorImplTest {
     }
 
     @Test
-    void generateCodeWithoutAppendix() {
+    void generateCodeWithoutAppendix() throws ValidationException {
         Documento documento = getBasicDocumento();
 
         CodeGeneratorImpl codeGenerator = new CodeGeneratorImpl();
@@ -36,7 +37,7 @@ class CodeGeneratorImplTest {
     }
 
     @Test
-    void generateCodeWithoutAppendixAudioVisual() {
+    void generateCodeWithoutAppendixAudioVisual() throws ValidationException {
         Documento documento = getBasicDocumento();
         SubClasse testSubClass = new SubClasse("01a", "sub", "Test sub", new ArrayList<>());
         documento.setClasseProducao(new Classe("01", "documentos_audiovisuais", "Test Class", Collections.singletonList(testSubClass)));
@@ -47,7 +48,7 @@ class CodeGeneratorImplTest {
     }
 
     @Test
-    void generateCodeWithoutAppendixEsboco() {
+    void generateCodeWithoutAppendixEsboco() throws ValidationException {
         Documento documento = getBasicDocumento();
         SubClasse testSubClass = new SubClasse("01a", "sub", "Test sub", new ArrayList<>());
         documento.setClasseProducao(new Classe("01", "esbocos_e_notas", "Test Class", Collections.singletonList(testSubClass)));
@@ -58,7 +59,7 @@ class CodeGeneratorImplTest {
     }
 
     @Test
-    void generateCodeWithoutAppendixCorrespondencia() {
+    void generateCodeWithoutAppendixCorrespondencia() throws ValidationException {
         Documento documento = getBasicDocumento();
         SubClasse testSubClass = new SubClasse("01a", "sub", "Test sub", new ArrayList<>());
         documento.setClasseProducao(new Classe("01", "correspondencia", "Test Class", Collections.singletonList(testSubClass)));
@@ -86,7 +87,7 @@ class CodeGeneratorImplTest {
 
 
     @Test
-    void getDateForCode() {
+    void getDateForCode() throws ValidationException {
         Documento documento = getBasicDocumento();
         CodeGeneratorImpl codeGenerator = new CodeGeneratorImpl();
         String date = codeGenerator.getDateForCode(documento);
@@ -94,7 +95,7 @@ class CodeGeneratorImplTest {
     }
 
     @Test
-    void getDateForCodeUncertainDate() {
+    void getDateForCodeUncertainDate() throws ValidationException {
         Documento documento = getBasicDocumento();
         documento.getDataDocumento().setDataIncerta(true);
         CodeGeneratorImpl codeGenerator = new CodeGeneratorImpl();

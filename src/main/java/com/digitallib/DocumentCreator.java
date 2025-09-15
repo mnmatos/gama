@@ -9,6 +9,7 @@ import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.*;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
+import com.digitallib.swing.DocSelectScreenWithSearch;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.digitallib.manager.RepositoryManager.getPathFromCode;
 
 public class DocumentCreator extends JDialog {
+    private DefaultListModel<Relacao> linkListModel;
     private JPanel contentPane;
     private JButton buttonOK;
     private JButton buttonCancel;
@@ -112,6 +114,13 @@ public class DocumentCreator extends JDialog {
     private JTabbedPane tabbedPane1;
     private JPanel teatroPanel;
     private TeatroDocumentCreator teatroNestedPanel;
+    private JPanel Relacionados;
+    private JList linkList;
+    private JButton selecionarDocButton;
+    private JComboBox linkDropDown;
+    private JTextField linkCodeField;
+    private JButton adicionarButton;
+    private JButton removeLinkButton;
 
     private Entity lugarPublicacao;
 
@@ -121,6 +130,7 @@ public class DocumentCreator extends JDialog {
 
     DefaultListModel authorListModel = new DefaultListModel();
     DefaultListModel authorPubliListModel = new DefaultListModel();
+    DefaultComboBoxModel linkModel = new DefaultComboBoxModel();
     Map<String, String> citacoes = new HashMap<>();
     List<String> filteredSubClassOptions = new ArrayList<>();
 
@@ -179,6 +189,8 @@ public class DocumentCreator extends JDialog {
 
         if (document.getTextoTeatro() != null) teatroNestedPanel.setTextoTeatral(document.getTextoTeatro());
 
+        if (document.getTrabalhosRelacionados() != null) linkListModel.addAll(document.getTrabalhosRelacionados());
+
         loadFileInfo(document);
     }
 
@@ -225,29 +237,10 @@ public class DocumentCreator extends JDialog {
         authorList.setModel(authorListModel);
         authorPubliList.setModel(authorPubliListModel);
 
-        addReferenciaPessoaButton.addActionListener(e -> {
-            getCitacaoFromDialog(EntityType.PESSOA);
-        });
+        linkModel.addAll(List.of(TIPO_RELACAO.values()));
+        linkDropDown.setModel(linkModel);
 
-        addReferenciaInstituicaoButton.addActionListener(e -> {
-            getCitacaoFromDialog(EntityType.INSTITUICAO);
-        });
-
-        AddReferenciaLocalButton.addActionListener(e -> {
-            getCitacaoFromDialog(EntityType.LOCAL);
-        });
-
-        localPublicacaoButton.addActionListener(e -> {
-            getLugarPublicacaoFromDialog();
-        });
-
-        addAuthorButton.addActionListener(e -> {
-            openAuthorSelectionDialog(authorMap, authorListModel);
-        });
-
-        addAutorPubliButton.addActionListener(e -> {
-            openAuthorSelectionDialog(authorPubliMap, authorPubliListModel);
-        });
+        initializeButtons();
 
         jfc.setDialogTitle("Multiple file and directory selection:");
         jfc.setMultiSelectionEnabled(true);
@@ -275,6 +268,54 @@ public class DocumentCreator extends JDialog {
 
         hideOrShowTabsPerType();
         tipo_drop.addActionListener(e -> hideOrShowTabsPerType());
+
+        linkListModel = new DefaultListModel<>();
+        linkList.setModel(linkListModel);
+    }
+
+    private void initializeButtons() {
+        addReferenciaPessoaButton.addActionListener(e -> {
+            getCitacaoFromDialog(EntityType.PESSOA);
+        });
+
+        addReferenciaInstituicaoButton.addActionListener(e -> {
+            getCitacaoFromDialog(EntityType.INSTITUICAO);
+        });
+
+        AddReferenciaLocalButton.addActionListener(e -> {
+            getCitacaoFromDialog(EntityType.LOCAL);
+        });
+
+        localPublicacaoButton.addActionListener(e -> {
+            getLugarPublicacaoFromDialog();
+        });
+
+        addAuthorButton.addActionListener(e -> {
+            openAuthorSelectionDialog(authorMap, authorListModel);
+        });
+
+        addAutorPubliButton.addActionListener(e -> {
+            openAuthorSelectionDialog(authorPubliMap, authorPubliListModel);
+        });
+
+        selecionarDocButton.addActionListener(e -> {
+            String selected = DocSelectScreenWithSearch.showDialog((Frame) this.getOwner(), RepositoryManager.getEntries());
+            linkCodeField.setText(selected);
+        });
+
+        adicionarButton.addActionListener(e -> {
+            TIPO_RELACAO tipo_relacao = (TIPO_RELACAO) linkDropDown.getSelectedItem();
+            String code = linkCodeField.getText().split("-")[0].trim();
+
+            linkListModel.addElement(new Relacao(code, tipo_relacao));
+        });
+
+        removeLinkButton.addActionListener(e -> {
+            int selectedIndex = linkList.getSelectedIndex();
+            if (selectedIndex != -1) {
+                linkListModel.remove(selectedIndex);
+            }
+        });
     }
 
     private void addFileTreeMouseListener() {
@@ -470,7 +511,7 @@ public class DocumentCreator extends JDialog {
     private void refreshSubClassDialog(int index) {
         filteredSubClassOptions.clear();
         for (SubClasse sub : categoryManager.getSubClassesForIndex(index)) {
-                filteredSubClassOptions.add(sub.getDesc());
+            filteredSubClassOptions.add(sub.getDesc());
         }
         final DefaultComboBoxModel model = new DefaultComboBoxModel(filteredSubClassOptions.toArray());
         tipo_drop.setModel(model);
@@ -519,6 +560,12 @@ public class DocumentCreator extends JDialog {
             createDoc();
         } catch (ValidationException e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
+            logger.warn(e.getMessage());
+            return;
+        } catch (Throwable e) {
+            String error = "Failed to create document. Reason: " + e.getMessage();
+            JOptionPane.showMessageDialog(this, "Failed to create document. Reason" + error);
+            logger.error("Failed to create document", e);
             return;
         }
         dispose();
@@ -566,6 +613,9 @@ public class DocumentCreator extends JDialog {
         documento.setTextoTeatro(teatroNestedPanel.getTextoTeatral());
 
         documento.setCitacoes(new ArrayList<>(citacoes.values()));
+
+        documento.setTrabalhosRelacionados(Collections.list(linkListModel.elements()));
+
         documento.setArquivos(Arrays.stream(files.toArray()).map(o -> o instanceof File ? ((File) o).getName() : "").collect(Collectors.toList()));
         if (editedDocCode != null) {
             checkIfNewCode(documento);
@@ -601,9 +651,17 @@ public class DocumentCreator extends JDialog {
         }
     }
 
-    private void checkIfNewCode(Documento documento) {
+    public static boolean endsWithSufix(String input) {
+        return input.matches(".*\\.\\d{3}$");
+    }
+
+
+    private void checkIfNewCode(Documento documento) throws ValidationException {
         String newCode = CodeManager.getCodeGenerator().generateCodeWithoutAppendix(documento);
-        if (editedDocCode.contains(newCode)) {
+        String oldCode = editedDocCode;
+        if (endsWithSufix(editedDocCode)) oldCode = editedDocCode.substring(0, editedDocCode.length() - 4);
+
+        if (oldCode.equals(newCode)) {
             documento.setCodigo(editedDocCode);
             RepositoryManager.updateEntry(documento, files);
         } else {
@@ -638,7 +696,7 @@ public class DocumentCreator extends JDialog {
         documento.setDataDocumento(dataDocumento);
     }
 
-    private void generateNewDoc(Documento documento) {
+    private void generateNewDoc(Documento documento) throws ValidationException {
         CodeManager.getCodeGenerator().generateCode(documento);
         RepositoryManager.addEntry(documento, files);
     }
@@ -1058,8 +1116,8 @@ public class DocumentCreator extends JDialog {
         label47.setText("Descrição Física");
         painelExtraGeral.add(label47, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         refPanel = new JPanel();
-        refPanel.setLayout(new GridLayoutManager(3, 2, new Insets(10, 10, 10, 10), -1, -1));
-        tabbedPane1.addTab("Citações", refPanel);
+        refPanel.setLayout(new GridLayoutManager(4, 2, new Insets(10, 10, 10, 10), -1, -1));
+        tabbedPane1.addTab("Relacionados", refPanel);
         refPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         panelBotoesRef = new JPanel();
         panelBotoesRef.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
@@ -1087,6 +1145,41 @@ public class DocumentCreator extends JDialog {
         final JLabel label48 = new JLabel();
         label48.setText("Citações");
         refPanel.add(label48, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        Relacionados = new JPanel();
+        Relacionados.setLayout(new GridLayoutManager(2, 3, new Insets(0, 0, 0, 0), -1, -1));
+        refPanel.add(Relacionados, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        linkList = new JList();
+        Relacionados.add(linkList, new GridConstraints(0, 2, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(150, 50), null, 0, false));
+        final JPanel panel5 = new JPanel();
+        panel5.setLayout(new GridLayoutManager(4, 3, new Insets(0, 0, 0, 0), -1, -1));
+        Relacionados.add(panel5, new GridConstraints(0, 0, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel5.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.black), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
+        final JLabel label49 = new JLabel();
+        label49.setText("Documentos Relacionados");
+        panel5.add(label49, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel5.add(panel6, new GridConstraints(2, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        linkCodeField = new JTextField();
+        linkCodeField.setEditable(false);
+        panel6.add(linkCodeField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        selecionarDocButton = new JButton();
+        selecionarDocButton.setText("Selecionar doc");
+        panel6.add(selecionarDocButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new GridLayoutManager(2, 1, new Insets(0, 0, 0, 0), -1, -1));
+        panel5.add(panel7, new GridConstraints(3, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JLabel label50 = new JLabel();
+        label50.setText("Tipo de Relacionamento");
+        panel7.add(label50, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        linkDropDown = new JComboBox();
+        panel7.add(linkDropDown, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        adicionarButton = new JButton();
+        adicionarButton.setText("Adicionar >>>");
+        Relacionados.add(adicionarButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        removeLinkButton = new JButton();
+        removeLinkButton.setText("Remover selecionado");
+        Relacionados.add(removeLinkButton, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         teatroPanel = new JPanel();
         teatroPanel.setLayout(new BorderLayout(0, 0));
         teatroPanel.setEnabled(true);

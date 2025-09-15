@@ -16,7 +16,7 @@ public class AutorPubliReferenceBlockBuilder extends AutorReferenceBlockBuilder 
     public List<ReferenceBlock> build(Documento doc) throws ReferenceBlockBuilderException {
         try {
             List<String> authors = doc.getAutoresPubli();
-            return getReferenceBlocksForAuthor(authors, doc);
+            return getReferenceBlocksForAuthor(authors);
         } catch (EntityNotFoundException e){
             logger.error(e);
             throw new ReferenceBlockBuilderException(e.getMessage());

@@ -62,6 +62,10 @@ public class TableContentBuilder {
 
     private static void setReferenceCell(Documento doc, XWPFTableCell cell, TipoNBR tipoNbr) throws ReferenceBlockBuilderException {
         XWPFParagraph paragraph = cell.getParagraphs().get(0);
+        PrintReference(doc, tipoNbr, paragraph);
+    }
+
+    public static void PrintReference(Documento doc, TipoNBR tipoNbr, XWPFParagraph paragraph) throws ReferenceBlockBuilderException {
         paragraph.setFontAlignment(1);
         Reference reference = tipoNbr.getReferenceGenerator().generate(doc);
 
