@@ -52,7 +52,7 @@ public class DocumentList extends JDialog {
     JMenu exportMenu = new JMenu("Exportar");
     JMenuItem addMenuItem = new JMenuItem("Adicionar");
     JMenuItem exportInventoryMenuItem = new JMenuItem("Exportar Inventário");
-    JMenuItem exportCatalogMenuItem = new JMenuItem("Exportar Ficha Catálogo");
+    JMenuItem exportCatalogMenuItem = new JMenuItem("Exportar Ficha-catálogo");
 
     public DocumentList() {
         setContentPane(contentPanel);
