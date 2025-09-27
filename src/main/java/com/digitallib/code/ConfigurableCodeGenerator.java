@@ -39,6 +39,9 @@ public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
                 case "instituicao":
                     codeBuilder.append(getAcronimo(documento.getInstituicaoCustodia(), "SL"));
                     break;
+                case "testemunho":
+                    codeBuilder.append(documento.getTestemunho());
+                    break;
                 default:
                     logger.error("Error generating code. Unrecognized field on code generation config: "+field+". switching to default");
                     return super.generateCodeWithoutAppendix(documento);

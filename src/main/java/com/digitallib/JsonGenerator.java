@@ -1,10 +1,8 @@
 package com.digitallib;
 
-import com.digitallib.manager.EntityManager;
-import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
+import com.digitallib.model.MultiSourcedDocument;
 import com.digitallib.model.entity.Entity;
-import com.digitallib.model.entity.EntityType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,11 +45,19 @@ public class JsonGenerator {
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         try {
             Entity entity = mapper.readValue(jsonText, Entity.class);
-            if (entity.getType().equals(EntityType.AUTOR)) { //TODO remove after all imports
-                entity.setType(EntityType.PESSOA);
-                EntityManager.updateEntry(entity);
-            }
             return entity;
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static MultiSourcedDocument GenerateMultiSourcedDocumentFromJson(String jsonText) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        try {
+            MultiSourcedDocument doc = mapper.readValue(jsonText, MultiSourcedDocument.class);
+            return doc;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

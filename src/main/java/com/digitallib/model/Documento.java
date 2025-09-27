@@ -56,6 +56,9 @@ public class Documento {
     @JsonProperty("instituicao_custodia")
     String instituicaoCustodia;
 
+    @JsonProperty("testemunho")
+    String testemunho;
+
     @JsonProperty("data")
     LocalDate data;
 
@@ -124,6 +127,9 @@ public class Documento {
     @JsonProperty("trabalhos_relacionados")
     List<Relacao> trabalhosRelacionados;
 
+    @JsonProperty("grupo")
+    String grupo;
+
     @JsonProperty("texto_teatral")
     TextoTeatral textoTeatro;
 
@@ -141,6 +147,14 @@ public class Documento {
 
     public void setSubClasseProducao(SubClasse subClasseProducao) {
         this.subClasseProducao = subClasseProducao;
+    }
+
+    public String getTestemunho() {
+        return testemunho;
+    }
+
+    public void setTestemunho(String testemunho) {
+        this.testemunho = testemunho;
     }
 
     public String getTranscricao() {
@@ -409,5 +423,13 @@ public class Documento {
 
     public void setTrabalhosRelacionados(List<Relacao> trabalhosRelacionados) {
         this.trabalhosRelacionados = trabalhosRelacionados;
+    }
+
+    public String getGrupo() {
+        return grupo;
+    }
+
+    public void setGrupo(String grupo) {
+        this.grupo = grupo;
     }
 }

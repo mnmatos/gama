@@ -4,12 +4,15 @@ import com.digitallib.exporter.docx.FichaExporter;
 import com.digitallib.exporter.docx.InventarioExporter;
 import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
+import com.digitallib.manager.MultiSourcedDocumentManager;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.manager.index.DocByEntityIndexManager;
 import com.digitallib.manager.index.EntityIndexManager;
 import com.digitallib.manager.index.SubClassIndexManager;
 import com.digitallib.model.Documento;
+import com.digitallib.model.MultiSourcedDocument;
 import com.digitallib.model.ui.Filter;
+import com.digitallib.swing.DocumentListButtonEditor;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -21,12 +24,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DocumentList extends JDialog {
     public static final String ACTIONS_HEADER = "Ações";
@@ -50,7 +53,8 @@ public class DocumentList extends JDialog {
 
     JMenu fileMenu = new JMenu("Arquivo");
     JMenu exportMenu = new JMenu("Exportar");
-    JMenuItem addMenuItem = new JMenuItem("Adicionar");
+    JMenuItem addMenuItem = new JMenuItem("Adicionar mono-testemunhal");
+    JMenuItem addPoliMenuItem = new JMenuItem("Adicionar poli-testemunhal");
     JMenuItem exportInventoryMenuItem = new JMenuItem("Exportar Inventário");
     JMenuItem exportCatalogMenuItem = new JMenuItem("Exportar Ficha-catálogo");
 
@@ -87,6 +91,7 @@ public class DocumentList extends JDialog {
 
     private void initializeMenu() {
         fileMenu.add(addMenuItem);
+        fileMenu.add(addPoliMenuItem);
         topMenuBar.add(fileMenu);
         exportMenu.add(exportInventoryMenuItem);
         exportMenu.add(exportCatalogMenuItem);
@@ -94,6 +99,24 @@ public class DocumentList extends JDialog {
 
         addMenuItem.addActionListener(e -> {
             addItem();
+        });
+
+        addPoliMenuItem.addActionListener(e -> {
+
+            String title = JOptionPane.showInputDialog(
+                    null,
+                    "Digite o Título",
+                    "Criar Poli-testemunhal",
+                    JOptionPane.QUESTION_MESSAGE
+            );
+
+            if (title != null && !title.trim().isEmpty()) {
+                MultiSourcedDocument doc = new MultiSourcedDocument();
+                doc.setTitulo(title);
+                addPoliItem(MultiSourcedDocumentManager.addEntry(doc));
+            } else {
+                System.out.println("Nenhum nome de grupo foi inserido.");
+            }
         });
 
         exportInventoryMenuItem.addActionListener(e -> {
@@ -173,26 +196,31 @@ public class DocumentList extends JDialog {
     }
 
     private void refreshTable() {
-        String[] colunas = {"Código", "Título", "Série", "Encontrado em", ACTIONS_HEADER};
+        String[] colunas = {"Tradição", "Código", "Título", "Série", "Encontrado em", ACTIONS_HEADER};
 
         List<Documento> documentos = getDocumentosFiltrados();
         numDocField.setText(String.format("Número de documentos: %d", documentos.size()));
 
         String[][] dados = new String[documentos.size()][colunas.length];
 
+        List<MultiSourcedDocument> multiSourcedDocuments = MultiSourcedDocumentManager.getEntries();
+        Map<String, String> multiSourcedDocumentMap = multiSourcedDocuments.stream()
+                .collect(Collectors.toMap(MultiSourcedDocument::getId, MultiSourcedDocument::getTitulo));
+
         for (int i = 0; i < documentos.size(); i++) {
-            dados[i][0] = documentos.get(i).getCodigo();
-            dados[i][1] = documentos.get(i).getTitulo();
-            dados[i][2] = documentos.get(i).getClasseProducao().getDesc();
-            dados[i][3] = documentos.get(i).getEncontradoEm();
-            dados[i][4] = documentos.get(i).getCodigo();
+            dados[i][0] = multiSourcedDocumentMap.get(documentos.get(i).getGrupo());
+            dados[i][1] = documentos.get(i).getCodigo();
+            dados[i][2] = documentos.get(i).getTitulo();
+            dados[i][3] = documentos.get(i).getClasseProducao().getDesc();
+            dados[i][4] = documentos.get(i).getEncontradoEm();
+            dados[i][5] = documentos.get(i).getCodigo();
         }
 
         DefaultTableModel tableModel = new DefaultTableModel(dados, colunas);
         tabela_poemas.setModel(tableModel);
 
 
-        ButtonEditor editor = new ButtonEditor();
+        DocumentListButtonEditor editor = new DocumentListButtonEditor(() -> refreshTable());
         tabela_poemas.getColumn(ACTIONS_HEADER).setCellRenderer(editor);
         tabela_poemas.getColumn(ACTIONS_HEADER).setCellEditor(editor);
         refreshIndexes(documentos);
@@ -228,8 +256,8 @@ public class DocumentList extends JDialog {
         refreshTable();
     }
 
-    public void editItem(String code) {
-        DocumentCreator dialog = new DocumentCreator(RepositoryManager.getEntriesByCodigo(code).get(0));
+    public void addPoliItem(String docCode) {
+        MultiSourceDocumentList dialog = new MultiSourceDocumentList(docCode);
         dialog.pack();
         dialog.setVisible(true);
         refreshTable();
@@ -238,61 +266,6 @@ public class DocumentList extends JDialog {
     private void onCancel() {
         dispose();
     }
-
-    class CellPanel extends JPanel {
-
-        String code;
-        private final Action editAction = new AbstractAction("editar") {
-            public void actionPerformed(ActionEvent e) {
-                editItem(code);
-            }
-        };
-        private final Action removeAction = new AbstractAction("remover") {
-            public void actionPerformed(ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(JOptionPane.getRootFrame(), "Você tem certeza que quer remover o " + code, "Atenção!!",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
-                if (result == JOptionPane.YES_OPTION) {
-                    RepositoryManager.removeEntry(code);
-                    refreshTable();
-                }
-            }
-        };
-        private final JButton editButton = new JButton(editAction);
-        private final JButton removeButton = new JButton(removeAction);
-
-        public CellPanel(String code) {
-            this.code = code;
-            setLayout(new BorderLayout(0, 0));
-            JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(1, 0));
-            panel.add(editButton);
-            panel.add(removeButton);
-            add(panel);
-        }
-    }
-
-    class ButtonEditor extends AbstractCellEditor implements TableCellEditor, TableCellRenderer {
-
-        public ButtonEditor() {
-        }
-
-        @Override
-        public Object getCellEditorValue() {
-            return null;
-        }
-
-        @Override
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            return new CellPanel((String) value);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            return new CellPanel((String) value);
-        }
-    }
-
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -311,8 +284,8 @@ public class DocumentList extends JDialog {
     private void $$$setupUI$$$() {
         contentPanel = new JPanel();
         contentPanel.setLayout(new GridLayoutManager(5, 2, new Insets(10, 20, 10, 20), -1, -1));
-        contentPanel.setMinimumSize(new Dimension(1200, 800));
-        contentPanel.setPreferredSize(new Dimension(1200, 800));
+        contentPanel.setMinimumSize(new Dimension(1600, 800));
+        contentPanel.setPreferredSize(new Dimension(1600, 800));
         buttonBanel = new JPanel();
         buttonBanel.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(buttonBanel, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_SOUTH, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));

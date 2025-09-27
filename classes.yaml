@@ -27,6 +27,9 @@ classes:
       - name: manifesto
         desc: Manifestos
         code: "01g"
+      - name: romance
+        desc: Romance
+        code: "01h"
   - name: documentos_audiovisuais
     code: "02"
     desc: Documentos Audiovisuais

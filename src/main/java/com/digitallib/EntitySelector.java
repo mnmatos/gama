@@ -108,12 +108,11 @@ public class EntitySelector extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
+        entityList.clearSelection();
         dispose();
     }
 

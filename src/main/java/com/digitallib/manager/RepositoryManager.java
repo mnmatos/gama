@@ -4,8 +4,11 @@ import com.digitallib.JsonGenerator;
 import com.digitallib.main;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
+import com.digitallib.model.SubClasse;
 import com.digitallib.utils.ConfigReader;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,24 +27,30 @@ import java.util.stream.Stream;
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class RepositoryManager {
+    private static Logger logger = LogManager.getLogger();
 
     public static void addEntry(Documento documento, List<File> files){
         try {
-            String jsonText = GenerateJsonFromDoc(documento);
-            Files.createDirectories(Paths.get(getPathFromCode(documento.getCodigo())));
-            saveFiles(documento, files, jsonText);
+            createFolderAndJson(documento);
+            saveFiles(documento.getCodigo(), files);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void updateEntry(Documento documento, List<File> files){
+    public static void updateEntry(Documento documento){
         try {
             String jsonText = GenerateJsonFromDoc(documento);
-            saveFiles(documento, files, jsonText);
+            Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static void createFolderAndJson(Documento documento) throws IOException {
+        String jsonText = GenerateJsonFromDoc(documento);
+        Files.createDirectories(Paths.get(getPathFromCode(documento.getCodigo())));
+        Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes());
     }
 
     public static void removeEntry(String code){
@@ -64,17 +73,40 @@ public class RepositoryManager {
         }
     }
 
-    private static void saveFiles(Documento documento, List<File> files, String jsonText) throws IOException {
-        Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes());
+    public static void saveFiles(String codigo, List<File> files) throws IOException {
         if(files != null) {
             for (File file : files.stream().filter(file -> !file.isDirectory()).collect(Collectors.toList())) {
-                Files.copy(file.getAbsoluteFile().toPath(), Paths.get(String.format("%s/%s", getPathFromCode(documento.getCodigo()), file.getName())));
+                copyFile(codigo, file);
             }
         }
     }
 
+    public static void removeFiles (String codigo, List<String> files){
+        File[] filesOnFolder = new File(getPathFromCode(codigo)).listFiles();
+
+        if (filesOnFolder != null) {
+            Arrays.stream(filesOnFolder)
+                    .filter(file -> file.isFile() && files.contains(file.getName()))
+                    .forEach(file -> {
+                        if (!file.delete()) {
+                            logger.error("Falha ao deletar: " + file.getAbsolutePath());
+                        }
+                    });
+        }
+    }
+
+    private static void copyFile(String codigo, File file) throws IOException {
+        Path destination = Paths.get(String.format("%s/%s", getPathFromCode(codigo), file.getName())).toAbsolutePath();
+        Path source = file.getAbsoluteFile().toPath();
+        if(!source.equals(destination)) Files.copy(source, destination);
+    }
+
     public static List<Documento> getEntriesByCodigo(String codigo){
         return getEntries().stream().filter(d -> d.getCodigo().equals(codigo)).collect(Collectors.toList());
+    }
+
+    public static List<Documento> getEntriesBySubClass(SubClasse subClasse){
+        return getEntries().stream().filter(d -> d.getSubClasseProducao().getCode().equals(subClasse.getCode())).collect(Collectors.toList());
     }
 
     public static List<Documento> getEntries(){
@@ -113,47 +145,10 @@ public class RepositoryManager {
 
     private static Documento getDoc(Path javaFile) {
         try {
-//            aplicarRetrocompatibilidadeInstituicao(javaFile);
-//            aplicarRetrocompatibilidadeTitulo(javaFile);
             Documento doc = JsonGenerator.GenerateDocFromJson(new String(Files.readAllBytes(javaFile)));
-//            aplicarRetrocompatibilidadeData(doc);
-            updateEntry(doc, new ArrayList<>());
             return doc;
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static void aplicarRetrocompatibilidadeInstituicao(Path javaFile) throws IOException {
-        Charset charset = StandardCharsets.UTF_8;
-        String content = new String(Files.readAllBytes(javaFile), charset);
-        if(!content.contains("instituicao_custodia")) {
-            content = content.replaceAll("encontrado_em", "instituicao_custodia");
-            content = content.replaceAll("periodico", "encontrado_em");
-            Files.write(javaFile, content.getBytes(charset));
-        }
-    }
-
-    private static void aplicarRetrocompatibilidadeTitulo(Path javaFile) throws IOException {
-        Charset charset = StandardCharsets.UTF_8;
-        String content = new String(Files.readAllBytes(javaFile), charset);
-        content = content.replaceAll("monografia", "titulo_publicacao");
-        content = content.replaceAll("ano_volume", "ano");
-        Files.write(javaFile, content.getBytes(charset));
-    }
-
-    public static void aplicarRetrocompatibilidadeData(Documento documento) {
-        if(documento.getDataDocumento() == null) {
-            documento.setDataDocumento(new DataDocumento());
-            if (documento.getDataAproximada() != null) {
-                documento.getDataDocumento().setDataIncerta(true);
-                documento.getDataDocumento().setAno(documento.getDataAproximada());
-            } else if (documento.getData() != null) {
-                documento.getDataDocumento().setDataIncerta(false);
-                documento.getDataDocumento().setAno(String.valueOf(documento.getData().getYear()));
-                documento.getDataDocumento().setMes(documento.getData().getMonthValue());
-                documento.getDataDocumento().setDia(documento.getData().getDayOfMonth());
-            }
         }
     }
 
