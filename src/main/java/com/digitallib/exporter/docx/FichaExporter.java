@@ -58,7 +58,7 @@ public class FichaExporter extends BaseFileExporter {
         createFile(document, "inventário");
     }
 
-    private static void createSpace(XWPFParagraph paragraph, int spacing) {
+    public static void createSpace(XWPFParagraph paragraph, int spacing) {
         paragraph.setSpacingBefore(spacing);
         paragraph.setSpacingAfter(spacing);
 
@@ -66,7 +66,7 @@ public class FichaExporter extends BaseFileExporter {
         spacerRun.setText("");
     }
 
-    private static void CreateDocUnit(XWPFDocument wordDocument, Documento doc) {
+    public static void CreateDocUnit(XWPFDocument wordDocument, Documento doc) {
         testimony = 1; //TODO: make dynamic
 
         TextoTeatral textoTeatral = doc.getTextoTeatro();
@@ -100,7 +100,7 @@ public class FichaExporter extends BaseFileExporter {
         }
     }
 
-    private static String getAuthorText(Documento doc) {
+    public static String getAuthorText(Documento doc) {
         AutorReferenceBlockBuilder autorReferenceBlockBuilder = new AutorReferenceBlockBuilder();
         try {
             List<ReferenceBlock> referenceBlocks = autorReferenceBlockBuilder.build(doc);
@@ -116,7 +116,7 @@ public class FichaExporter extends BaseFileExporter {
         }
     }
 
-    private static void PrintReferenceSection(XWPFTableCell cell, Documento doc) {
+    public static void PrintReferenceSection(XWPFTableCell cell, Documento doc) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -137,7 +137,7 @@ public class FichaExporter extends BaseFileExporter {
         }
     }
 
-    private static void PrintResumeWithKeywords(XWPFTableCell cell, String content, List<String> keywords) {
+    public static void PrintResumeWithKeywords(XWPFTableCell cell, String content, List<String> keywords) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -148,7 +148,7 @@ public class FichaExporter extends BaseFileExporter {
         CreateTextWithBoldIntro("Palavras-chave", keywordsText, paragraph);
     }
 
-    private static String createKeywordsString(List<String> keywords) {
+    public static String createKeywordsString(List<String> keywords) {
 
         StringBuilder finalText = new StringBuilder();
         for (String topic : keywords) {
@@ -158,7 +158,7 @@ public class FichaExporter extends BaseFileExporter {
         return keywordsText;
     }
 
-    private static void CreateTextWithBoldIntro(String contentName, String content, XWPFParagraph paragraph) {
+    public static void CreateTextWithBoldIntro(String contentName, String content, XWPFParagraph paragraph) {
         XWPFRun run = paragraph.createRun();
         run.setFontSize(12);
         run.setFontFamily("Times New Roman");
@@ -172,7 +172,7 @@ public class FichaExporter extends BaseFileExporter {
         run.addBreak();
     }
 
-    private static void PrintDescription(XWPFTableCell cell, String contentName, int testimony, String description) {
+    public static void PrintDescription(XWPFTableCell cell, String contentName, int testimony, String description) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -189,7 +189,7 @@ public class FichaExporter extends BaseFileExporter {
         CreateTextWithBoldIntro(contentName, description, paragraph);
     }
 
-    private static void PrintInfo(XWPFTableCell cell, String instituicao, String classificacao, int personagens, int atos, int cenas) {
+    public static void PrintInfo(XWPFTableCell cell, String instituicao, String classificacao, int personagens, int atos, int cenas) {
         XWPFParagraph paragraph = cell.addParagraph();
 
         PrintInfoLine(paragraph, "Localização: ", instituicao);
@@ -199,7 +199,7 @@ public class FichaExporter extends BaseFileExporter {
         PrintInfoLine(paragraph, "Número de Cenas", String.format("%02d", cenas));
     }
 
-    private static void PrintInfoLine(XWPFParagraph paragraph, String infoName, String infoValue) {
+    public static void PrintInfoLine(XWPFParagraph paragraph, String infoName, String infoValue) {
         XWPFRun run = paragraph.createRun();
         run.setFontSize(12);
         run.setFontFamily("Times New Roman");
@@ -214,7 +214,7 @@ public class FichaExporter extends BaseFileExporter {
         run.addBreak();
     }
 
-    private static void PrintTitle(XWPFTableCell cell, String title, String local, String year, int pages, int testimony) {
+    public static void PrintTitle(XWPFTableCell cell, String title, String local, String year, int pages, int testimony) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -233,7 +233,7 @@ public class FichaExporter extends BaseFileExporter {
         run.setText(String.format(". %s, [%s]. %df. Testemunho %d", local, year, pages, testimony));
     }
 
-    private static void PrintAuthor(XWPFTableCell cell, String author) {
+    public static void PrintAuthor(XWPFTableCell cell, String author) {
         XWPFParagraph paragraph = cell.getParagraphs().get(0);
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -245,7 +245,7 @@ public class FichaExporter extends BaseFileExporter {
         run.setText(author);
     }
 
-    private static XWPFTableCell generateWrappingCell(XWPFDocument document) {
+    public static XWPFTableCell generateWrappingCell(XWPFDocument document) {
         XWPFTable table = document.createTable(1, 1);
         XWPFTableCell cell = table.getRow(0).getCell(0);
 
@@ -255,7 +255,7 @@ public class FichaExporter extends BaseFileExporter {
         return cell;
     }
 
-    private static void configPage(CTBody body) {
+    public static void configPage(CTBody body) {
         if (!body.isSetSectPr()) {
             body.addNewSectPr();
         }

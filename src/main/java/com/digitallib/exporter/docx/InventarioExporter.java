@@ -47,7 +47,7 @@ public class InventarioExporter extends BaseFileExporter {
         createFile(document, "inventário");
     }
 
-    private static void configPage(CTBody body) {
+    public static void configPage(CTBody body) {
         if (!body.isSetSectPr()) {
             body.addNewSectPr();
         }
