@@ -58,6 +58,14 @@ Notas:
 - `--icon book_ico.ico` aponta para o arquivo de ícone (use um caminho absoluto se o jpackage não conseguir encontrá-lo).
 - `--win-console false` desabilita a janela do console no Windows para aplicativos GUI.
 
+Nota para Windows (cmd.exe):
+
+No Windows `cmd.exe`, você deve usar aspas duplas para o valor de `--java-options` (aspas simples não são reconhecidas pelo cmd). Você também pode fornecer caminhos absolutos para `--icon` e `--input`/`--dest` para evitar problemas de caminho. Exemplo (cmd.exe):
+
+```cmd
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options "--enable-preview" --icon "%CD%\\book_ico.ico" --win-console false --dest "%CD%\\out"
+```
+
 Você pode adicionar `--dest <diretorio-de-saida>` para controlar onde a imagem do aplicativo é gravada, e ajustar `--type` se você quiser um instalador em vez de uma imagem de aplicativo.
 
 ## Uso
@@ -135,35 +143,329 @@ Example command (creates an app-image):
 jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options '--enable-preview' --icon book_ico.ico --win-console false
 ```
 
-Notes:
-- `--input target` tells jpackage to look for the jar in the `target` directory created by Maven.
-- `--name GAMA` is the application name.
-- `--main-jar` should point to the assembled jar (the one created by the Maven build, usually with dependencies bundled).
-- `--main-class` is the application's entry point class.
-- `--type app-image` produces a distributable application image (alternatives include `exe`, `msi`, etc.).
-- `--java-options` passes JVM flags to the packaged runtime; here `--enable-preview` is preserved from the original runtime.
-- `--icon book_ico.ico` points to the icon file (use an absolute path if jpackage cannot find it).
-- `--win-console false` disables the console window on Windows for GUI apps.
+Notas:
+- `--input target` informa ao jpackage para procurar o jar no diretório `target` criado pelo Maven.
+- `--name GAMA` é o nome da aplicação.
+- `--main-jar` deve apontar para o jar montado (aquele criado pela construção do Maven, geralmente com dependências agrupadas).
+- `--main-class` é a classe de ponto de entrada da aplicação.
+- `--type app-image` produz uma imagem de aplicativo distribuível (as alternativas incluem `exe`, `msi`, etc.).
+- `--java-options` passa flags da JVM para o runtime empacotado; aqui `--enable-preview` é preservado do runtime original.
+- `--icon book_ico.ico` aponta para o arquivo de ícone (use um caminho absoluto se o jpackage não conseguir encontrá-lo).
+- `--win-console false` desabilita a janela do console no Windows para aplicativos GUI.
 
-You can add `--dest <output-dir>` to control where the app image is written, and adjust `--type` if you want an installer instead of an app-image.
+Nota para Windows (cmd.exe):
 
-## Usage
+No Windows `cmd.exe`, você deve usar aspas duplas para o valor de `--java-options` (aspas simples não são reconhecidas pelo cmd). Você também pode fornecer caminhos absolutos para `--icon` e `--input`/`--dest` para evitar problemas de caminho. Exemplo (cmd.exe):
 
-When you run the application, the main window will display the list of registered documents.
+```cmd
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options "--enable-preview" --icon "%CD%\\book_ico.ico" --win-console false --dest "%CD%\\out"
+```
 
-*   **Filters**: Use the fields at the top of the window to filter the document list by code, series, or testimony type (published/unpublished).
-*   **Add Document**:
-    *   Click the `Arquivo > Adicionar mono-testemunhal` menu item to open the registration form for a new document.
-    *   Use `Arquivo > Adicionar poli-testemunhal` to group multiple testimonies under the same title.
-*   **Export Data**: In the `Exportar` menu, you can choose between:
-    *   `Exportar Inventário`: Generates a Word document with a list of all filtered documents.
-    *   `Exportar Ficha-catálogo`: Generates a Word document with detailed cards for the selected documents.
-*   **Edit/Delete**: In the document list, the "Ações" (Actions) column contains buttons to edit or delete a record.
+Você pode adicionar `--dest <diretorio-de-saida>` para controlar onde a imagem do aplicativo é gravada, e ajustar `--type` se você quiser um instalador em vez de uma imagem de aplicativo.
 
-## Dependencies
+## Uso
 
-*   [Jackson](https://github.com/FasterXML/jackson): For handling JSON data.
-*   [Apache POI](https://poi.apache.org/): For creating and manipulating Microsoft Office files (DOCX).
-*   [Log4j](https://logging.apache.org/log4j/2.x/): For application logging.
-*   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): For handling YAML configuration files.
-*   [JUnit](https://junit.org/junit5/): For running unit tests.
+Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
+
+*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
+*   **Adicionar Documento**:
+    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
+    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
+*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
+    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
+    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
+*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+
+## Dependências
+
+*   [Jackson](https://github.com/FasterXML/jackson): Para manipulação de dados em formato JSON.
+*   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
+*   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
+*   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
+
+---
+
+#  Philology Document Management System GAMA
+
+## Description
+
+Here is the translation:
+
+This project is a Data Management System for philological study developed in Java for the project "Alcina Dantas Collection (AAD): interaction between philology, archival science, and ICTs" by Pollianna dos Santos Ferreira Silva and Rosa Borges.
+
+The main objective of the system is to automate the organization and management of data related to the documents in the Alcina Dantas Collection (AAD). It was conceived from a dialogical perspective between Philology and Information and Communication Technologies (ICTs), serving as a tool to optimize access to essential information for the preparation of critical editions and philological studies.
+
+The system provides a graphical interface for the user to register, classify, and interact with the collection's documents. The data is stored in a local repository in JSON format, with support for attaching media files such as facsimiles of the testimonies (images, PDFs), videos, and audio.
+
+## Features
+
+*   **Document Registration**: A form-based interface for detailed document registration, including classification by classes and subclasses, and information for generating references (according to the Brazilian standard NBR 6023).
+*   **Automatic Code Generation**: Automatically creates a unique identification code for each registered document.
+*   **Indexing**: Allows indexing of people and institutions mentioned in the documents, facilitating the creation of links between related works.
+*   **Document Management**: Displays a list of all documents, with features to filter, view, and edit records.
+*   **Multi-source Support**: Manages single and multi-testimonial documents.
+*   **Exporting**: Generates reports in DOCX format, including a full **Inventory** and a **Catalog Card** for specific documents.
+*   **Flexible Storage**: Data is saved in JSON format, and associated media files are kept in a local directory.
+
+## Getting Started
+
+To build and run the application, you will need to have Java (version 15 or higher) and Maven installed.
+
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd gama-filologia
+    ```
+
+2.  Build the project with Maven. This command will download the dependencies and create the `.jar` file.
+    ```bash
+    mvn clean install
+    ```
+
+3.  Run the application:
+    ```bash
+    java -jar target/digital-library-api-1.2.2.jar
+    ```
+
+Optional: Create a native application image (Windows) with jpackage
+
+If you want to package the application as a native app image on Windows, you can use the `jpackage` tool that ships with recent JDKs (JDK 14+; JDK 16+ recommended). Run this from the project root after building the jar. Make sure `jpackage` is on your PATH (or use the full path to the `jpackage` executable in your JDK's `bin` directory) and that `book_ico.ico` is present in the project root.
+
+Example command (creates an app-image):
+
+```bash
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options '--enable-preview' --icon book_ico.ico --win-console false
+```
+
+Notas:
+- `--input target` informa ao jpackage para procurar o jar no diretório `target` criado pelo Maven.
+- `--name GAMA` é o nome da aplicação.
+- `--main-jar` deve apontar para o jar montado (aquele criado pela construção do Maven, geralmente com dependências agrupadas).
+- `--main-class` é a classe de ponto de entrada da aplicação.
+- `--type app-image` produz uma imagem de aplicativo distribuível (as alternativas incluem `exe`, `msi`, etc.).
+- `--java-options` passa flags da JVM para o runtime empacotado; aqui `--enable-preview` é preservado do runtime original.
+- `--icon book_ico.ico` aponta para o arquivo de ícone (use um caminho absoluto se o jpackage não conseguir encontrá-lo).
+- `--win-console false` desabilita a janela do console no Windows para aplicativos GUI.
+
+Nota para Windows (cmd.exe):
+
+No Windows `cmd.exe`, você deve usar aspas duplas para o valor de `--java-options` (aspas simples não são reconhecidas pelo cmd). Você também pode fornecer caminhos absolutos para `--icon` e `--input`/`--dest` para evitar problemas de caminho. Exemplo (cmd.exe):
+
+```cmd
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options "--enable-preview" --icon "%CD%\\book_ico.ico" --win-console false --dest "%CD%\\out"
+```
+
+Você pode adicionar `--dest <diretorio-de-saida>` para controlar onde a imagem do aplicativo é gravada, e ajustar `--type` se você quiser um instalador em vez de uma imagem de aplicativo.
+
+## Uso
+
+Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
+
+*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
+*   **Adicionar Documento**:
+    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
+    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
+*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
+    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
+    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
+*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+
+## Dependências
+
+*   [Jackson](https://github.com/FasterXML/jackson): Para manipulação de dados em formato JSON.
+*   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
+*   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
+*   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
+
+---
+
+#  Philology Document Management System GAMA
+
+## Description
+
+Here is the translation:
+
+This project is a Data Management System for philological study developed in Java for the project "Alcina Dantas Collection (AAD): interaction between philology, archival science, and ICTs" by Pollianna dos Santos Ferreira Silva and Rosa Borges.
+
+The main objective of the system is to automate the organization and management of data related to the documents in the Alcina Dantas Collection (AAD). It was conceived from a dialogical perspective between Philology and Information and Communication Technologies (ICTs), serving as a tool to optimize access to essential information for the preparation of critical editions and philological studies.
+
+The system provides a graphical interface for the user to register, classify, and interact with the collection's documents. The data is stored in a local repository in JSON format, with support for attaching media files such as facsimiles of the testimonies (images, PDFs), videos, and audio.
+
+## Features
+
+*   **Document Registration**: A form-based interface for detailed document registration, including classification by classes and subclasses, and information for generating references (according to the Brazilian standard NBR 6023).
+*   **Automatic Code Generation**: Automatically creates a unique identification code for each registered document.
+*   **Indexing**: Allows indexing of people and institutions mentioned in the documents, facilitating the creation of links between related works.
+*   **Document Management**: Displays a list of all documents, with features to filter, view, and edit records.
+*   **Multi-source Support**: Manages single and multi-testimonial documents.
+*   **Exporting**: Generates reports in DOCX format, including a full **Inventory** and a **Catalog Card** for specific documents.
+*   **Flexible Storage**: Data is saved in JSON format, and associated media files are kept in a local directory.
+
+## Getting Started
+
+To build and run the application, you will need to have Java (version 15 or higher) and Maven installed.
+
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd gama-filologia
+    ```
+
+2.  Build the project with Maven. This command will download the dependencies and create the `.jar` file.
+    ```bash
+    mvn clean install
+    ```
+
+3.  Run the application:
+    ```bash
+    java -jar target/digital-library-api-1.2.2.jar
+    ```
+
+Optional: Create a native application image (Windows) with jpackage
+
+If you want to package the application as a native app image on Windows, you can use the `jpackage` tool that ships with recent JDKs (JDK 14+; JDK 16+ recommended). Run this from the project root after building the jar. Make sure `jpackage` is on your PATH (or use the full path to the `jpackage` executable in your JDK's `bin` directory) and that `book_ico.ico` is present in the project root.
+
+Example command (creates an app-image):
+
+```bash
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options '--enable-preview' --icon book_ico.ico --win-console false
+```
+
+Notas:
+- `--input target` informa ao jpackage para procurar o jar no diretório `target` criado pelo Maven.
+- `--name GAMA` é o nome da aplicação.
+- `--main-jar` deve apontar para o jar montado (aquele criado pela construção do Maven, geralmente com dependências agrupadas).
+- `--main-class` é a classe de ponto de entrada da aplicação.
+- `--type app-image` produz uma imagem de aplicativo distribuível (as alternativas incluem `exe`, `msi`, etc.).
+- `--java-options` passa flags da JVM para o runtime empacotado; aqui `--enable-preview` é preservado do runtime original.
+- `--icon book_ico.ico` aponta para o arquivo de ícone (use um caminho absoluto se o jpackage não conseguir encontrá-lo).
+- `--win-console false` desabilita a janela do console no Windows para aplicativos GUI.
+
+Nota para Windows (cmd.exe):
+
+No Windows `cmd.exe`, você deve usar aspas duplas para o valor de `--java-options` (aspas simples não são reconhecidas pelo cmd). Você também pode fornecer caminhos absolutos para `--icon` e `--input`/`--dest` para evitar problemas de caminho. Exemplo (cmd.exe):
+
+```cmd
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options "--enable-preview" --icon "%CD%\\book_ico.ico" --win-console false --dest "%CD%\\out"
+```
+
+Você pode adicionar `--dest <diretorio-de-saida>` para controlar onde a imagem do aplicativo é gravada, e ajustar `--type` se você quiser um instalador em vez de uma imagem de aplicativo.
+
+## Uso
+
+Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
+
+*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
+*   **Adicionar Documento**:
+    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
+    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
+*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
+    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
+    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
+*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+
+## Dependências
+
+*   [Jackson](https://github.com/FasterXML/jackson): Para manipulação de dados em formato JSON.
+*   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
+*   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
+*   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
+
+---
+
+#  Philology Document Management System GAMA
+
+## Description
+
+Here is the translation:
+
+This project is a Data Management System for philological study developed in Java for the project "Alcina Dantas Collection (AAD): interaction between philology, archival science, and ICTs" by Pollianna dos Santos Ferreira Silva and Rosa Borges.
+
+The main objective of the system is to automate the organization and management of data related to the documents in the Alcina Dantas Collection (AAD). It was conceived from a dialogical perspective between Philology and Information and Communication Technologies (ICTs), serving as a tool to optimize access to essential information for the preparation of critical editions and philological studies.
+
+The system provides a graphical interface for the user to register, classify, and interact with the collection's documents. The data is stored in a local repository in JSON format, with support for attaching media files such as facsimiles of the testimonies (images, PDFs), videos, and audio.
+
+## Features
+
+*   **Document Registration**: A form-based interface for detailed document registration, including classification by classes and subclasses, and information for generating references (according to the Brazilian standard NBR 6023).
+*   **Automatic Code Generation**: Automatically creates a unique identification code for each registered document.
+*   **Indexing**: Allows indexing of people and institutions mentioned in the documents, facilitating the creation of links between related works.
+*   **Document Management**: Displays a list of all documents, with features to filter, view, and edit records.
+*   **Multi-source Support**: Manages single and multi-testimonial documents.
+*   **Exporting**: Generates reports in DOCX format, including a full **Inventory** and a **Catalog Card** for specific documents.
+*   **Flexible Storage**: Data is saved in JSON format, and associated media files are kept in a local directory.
+
+## Getting Started
+
+To build and run the application, you will need to have Java (version 15 or higher) and Maven installed.
+
+1.  Clone the repository:
+    ```bash
+    git clone <repository-url>
+    cd gama-filologia
+    ```
+
+2.  Build the project with Maven. This command will download the dependencies and create the `.jar` file.
+    ```bash
+    mvn clean install
+    ```
+
+3.  Run the application:
+    ```bash
+    java -jar target/digital-library-api-1.2.2.jar
+    ```
+
+Optional: Create a native application image (Windows) with jpackage
+
+If you want to package the application as a native app image on Windows, you can use the `jpackage` tool that ships with recent JDKs (JDK 14+; JDK 16+ recommended). Run this from the project root after building the jar. Make sure `jpackage` is on your PATH (or use the full path to the `jpackage` executable in your JDK's `bin` directory) and that `book_ico.ico` is present in the project root.
+
+Example command (creates an app-image):
+
+```bash
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options '--enable-preview' --icon book_ico.ico --win-console false
+```
+
+Notas:
+- `--input target` informa ao jpackage para procurar o jar no diretório `target` criado pelo Maven.
+- `--name GAMA` é o nome da aplicação.
+- `--main-jar` deve apontar para o jar montado (aquele criado pela construção do Maven, geralmente com dependências agrupadas).
+- `--main-class` é a classe de ponto de entrada da aplicação.
+- `--type app-image` produz uma imagem de aplicativo distribuível (as alternativas incluem `exe`, `msi`, etc.).
+- `--java-options` passa flags da JVM para o runtime empacotado; aqui `--enable-preview` é preservado do runtime original.
+- `--icon book_ico.ico` aponta para o arquivo de ícone (use um caminho absoluto se o jpackage não conseguir encontrá-lo).
+- `--win-console false` desabilita a janela do console no Windows para aplicativos GUI.
+
+Nota para Windows (cmd.exe):
+
+No Windows `cmd.exe`, você deve usar aspas duplas para o valor de `--java-options` (aspas simples não são reconhecidas pelo cmd). Você também pode fornecer caminhos absolutos para `--icon` e `--input`/`--dest` para evitar problemas de caminho. Exemplo (cmd.exe):
+
+```cmd
+jpackage --input target --name GAMA --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar --main-class com.digitallib.main --type app-image --java-options "--enable-preview" --icon "%CD%\\book_ico.ico" --win-console false --dest "%CD%\\out"
+```
+
+Você pode adicionar `--dest <diretorio-de-saida>` para controlar onde a imagem do aplicativo é gravada, e ajustar `--type` se você quiser um instalador em vez de uma imagem de aplicativo.
+
+## Uso
+
+Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
+
+*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
+*   **Adicionar Documento**:
+    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
+    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
+*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
+    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
+    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
+*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+
+## Dependências
+
+*   [Jackson](https://github.com/FasterXML/jackson): Para manipulação de dados em formato JSON.
+*   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
+*   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
+*   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
+
