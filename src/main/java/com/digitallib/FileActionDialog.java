@@ -21,6 +21,7 @@ public class FileActionDialog extends JDialog {
     private JButton openFolderButton;
     private JButton removeFileButton;
     private JLabel fileNameLabel;
+    private JButton analyzePdfButton;
 
     private File file;
     private String editedDocCode;
@@ -41,8 +42,15 @@ public class FileActionDialog extends JDialog {
         openButton.addActionListener(e -> openFile());
         openFolderButton.addActionListener(e -> openFolder());
         removeFileButton.addActionListener(e -> removeFile());
+        analyzePdfButton.addActionListener(e -> analyzePdf());
 
         loadFileIcon();
+    }
+
+    private void analyzePdf() {
+        PdfAnalysisDialog dialog = new PdfAnalysisDialog(file);
+        dialog.pack();
+        dialog.setVisible(true);
     }
 
     private void openFile() {
@@ -91,6 +99,8 @@ public class FileActionDialog extends JDialog {
         if (i > 0) {
             fileExtension = fileName.substring(i + 1);
         }
+
+        analyzePdfButton.setVisible("pdf".equalsIgnoreCase(fileExtension));
 
         String iconPath = "/icons/";
         switch (fileExtension.toLowerCase()) {
@@ -144,19 +154,22 @@ public class FileActionDialog extends JDialog {
         contentPane = new JPanel();
         contentPane.setLayout(new GridLayoutManager(3, 1, new Insets(10, 10, 10, 10), -1, -1));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
         contentPane.add(panel1, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, 1, null, null, null, 0, false));
         openButton = new JButton();
-        openButton.setText("Open");
+        openButton.setText("Abrir");
         panel1.add(openButton, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel1.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel1.add(spacer1, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         openFolderButton = new JButton();
-        openFolderButton.setText("Open Folder");
+        openFolderButton.setText("Abrir Pasta");
         panel1.add(openFolderButton, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         removeFileButton = new JButton();
-        removeFileButton.setText("Remove File");
+        removeFileButton.setText("Remover Arquivo");
         panel1.add(removeFileButton, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        analyzePdfButton = new JButton();
+        analyzePdfButton.setText("Analisar PDF");
+        panel1.add(analyzePdfButton, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         fileTypeLabel = new JLabel();
         contentPane.add(fileTypeLabel, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         fileNameLabel = new JLabel();
