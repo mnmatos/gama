@@ -346,27 +346,14 @@ public class DocumentCreator extends JDialog {
                 super.mouseClicked(e);
 
                 if (e.getClickCount() == 2) {
-                    if (fileTree.getSelectionPath().equals(fileTree.getPathForRow(0))) {
-                        if (editedDocCode != null) {
-                            String path = getPathFromCode(editedDocCode);
-                            File fileFolder = new File(path);
-                            try {
-                                Process p = new ProcessBuilder("explorer.exe", "/select," + fileFolder.getCanonicalPath()).start();
-                            } catch (IOException ex) {
-                                logger.error(ex);
-                            }
-                        } else {
-                            logger.error("Folder info is null");
-                        }
-                    } else {
-                        String fileName = fileTree.getSelectionPath().getPath()[1].toString();
-                        logger.debug("selected:" + fileName);
-                        if (editedDocCode == null) { //File don't need to be deleted, just removed from list as it hasn't been copied yet
-                            files.removeIf(file -> file.getName().equals(fileName));
-                            refreshArquivoList();
-                        } else {
-                            OpenFileRemovalConfirmation(fileName);
-                        }
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) fileTree.getLastSelectedPathComponent();
+                    if (node == null) return;
+                    Object nodeInfo = node.getUserObject();
+                    if (nodeInfo instanceof FileNode) {
+                        File file = ((FileNode) nodeInfo).file;
+                        FileActionDialog dialog = new FileActionDialog(file, editedDocCode, files, () -> refreshArquivoList());
+                        dialog.pack();
+                        dialog.setVisible(true);
                     }
                 }
             }
