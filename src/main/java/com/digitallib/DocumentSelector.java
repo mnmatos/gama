@@ -1,7 +1,9 @@
 package com.digitallib;
 
+import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.Documento;
+import com.digitallib.model.ui.Filter;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
@@ -13,6 +15,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DocumentSelector extends JDialog {
     private JPanel contentPane;
@@ -24,11 +27,14 @@ public class DocumentSelector extends JDialog {
     private JTextField filtroCodigo;
     private JComboBox classeFilter;
 
+    CategoryManager categoryManager = new CategoryManager();
+
     public DocumentSelector() {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
 
+        initializeClasseDropdown();
         refreshTable();
 
         buttonOK.addActionListener(new ActionListener() {
@@ -59,10 +65,20 @@ public class DocumentSelector extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
+    private void initializeClasseDropdown() {
+        final DefaultComboBoxModel model = new DefaultComboBoxModel(categoryManager.getClasseAndCodeAsStringArray());
+        model.insertElementAt("Todas as Séries", 0);
+        classeFilter.setModel(model);
+        classeFilter.setSelectedIndex(0);
+        classeFilter.addActionListener(e -> {
+            refreshTable();
+        });
+    }
+
     private void refreshTable() {
         String[] colunas = {"Código", "Título", "Série", "Encontrado em"};
 
-        List<Documento> documentos = getDocumentos();
+        List<Documento> documentos = getDocumentosFiltrados();
 
         String[][] dados = new String[documentos.size()][colunas.length];
 
@@ -77,7 +93,13 @@ public class DocumentSelector extends JDialog {
         docTable.setModel(tableModel);
     }
 
+    private List<Documento> getDocumentosFiltrados() {
+        List<Documento> documentos = getDocumentos();
+        return documentos.stream().filter(d -> classeFilter.getSelectedIndex() < 1 || d.getClasseProducao().equals(categoryManager.getClasseForIndex(classeFilter.getSelectedIndex() - 1))).collect(Collectors.toList());
+    }
+
     private List<Documento> getDocumentos() {
+
         return RepositoryManager.getEntries();
     }
 

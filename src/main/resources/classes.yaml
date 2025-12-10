@@ -11,7 +11,7 @@ classes:
         desc: Conto
         code: "01b"
       - name: ensaio
-        desc: Ensaio|
+        desc: Ensaio
         code: "01c"
       - name: pecas_teatrais
         desc: Peças teatrais

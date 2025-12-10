@@ -55,7 +55,7 @@ public class FichaExporter extends BaseFileExporter {
             }
         }
 
-        createFile(document, "inventário");
+        createFile(document, "Ficha");
     }
 
     public static void createSpace(XWPFParagraph paragraph, int spacing) {
@@ -67,26 +67,28 @@ public class FichaExporter extends BaseFileExporter {
     }
 
     public static void CreateDocUnit(XWPFDocument wordDocument, Documento doc) {
-        testimony = 1; //TODO: make dynamic
 
         TextoTeatral textoTeatral = doc.getTextoTeatro();
         String local = "";
-        try {
-            local = EntityManager.getEntryById(doc.getLugarPublicacao()).getName();
-        } catch (EntityNotFoundException e) {
-            logger.error("Could not find Local: "+doc.getLugarPublicacao(), e);
+
+        if(doc.getLugarPublicacao()!=null) {
+            try {
+                local = EntityManager.getEntryById(doc.getLugarPublicacao()).getName();
+            } catch (EntityNotFoundException e) {
+                logger.error("Could not find Local: " + doc.getLugarPublicacao(), e);
+            }
         }
 
         XWPFTableCell cell = generateWrappingCell(wordDocument);
         PrintAuthor(cell, getAuthorText(doc));//"COSTA, Nivalda Silva."
-        PrintTitle(cell, doc.getTitulo(), local, doc.getDataDocumento().getAno(), doc.getNumPagina(), testimony);
+        PrintTitle(cell, doc.getTitulo(), local, doc.getDataDocumento().getAno(), doc.getNumPagina(), doc.getTestemunho());
         createSpace(cell.addParagraph(), 0);
 
         PrintInfo(cell, doc.getInstituicaoCustodia(), "Adulto", textoTeatral.getQuantidadePersonagem(), textoTeatral.getCenas(), textoTeatral.getAtos());
 
         String description = doc.getDescricao();
 
-        PrintDescription(cell, "Descrição", testimony, description);
+        PrintDescription(cell, "Descrição", doc.getTestemunho(), description);
         PrintResumeWithKeywords(cell, textoTeatral.getResumo(), textoTeatral.getPalavrasChave());
 
         if (doc.getTrabalhosRelacionados() != null) {
@@ -172,7 +174,7 @@ public class FichaExporter extends BaseFileExporter {
         run.addBreak();
     }
 
-    public static void PrintDescription(XWPFTableCell cell, String contentName, int testimony, String description) {
+    public static void PrintDescription(XWPFTableCell cell, String contentName, String testimony, String description) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -183,7 +185,7 @@ public class FichaExporter extends BaseFileExporter {
         run.setFontSize(12);
         run.setFontFamily("Times New Roman");
         run.setBold(true);
-        run.setText(String.format("Testemunho (T%d)", testimony));
+        run.setText(String.format("Testemunho (%s)", testimony));
         run.addBreak();
 
         CreateTextWithBoldIntro(contentName, description, paragraph);
@@ -214,7 +216,7 @@ public class FichaExporter extends BaseFileExporter {
         run.addBreak();
     }
 
-    public static void PrintTitle(XWPFTableCell cell, String title, String local, String year, int pages, int testimony) {
+    public static void PrintTitle(XWPFTableCell cell, String title, String local, String year, int pages, String testimony) {
         XWPFParagraph paragraph = cell.addParagraph();
         paragraph.setAlignment(ParagraphAlignment.LEFT);
         paragraph.setSpacingBefore(0);
@@ -230,7 +232,7 @@ public class FichaExporter extends BaseFileExporter {
         run = paragraph.createRun();
         run.setFontSize(12);
         run.setFontFamily("Times New Roman");
-        run.setText(String.format(". %s, [%s]. %df. Testemunho %d", local, year, pages, testimony));
+        run.setText(String.format(". %s, [%s]. %df. Testemunho %s", local, year, pages, testimony));
     }
 
     public static void PrintAuthor(XWPFTableCell cell, String author) {

@@ -58,7 +58,7 @@ public class DocSelectScreenWithSearch extends JDialog {
     }
 
     private static String getTextFromDoc(Documento doc) {
-        return String.format("%s - %s", doc.getCodigo(), doc.getTitulo());
+        return String.format("%s -> %s", doc.getCodigo(), doc.getTitulo());
     }
 
     public String getSelectedValue() {
