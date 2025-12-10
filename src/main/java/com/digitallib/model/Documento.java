@@ -38,6 +38,9 @@ public class Documento {
     @JsonProperty("codigo")
     String codigo;
 
+    @JsonProperty("codigo_manual")
+    boolean codigoManual;
+
     @JsonProperty("transcricao")
     String transcricao;
 
@@ -431,5 +434,13 @@ public class Documento {
 
     public void setGrupo(String grupo) {
         this.grupo = grupo;
+    }
+
+    public boolean isCodigoManual() {
+        return codigoManual;
+    }
+
+    public void setCodigoManual(boolean codigoManual) {
+        this.codigoManual = codigoManual;
     }
 }

@@ -53,8 +53,8 @@ public class DocumentList extends JDialog {
 
     JMenu fileMenu = new JMenu("Arquivo");
     JMenu exportMenu = new JMenu("Exportar");
-    JMenuItem addMenuItem = new JMenuItem("Adicionar mono-testemunhal");
-    JMenuItem addPoliMenuItem = new JMenuItem("Adicionar poli-testemunhal");
+    JMenuItem addMenuItem = new JMenuItem("Adicionar monotestemunhal");
+    JMenuItem addPoliMenuItem = new JMenuItem("Adicionar politestemunhal");
     JMenuItem exportInventoryMenuItem = new JMenuItem("Exportar Inventário");
     JMenuItem exportCatalogMenuItem = new JMenuItem("Exportar Ficha-catálogo");
 
@@ -106,7 +106,7 @@ public class DocumentList extends JDialog {
             String title = JOptionPane.showInputDialog(
                     null,
                     "Digite o Título",
-                    "Criar Poli-testemunhal",
+                    "Criar Politestemunhal",
                     JOptionPane.QUESTION_MESSAGE
             );
 
@@ -177,7 +177,9 @@ public class DocumentList extends JDialog {
 
     private void initializeClasseDropdown() {
         final DefaultComboBoxModel model = new DefaultComboBoxModel(categoryManager.getClasseAndCodeAsStringArray());
+        model.insertElementAt("Todas as Séries", 0);
         classeFilter.setModel(model);
+        classeFilter.setSelectedIndex(0);
         classeFilter.addActionListener(e -> {
             toogleTestemunhoFilter();
             refreshTable();
