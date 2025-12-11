@@ -11,10 +11,15 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import static com.digitallib.manager.RepositoryManager.getPathFromCode;
 import static com.digitallib.manager.RepositoryManager.removeFiles;
 
 public class FileActionDialog extends JDialog {
+    private static final Logger logger = LogManager.getLogger(FileActionDialog.class);
+
     private JPanel contentPane;
     private JButton openButton;
     private JLabel fileTypeLabel;
@@ -57,8 +62,8 @@ public class FileActionDialog extends JDialog {
         try {
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Could not open file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            logger.error("Erro ao abrir arquivo: " + file.getAbsolutePath(), e);
+            JOptionPane.showMessageDialog(this, "Não foi possível abrir o arquivo: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -69,7 +74,7 @@ public class FileActionDialog extends JDialog {
             try {
                 Process p = new ProcessBuilder("explorer.exe", "/select," + fileFolder.getCanonicalPath()).start();
             } catch (IOException ex) {
-                ex.printStackTrace();
+                logger.error("Erro ao abrir pasta do arquivo: " + fileFolder.getAbsolutePath(), ex);
             }
         } else {
             // Handle case where editedDocCode is null
@@ -119,8 +124,8 @@ public class FileActionDialog extends JDialog {
             ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
             fileTypeLabel.setIcon(icon);
         } catch (Exception e) {
-            e.printStackTrace();
-            fileTypeLabel.setText("Icon not found for " + fileExtension);
+            logger.error("Ícone não encontrado: " + iconPath, e);
+            fileTypeLabel.setText("Ícone não encontrado para " + fileExtension);
         }
     }
 

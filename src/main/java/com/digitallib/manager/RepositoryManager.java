@@ -1,19 +1,14 @@
 package com.digitallib.manager;
 
 import com.digitallib.JsonGenerator;
-import com.digitallib.main;
-import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
 import com.digitallib.model.SubClasse;
-import com.digitallib.utils.ConfigReader;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -114,7 +109,7 @@ public class RepositoryManager {
         try (Stream<Path> paths = Files.walk(getRepoPath())) {
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> documentos.add(getDoc(javaPath)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao listar documentos no repositório", e);
         }
         return documentos;
     }
@@ -124,17 +119,17 @@ public class RepositoryManager {
         try (Stream<Path> paths = Files.walk(getRepoPath())) {
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> documentCodes.add(getDoc(javaPath).getCodigo()));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao coletar códigos de documentos", e);
         }
         return documentCodes;
     }
 
     private static Path getRepoPath(){
-        String folder = ConfigReader.getProperty("repository_folder");
-        if(folder == null) {
-            folder = "./";
+        String projectPath = System.getProperty("selected.project.path");
+        if (projectPath == null) {
+            throw new IllegalStateException("Project path is not set. Please select a project first.");
         }
-        Path path = Paths.get(folder +  "repo/documents/");
+        Path path = Paths.get(projectPath, "documents");
         try {
             Files.createDirectories(path);
         } catch (IOException e) {

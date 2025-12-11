@@ -20,7 +20,12 @@ import java.util.HashSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class PdfAnalysisDialog extends JDialog {
+    private static final Logger logger = LogManager.getLogger(PdfAnalysisDialog.class);
+
     private JPanel contentPane;
     private JLabel wordCountLabel;
     private JButton buttonOK;
@@ -91,7 +96,7 @@ public class PdfAnalysisDialog extends JDialog {
             updateTable();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Erro ao analisar PDF: " + file, e);
             JOptionPane.showMessageDialog(this, "Não foi possível analisar o PDF: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
         }
     }

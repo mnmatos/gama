@@ -18,9 +18,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class EntityManager {
+
+    private static final Logger logger = LogManager.getLogger(EntityManager.class);
 
     public static final String REPO = "repo/entities";
 
@@ -98,7 +103,7 @@ public class EntityManager {
             Stream<Path> paths = getPathStream();
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> entries.add(getDoc(javaPath)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao listar entidades", e);
         }
         return entries;
     }

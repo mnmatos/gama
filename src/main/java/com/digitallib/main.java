@@ -1,5 +1,6 @@
 package com.digitallib;
 
+import com.digitallib.swing.ProjectManager;
 import com.digitallib.utils.ConfigReader;
 
 import javax.swing.*;
@@ -10,9 +11,7 @@ public class main {
 
     public static void main(String[] args) {
         initializeAcervo();
-        SwingUtilities.invokeLater(() -> {
-            new MainApp().setVisible(true);
-        });
+        ProjectManager.main();
     }
 
     private static void initializeAcervo() {

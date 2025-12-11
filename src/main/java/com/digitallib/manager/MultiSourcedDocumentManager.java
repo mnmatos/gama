@@ -16,9 +16,14 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class MultiSourcedDocumentManager {
+
+    private static final Logger logger = LogManager.getLogger(MultiSourcedDocumentManager.class);
 
     public static final String REPO = "repo/multi";
 
@@ -93,7 +98,7 @@ public class MultiSourcedDocumentManager {
             Stream<Path> paths = getPathStream();
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> entries.add(getDoc(javaPath)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao listar MultiSourcedDocuments", e);
         }
         return entries;
     }
