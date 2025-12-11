@@ -2,220 +2,110 @@ classes:
   - name: producao_intelectual
     code: "01"
     desc: Produção Intelectual
-    format: titulo.subclasse.numero_item-data.testemunho
+    format: titulo.data.encontrado_em.instituicao
     subclasses:
-      - name: texto_teatral
-        desc: Texto teatral
-        code: "01a"
-        extensions:
-          - teatro_info
-      - name: contos
-        desc: Contos
-        code: "01b"
-      - name: romance
-        desc: Romance
-        code: "01c"
-      - name: discurso
-        desc: Discurso
-        code: "01d"
-      - name: artigo
-        desc: Artigo
-        code: "01e"
-      - name: texto_autobiografico
-        desc: Texto autobiográfico
-        code: "01f"
-      - name: prefacio_textodeapresentacao_programa
-        desc: Prefácio, Texto de apresentação, Programa
-        code: "01g"
       - name: poesia
         desc: Poesia
+        code: "01a"
+      - name: conto
+        desc: Conto
+        code: "01b"
+      - name: ensaio
+        desc: Ensaio
+        code: "01c"
+      - name: pecas_teatrais
+        desc: Peças teatrais
+        code: "01d"
+        extensions:
+          - teatro_info
+      - name: cancoes
+        desc: Canções
+        code: "01e"
+      - name: discursos
+        desc: Discursos
+        code: "01f"
+      - name: manifesto
+        desc: Manifestos
+        code: "01g"
+      - name: romance
+        desc: Romance
         code: "01h"
-      - name: cancao_individual_coletiva
-        desc: Canção (individual, coletiva)
-        code: "01i"
-      - name: depoimento_entrevistas
-        desc: Depoimento (entrevistas)
-        code: "01j"
-      - name: dossie_projetos_relatorios_oficinas_programacao_apostilas
-        desc: Dossiê (projetos, relatórios, oficinas, programação de seminários, apostilas)
-        code: "01l"
-
-  - name: publicacoes_na_imprensa_e_em_diversas_midias
+  - name: documentos_audiovisuais
     code: "02"
-    desc: Publicações na Imprensa e em Diversas Mídias
-    format: titulo.subclasse.numero_item-data.testemunho
+    desc: Documentos Audiovisuais
+    format: titulo.data.instituicao
     subclasses:
-      - name: publicacoes_sobre_o_autor_e_suas_producoes
-        desc: Publicações sobre o autor e suas produções
+      - name: homenagem
+        desc: Homenagem
+        code: "01h"
+      - name: fotos_autora
+        desc: Fotos
         code: "02a"
-      - name: publicacoes_autorais_coluna_teatral
-        desc: Publicações autorais (coluna teatral)
-        code: "02b"
-      - name: divulgacao_dos_espetaculos
-        desc: Divulgação dos espetáculos
-        code: "02c"
       - name: entrevistas
-        desc: Entrevistas (com o autor e feitas pelo autor)
-        code: "02d"
-
-  - name: documentacao_censoria
+        desc: Entrevistas
+        code: "02b"
+  - name: esbocos_e_notas
     code: "03"
-    desc: Documentação Censória
-    format: titulo.subclasse.numero_item-data.testemunho
+    desc: Esboços e notas
+    format: titulo
     subclasses:
-      - name: solicitacao_requerimento
-        desc: Solicitação/Requerimento
-        code: "03a"
-      - name: oficio
-        desc: Ofício
-        code: "03b"
-      - name: texto_teatral
-        desc: Texto teatral
-        code: "03c"
-      - name: parecer
-        desc: Parecer
-        code: "03d"
-      - name: memorando
-        desc: Memorando
-        code: "03e"
-      - name: radiograma
-        desc: Radiograma
-        code: "03f"
-      - name: relatorio
-        desc: Relatório
-        code: "03g"
-      - name: ficha_de_protocolo
-        desc: Ficha de protocolo
-        code: "03h"
-      - name: certificado_de_censura
-        desc: Certificado de Censura
-        code: "03i"
-      - name: outros_documentos
-        desc: Outros documentos
-        code: "03j"
-
-  - name: esbocos_notas_e_rascunhos
-    code: "04"
-    desc: Esboços, Notas e Rascunhos
-    format: titulo.subclasse.numero_item-data.testemunho
-    subclasses:
-      - name: datilografados_e_manuscritos_em_folhas_soltas
-        desc: Datilografados e manuscritos em folhas soltas
-        code: "04a"
       - name: notas_manuscritas
-        desc: "Notas manuscritas: lista de personagem, marcação cênica, ficha técnica, rascunho do programa, lista de textos"
-        code: "04b"
-      - name: cenario_desenho_caricatura
-        desc: "Cenário: desenho, caricatura"
-        code: "04c"
-
-  - name: documentos_audiovisuais_e_digitais
-    code: "05"
-    desc: Documentos Audiovisuais e Digitais
-    format: titulo.subclasse.numero_item-data.testemunho
-    subclasses:
-      - name: fotografias
-        desc: Fotografias
-        code: "05a"
-      - name: programa_do_espetaculo
-        desc: Programa do espetáculo
-        code: "05b"
-      - name: panfletos_e_cartazes
-        desc: Panfletos e Cartazes
-        code: "05c"
-      - name: gravacoes
-        desc: Gravações
-        code: "05e"
-      - name: disco
-        desc: Disco
-        code: "05f"
-
-  - name: correspondencia
-    code: "06"
-    desc: Correspondência
-    format: titulo.subclasse.numero_item-data.testemunho
-    subclasses:
-      - name: cartas_do_autor
-        desc: Cartas do autor
-        code: "06a"
-      - name: cartas_ao_autor
-        desc: Cartas ao autor
-        code: "06b"
-      - name: cartas_de_terceiros
-        desc: Cartas de terceiros
-        code: "06c"
-      - name: telegrama
-        desc: Telegrama
-        code: "06d"
-      - name: bilhete
-        desc: Bilhete
-        code: "06e"
-
+        desc: Notas manuscritas
+        code: "03a"
   - name: memorabilia
-    code: "07"
+    code: "04"
     desc: Memorabilia
-    format: titulo.subclasse.numero_item-data.testemunho
+    format: titulo.data.encontrado_em.instituicao
     subclasses:
-      - name: certificados_de_premiacoes_premios
-        desc: Certificados de premiações, Prêmios
-        code: "07a"
-      - name: homenagens
-        desc: Homenagens (espetáculos, eventos)
-        code: "07b"
-
-  - name: adaptacoes_e_traducoes
-    code: "08"
-    desc: Adaptações e Traduções
-    format: titulo.subclasse.numero_item-data.testemunho
+      - name: doc_diversos
+        desc: Documentos diversos relacionados com a autora
+        code: "04a"
+  - name: recepcao
+    code: "05"
+    desc: Recepção
+    format: titulo.data.encontrado_em.instituicao
     subclasses:
-      - name: literatura
-        desc: Literatura
-        code: "08a"
-      - name: televisao
-        desc: Televisão
-        code: "08b"
-      - name: cinema
-        desc: Cinema
-        code: "08c"
-      - name: danca
-        desc: Dança
-        code: "08d"
-      - name: teatro
-        desc: Teatro
-        code: "08e"
-
-  - name: estudos
-    code: "09"
-    desc: Estudos
-    format: titulo.subclasse.numero_item-data.testemunho
-    subclasses:
-      - name: fortuna_critica
-        desc: Fortuna Crítica
-        code: "09a"
-      - name: producoes_academicas
-        desc: Produções acadêmicas
-        code: "09b"
-      - name: recepcao_do_texto_e_espetaculo_teatrais
-        desc: Recepção do texto e espetáculo teatrais
-        code: "09c"
-
+      - name: critica_universitaria
+        desc: Crítica acadêmica universitária
+        code: "05a"
+      - name: critica_academia_feira
+        desc: Crítica da Academia Feirense de Letras e Artes
+        code: "05b"
+      - name: memorial_e_biograficos
+        desc: Memorial e demais estudos biográficos sobre a autora
+        code: "05c"
+      - name: poetas
+        desc: Poetas
+        code: "05d"
   - name: varia
-    code: "10"
+    code: "06"
     desc: Varia
-    format: titulo.subclasse.numero_item-data.testemunho
+    format: titulo.data.encontrado_em.instituicao
     subclasses:
-      - name: livros_revistas_e_folhetos
-        desc: Livros, revistas e folhetos (Biblioteca)
-        code: "10a"
-      - name: edital
-        desc: Edital (concurso de peça teatral)
-        code: "10b"
-      - name: paratexto
-        desc: Paratexto (texto do programa da peça, texto da contracapa do disco)
-        code: "10c"
-      - name: documentos_de_outras_instituicoes
-        desc: Documentos de outras instituições e projetos do governo
-        code: "10d"
-      - name: documentos_administrativos
-        desc: Documentos administrativos
-        code: "10e"
+      - name: certidao
+        desc: Certidão de inteiro teor
+        code: "06a"
+      - name: vida
+        desc: Vida
+        code: "06b"
+  - name: publicacoes_imprensa
+    code: "07"
+    desc: Publicações na imprensa
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: noticias
+        desc: Notícias relacionadas com a autora
+        code: "07a"
+  - name: correspondencia
+    code: "08"
+    desc: Correspondência
+    format: titulo.data.encontrado_em.instituicao
+    subclasses:
+      - name: correspondencia_enviada
+        desc: Enviada
+        code: "08a"
+      - name: correspondencia_recebida
+        desc: Recebida
+        code: "08b"
+
+
