@@ -4,7 +4,7 @@ import com.digitallib.JsonGenerator;
 import com.digitallib.exception.EntityNotFoundException;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
-import org.apache.commons.io.FileUtils;
+import com.digitallib.utils.RobustFileDeleter;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class EntityManager {
 
     public static void removeEntry(String code){
         try {
-            Files.delete(getFilePath(code));
+            RobustFileDeleter.delete(getFilePath(code));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -93,7 +93,7 @@ public class EntityManager {
         return entitiesList.get(0);
     }
 
-    public static List<Entity> getEntryByType (EntityType type){
+    public static List<Entity> getEntriesByType (EntityType type){
         return getEntries().stream().filter(d -> d.getType().equals(type)).collect(Collectors.toList());
     }
 

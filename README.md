@@ -195,3 +195,78 @@ Ao executar a aplicação, a janela principal exibirá a lista de documentos cad
 *   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
 *   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
 *   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
+
+## JavaFX runtime (required for the launcher)
+
+This project UI was migrated to JavaFX. If you run the packaged `GAMA` launcher you may see the error (in Portuguese):
+
+"Erro: os componentes de runtime do JavaFX não foram encontrados. Eles são obrigatórios para executar este aplicativo"
+
+That means the JVM that launches the app could not find the JavaFX runtime modules. The launcher is configured to look for JavaFX jars under `GAMA/runtime/lib` and to pass them as a module path to the JVM. Follow these steps to provide the JavaFX runtime.
+
+### 1) Download the JavaFX SDK
+- Pick the JavaFX SDK version that matches the JDK you use to run the app (e.g. JDK 17 → JavaFX 17).
+- Official sources: https://openjfx.io/ or GluonHQ (https://gluonhq.com/products/javafx/).
+- Download and unzip the SDK for Windows x64 (if that's your platform).
+
+### 2) Copy the JavaFX SDK `lib` contents to `GAMA/runtime/lib`
+- Create the folder `GAMA/runtime/lib` (relative to the project root) and copy all jars from the SDK `lib` folder into it.
+
+PowerShell example (adjust the sdk path):
+
+```powershell
+# Example: adjust paths to match your environment
+$javafxSdkLib = 'C:\path\to\javafx-sdk-17.0.8\lib'
+$dest = 'C:\Users\mnmat\IdeaProjects\gama-filologia\GAMA\runtime\lib'
+
+# Create destination and copy files
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
+Copy-Item -Path (Join-Path $javafxSdkLib '*') -Destination $dest -Recurse -Force
+Write-Host "JavaFX jars copied to $dest"
+```
+
+The project launcher `GAMA/app/GAMA.cfg` was updated to include these VM options (it expects the runtime jars under `%APPDIR%\\runtime\\lib`):
+
+``ini
+java-options=--module-path=%APPDIR%\\runtime\\lib
+java-options=--add-modules=javafx.controls,javafx.fxml,javafx.graphics
+```
+
+### 3) Run the packaged launcher
+- After copying the JavaFX jars into `GAMA/runtime/lib`, start the `GAMA` launcher (the executable shipped in the `GAMA` folder). The launcher will pass `--module-path` and `--add-modules` to the JVM so JavaFX loads correctly.
+
+### 4) Run from the IDE or directly with `java -jar`
+If you prefer to run the jar directly (or from the IDE), pass the same JVM options. Example PowerShell:
+
+```powershell
+$javafxLib = 'C:\path\to\javafx-sdk-17.0.8\lib'
+$jar = 'C:\Users\mnmat\IdeaProjects\gama-filologia\GAMA\app\digital-library-api-1.2.2-jar-with-dependencies.jar'
+
+java --module-path "$javafxLib" --add-modules=javafx.controls,javafx.fxml,javafx.graphics -jar "$jar"
+```
+
+Or for the built target jar created by Maven:
+
+```powershell
+$jar = 'C:\Users\mnmat\IdeaProjects\gama-filologia\target\digital-library-api-1.2.2-jar-with-dependencies.jar'
+java --module-path "$javafxLib" --add-modules=javafx.controls,javafx.fxml,javafx.graphics -jar "$jar"
+```
+
+### 5) Development with Maven
+You can run the JavaFX app via the Maven plugin (which will configure the module path automatically):
+
+```powershell
+mvn javafx:run
+```
+
+Make sure Maven and your IDE use the same JDK version that matches the JavaFX SDK.
+
+### Troubleshooting
+- Version mismatch: Use JavaFX that matches the major JDK version (e.g. Java 17 ↔ JavaFX 17).
+- Architecture mismatch: Download the JavaFX SDK for your OS/architecture (Windows x64, etc.).
+- If the launcher still fails, verify the launcher actually reads `GAMA/app/GAMA.cfg`, and that the `GAMA/runtime/lib` folder contains the JavaFX jars.
+- Native library errors: If there are missing DLL or native load errors, use the JavaFX SDK for your platform and ensure Visual C++ redistributable is installed if needed.
+
+---
+
+If you want, I can add a small PowerShell script to this repository that downloads a specified JavaFX SDK release, extracts it and copies the `lib` contents into `GAMA/runtime/lib`. Tell me which JavaFX version (e.g. `17.0.8` or `19.0.2`) you prefer and I'll add the script (I won't run it).

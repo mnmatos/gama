@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.digitallib.utils.RobustFileDeleter;
 
 public abstract class IndexManager<O> {
 
@@ -11,7 +12,7 @@ public abstract class IndexManager<O> {
 
     public void clearIndex(O indexObj){
         try {
-            Files.delete(getFilePath(getIndexName(indexObj)));
+            RobustFileDeleter.delete(getFilePath(getIndexName(indexObj)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

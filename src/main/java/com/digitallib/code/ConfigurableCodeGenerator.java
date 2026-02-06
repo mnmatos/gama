@@ -7,12 +7,12 @@ import com.digitallib.utils.ConfigReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static com.digitallib.main.ACERVO;
 import static com.digitallib.utils.TextUtils.getAcronimo;
 
 public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
 
     private Logger logger = LogManager.getLogger();
+    public static final String ACERVO = "acervo";
 
     @Override
     public String generateCodeWithoutAppendix(Documento documento) throws ValidationException {

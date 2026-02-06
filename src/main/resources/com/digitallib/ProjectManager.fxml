@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.ProjectManagerController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <center>
+        <TableView fx:id="projectTableView" prefHeight="300.0" prefWidth="580.0">
+            <columns>
+                <TableColumn fx:id="projectNameColumn" text="Projeto" prefWidth="200.0" />
+                <TableColumn fx:id="projectPathColumn" text="Caminho da Pasta" prefWidth="360.0" />
+            </columns>
+            <BorderPane.margin>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </BorderPane.margin>
+        </TableView>
+    </center>
+
+    <bottom>
+        <FlowPane hgap="10" vgap="10" alignment="CENTER">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button text="Criar Projeto" onAction="#handleCreate"/>
+            <Button text="Selecionar Projeto" onAction="#handleSelect"/>
+            <Button text="Excluir Projeto" onAction="#handleDelete"/>
+            <Button text="Importar Projeto" onAction="#handleImport"/>
+            <Button text="Exportar Projeto" onAction="#handleExport"/>
+        </FlowPane>
+    </bottom>
+
+</BorderPane>

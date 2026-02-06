@@ -3,7 +3,7 @@ package com.digitallib.manager;
 import com.digitallib.JsonGenerator;
 import com.digitallib.model.Documento;
 import com.digitallib.model.SubClasse;
-import org.apache.commons.io.FileUtils;
+import com.digitallib.utils.RobustFileDeleter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,15 +52,15 @@ public class RepositoryManager {
         try {
             File file = new File(getPathFromCode(code));
             if (Arrays.stream(file.listFiles()).filter(f -> f.isDirectory()).collect(Collectors.toList()).size() == 0) {
-                FileUtils.deleteDirectory(file);
+                RobustFileDeleter.delete(file);
                 for(int i = 0; i < 3; i++) {
                     file = file.getParentFile();
-                    if (file.listFiles().length == 0) FileUtils.deleteDirectory(file);
+                    if (file.listFiles().length == 0) RobustFileDeleter.delete(file);
                     else break;
                 }
             } else {
                 for(File fileToBeRemoved : Arrays.stream(file.listFiles()).filter(f -> !f.isDirectory()).collect(Collectors.toList())){
-                    FileUtils.delete(fileToBeRemoved);
+                    RobustFileDeleter.delete(fileToBeRemoved);
                 }
             }
         } catch (IOException e) {
@@ -83,8 +83,10 @@ public class RepositoryManager {
             Arrays.stream(filesOnFolder)
                     .filter(file -> file.isFile() && files.contains(file.getName()))
                     .forEach(file -> {
-                        if (!file.delete()) {
-                            logger.error("Falha ao deletar: " + file.getAbsolutePath());
+                        try {
+                            RobustFileDeleter.delete(file);
+                        } catch (IOException e) {
+                            logger.error("Falha ao deletar: " + file.getAbsolutePath(), e);
                         }
                     });
         }

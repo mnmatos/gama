@@ -7,10 +7,11 @@ import com.digitallib.utils.ConfigReader;
 
 import java.util.HashSet;
 
-import static com.digitallib.main.ACERVO;
 import static com.digitallib.utils.TextUtils.getAcronimo;
 
 public class CodeGeneratorImpl implements CodeGenerator{
+    public static final String ACERVO = "acervo";
+
     @Override
     public String generateCode(Documento documento) throws ValidationException {
         String codigo = generateCodeWithoutAppendix(documento);

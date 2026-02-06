@@ -4,6 +4,7 @@ import com.digitallib.JsonGenerator;
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.MultiSourcedDocument;
 import com.digitallib.model.SubClasse;
+import com.digitallib.utils.RobustFileDeleter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,7 +51,7 @@ public class MultiSourcedDocumentManager {
 
     public static void removeEntry(String code){
         try {
-            Files.delete(getFilePath(code));
+            RobustFileDeleter.delete(getFilePath(code));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
