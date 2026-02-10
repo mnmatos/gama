@@ -17,6 +17,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import com.digitallib.utils.RobustFileDeleter;
+import com.digitallib.utils.ZipUtils;
 
 public class ProjectManagerController {
 
@@ -88,6 +90,16 @@ public class ProjectManagerController {
         } catch (IOException e) {
             logger.error("Failed to save projects", e);
             showAlert("Error", "Could not save projects: " + e.getMessage());
+        }
+    }
+
+    private void saveProjectFile(Project project) {
+        File projectDir = new File(project.getPath());
+        File gamaFile = new File(projectDir, ".gama");
+        try {
+            mapper.writeValue(gamaFile, project);
+        } catch (IOException e) {
+            logger.error("Failed to save .gama file", e);
         }
     }
 
@@ -216,13 +228,6 @@ public class ProjectManagerController {
         }
     }
 
-    // Recursively deletes a directory. Returns true if deletion succeeded.
-    // Deprecated: Use RobustFileDeleter instead
-    private boolean deleteDirectoryRecursively(Path path) throws IOException {
-        RobustFileDeleter.delete(path);
-        return !Files.exists(path);
-    }
-
     @FXML
     private void handleCreate() {
         TextInputDialog nameDialog = new TextInputDialog();
@@ -260,36 +265,158 @@ public class ProjectManagerController {
 
             Project newProject = new Project(name, projectDir.getAbsolutePath(), acervo);
             projects.add(newProject);
+            saveProjectFile(newProject);
             saveProjects();
         }
     }
 
     @FXML
-    private void handleImport() {
-        // Import logic seems to be just selecting a folder and adding it?
-        // Let's assume it's creating a project from existing folder.
-        // Swing logic: JFileChooser -> Create Project object -> Add.
-        // It prompts for Name then Dir.
-        // Wait, import in Swing:
-        /*
-        String name = JOptionPane.showInputDialog(this, "Digite o nome do projeto:");
-        ...
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        ...
-        */
-        // It also asks for Acervo if not found in properties file inside? No, it just takes Name and Path.
-        // Actually, ProjectManager.java lines 100+ would show details.
+    private void handleAddExisting() {
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Selecione a pasta do projeto existente");
+        File dir;
+        if (projectTableView != null && projectTableView.getScene() != null) dir = dirChooser.showDialog(projectTableView.getScene().getWindow());
+        else dir = dirChooser.showDialog(null);
 
-        // I will implement a simple import same as create but maybe without creating new files?
-        // Actually Create Project creates the folder structure?
-        // Just mocking the basic behavior for now.
-        handleCreate();
+        if (dir != null) {
+            File gamaFile = new File(dir, ".gama");
+            if (gamaFile.exists()) {
+                try {
+                    Project p = mapper.readValue(gamaFile, Project.class);
+                    // Override path with actual selected path in case it moved
+                    p.setPath(dir.getAbsolutePath());
+
+                    // Check duplicate
+                    boolean exists = projects.stream().anyMatch(existing -> existing.getPath().equals(p.getPath()));
+                    if (!exists) {
+                        projects.add(p);
+                        saveProjects();
+                        showAlert("Sucesso", "Projeto adicionado com sucesso.");
+                    } else {
+                        showAlert("Info", "Este projeto já está na lista.");
+                    }
+                } catch (IOException e) {
+                    logger.error("Failed to read .gama file", e);
+                    showAlert("Erro", "Erro ao ler arquivo .gama: " + e.getMessage());
+                }
+            } else {
+                showAlert("Erro", "A pasta selecionada não contém um arquivo .gama válido.");
+            }
+        }
+    }
+
+    @FXML
+    private void handleImport() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Importar Projeto (ZIP)");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arquivo Compactado", "*.zip"));
+
+        File zipFile = (projectTableView != null && projectTableView.getScene() != null)
+                       ? fileChooser.showOpenDialog(projectTableView.getScene().getWindow())
+                       : fileChooser.showOpenDialog(null);
+
+        if (zipFile == null) return;
+
+        DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Selecione onde extrair o projeto");
+        File destDir = (projectTableView != null && projectTableView.getScene() != null)
+                       ? dirChooser.showDialog(projectTableView.getScene().getWindow())
+                       : dirChooser.showDialog(null);
+
+        if (destDir == null) return;
+
+        try {
+            // Create a folder with the project name (derived from zip name)
+            String zipName = zipFile.getName();
+            String folderName = zipName.lastIndexOf('.') > 0 ? zipName.substring(0, zipName.lastIndexOf('.')) : zipName;
+
+            File extractionDir = new File(destDir, folderName);
+            if (!extractionDir.exists() && !extractionDir.mkdirs()) {
+                 showAlert("Erro", "Não foi possível criar a pasta do projeto: " + extractionDir.getAbsolutePath());
+                 return;
+            }
+
+            // Unzip to the created folder
+            ZipUtils.unzip(zipFile.toPath(), extractionDir.toPath());
+
+            // Now search for .gama in extractionDir or subdirectories (depth 1)
+            File foundGama = null;
+            File projectRoot = null;
+
+            // Check extractionDir first
+            File localGama = new File(extractionDir, ".gama");
+            if (localGama.exists()) {
+                foundGama = localGama;
+                projectRoot = extractionDir;
+            } else {
+                // Check immediate subdirectories
+                File[] subFiles = extractionDir.listFiles();
+                if (subFiles != null) {
+                    for (File sub : subFiles) {
+                        if (sub.isDirectory()) {
+                             File subGama = new File(sub, ".gama");
+                             if (subGama.exists()) {
+                                 foundGama = subGama;
+                                 projectRoot = sub;
+                                 break;
+                             }
+                        }
+                    }
+                }
+            }
+
+            if (foundGama != null) {
+                 Project p = mapper.readValue(foundGama, Project.class);
+                 p.setPath(projectRoot.getAbsolutePath());
+
+                 boolean exists = projects.stream().anyMatch(existing -> existing.getPath().equals(p.getPath()));
+                 if (!exists) {
+                     projects.add(p);
+                     saveProjects();
+                     showAlert("Sucesso", "Projeto importado e adicionado com sucesso.");
+                 } else {
+                     showAlert("Info", "Projeto importado, mas já existe na lista.");
+                 }
+            } else {
+                 showAlert("Aviso", "Extração concluída, mas nenhum arquivo .gama foi encontrado na raiz ou subpasta imediata.");
+            }
+
+        } catch (IOException e) {
+            logger.error("Erro ao importar ZIP", e);
+            showAlert("Erro", "Erro ao importar: " + e.getMessage());
+        }
     }
 
     @FXML
     private void handleExport() {
-        showAlert("Info", "Export not implemented yet.");
+        Project selected = null;
+        if (projectTableView != null) selected = projectTableView.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Atenção", "Por favor, selecione um projeto para exportar.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Exportar Projeto (ZIP)");
+        fileChooser.setInitialFileName(selected.getName() + ".zip");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Arquivo ZIP", "*.zip"));
+
+        File zipFile = (projectTableView != null && projectTableView.getScene() != null)
+                       ? fileChooser.showSaveDialog(projectTableView.getScene().getWindow())
+                       : fileChooser.showSaveDialog(null);
+
+        if (zipFile != null) {
+            try {
+                // Ensure .gama is up to date
+                saveProjectFile(selected);
+
+                ZipUtils.zipFolder(Path.of(selected.getPath()), zipFile.toPath());
+                showAlert("Sucesso", "Projeto exportado (compactado) com sucesso.");
+            } catch (IOException e) {
+                logger.error("Erro ao exportar projeto", e);
+                showAlert("Erro", "Erro ao exportar projeto: " + e.getMessage());
+            }
+        }
     }
 
     private void showAlert(String title, String content) {

@@ -29,6 +29,7 @@
             <Button text="Criar Projeto" onAction="#handleCreate"/>
             <Button text="Selecionar Projeto" onAction="#handleSelect"/>
             <Button text="Excluir Projeto" onAction="#handleDelete"/>
+            <Button text="Adicionar Existente" onAction="#handleAddExisting"/>
             <Button text="Importar Projeto" onAction="#handleImport"/>
             <Button text="Exportar Projeto" onAction="#handleExport"/>
         </FlowPane>

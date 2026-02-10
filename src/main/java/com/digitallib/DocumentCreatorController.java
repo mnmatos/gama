@@ -368,7 +368,7 @@ public class DocumentCreatorController implements Initializable {
          }
     }
 
-    public Documento getDocumento() {
+    public Documento getDocumento() throws ValidationException {
         if (documento == null) documento = new Documento();
         Classe classe = categoryManager.getClasseForIndex(classeDrop.getSelectionModel().getSelectedIndex());
 
@@ -427,6 +427,7 @@ public class DocumentCreatorController implements Initializable {
                 documento.setAcessoEm(LocalDate.parse(acessoField.getText(), formatter));
             } catch (DateTimeParseException e) {
                  logger.error("Invalid date format for access date", e);
+                 throw new ValidationException("Data 'Acesso em' inválida. Use o formato dd/MM/yyyy");
             }
         }
 
