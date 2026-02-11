@@ -121,6 +121,24 @@ public class DocumentCreatorController implements Initializable {
         initializeDropdowns();
         initializeLinks();
 
+         // Make codigoField editable only when manualCodeCheckBox is selected
+        if (manualCodeCheckBox != null && codigoField != null) {
+            // set initial editable state
+            codigoField.setEditable(manualCodeCheckBox.isSelected());
+            // toggle editable on change
+            manualCodeCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                codigoField.setEditable(newVal);
+                if (newVal) {
+                    // focus the field so the user can start typing immediately
+                    Platform.runLater(() -> {
+                        try {
+                            codigoField.requestFocus();
+                        } catch (Exception ignored) {}
+                    });
+                }
+            });
+        }
+
         // Hide Teatro tab by default
         tabPane.getTabs().remove(teatroTab);
 
@@ -157,7 +175,7 @@ public class DocumentCreatorController implements Initializable {
         diaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 31, 1));
         paginaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
         numPaginaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
-        colunaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 5, 1));
+        colunaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10000, 1));
 
         edicaoSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
         numPubliSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
