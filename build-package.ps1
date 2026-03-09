@@ -84,10 +84,32 @@ if (-not $javafxLibDir) {
     Write-Host "[ERRO] Diretorio lib do JavaFX nao encontrado" -ForegroundColor Red
     exit 1
 }
+
 # Resolve JavaFX bin directory (contains native DLLs like prism_d3d.dll, glass.dll, etc.)
 $javafxBinDir = Join-Path $javafxLibDir.Parent.FullName "bin"
+
+# Step 3.5: Create a custom runtime with jlink
+Write-Host "[3/5] Criando runtime customizado com jlink..." -ForegroundColor Yellow
+$jlinkDir = Join-Path $tempDir "gama-runtime"
+if (Test-Path $jlinkDir) { Remove-Item -Path $jlinkDir -Recurse -Force }
+$jlinkArgs = @(
+    "--module-path", "$($javafxLibDir.FullName);$($env:JAVA_HOME)\jmods",
+    "--add-modules", "javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.web",
+    "--output", $jlinkDir,
+    "--strip-debug",
+    "--no-header-files",
+    "--no-man-pages",
+    "--compress=2"
+)
+& jlink @jlinkArgs
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ERRO] Erro ao criar o runtime com jlink." -ForegroundColor Red
+    exit 1
+}
+Write-Host "[OK] Runtime customizado criado em: $jlinkDir" -ForegroundColor Green
+Write-Host ""
 # Step 4: Create package with jpackage
-Write-Host "[3/5] Criando pacote com jpackage e modulos JavaFX..." -ForegroundColor Yellow
+Write-Host "[4/5] Criando pacote com jpackage e modulos JavaFX..." -ForegroundColor Yellow
 # Ensure output directory exists
 if (-not (Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
@@ -114,7 +136,6 @@ if (Test-Path $gamaPackageDir) {
     Write-Host "  Limpando diretorio de destino: $gamaPackageDir" -ForegroundColor Cyan
     Remove-Item -Path $gamaPackageDir -Recurse -Force
 }
-# Build jpackage command
 $jpackageArgs = @(
     "--input", $inputPath,
     "--name", "GAMA",
@@ -123,8 +144,7 @@ $jpackageArgs = @(
     "--type", $Type,
     "--dest", $destPath,
     "--java-options", "--enable-preview -Dprism.order=d3d,es2,sw -Djava.library.path=`$APPDIR",
-    "--module-path", $javafxLibDir.FullName,
-    "--add-modules", "javafx.controls,javafx.fxml,javafx.graphics,javafx.base,javafx.media,javafx.web"
+    "--runtime-image", $jlinkDir
 )
 # Add icon if exists
 if (Test-Path $iconPath) {
@@ -149,7 +169,7 @@ Write-Host "[4/5] Limpando arquivos temporarios..." -ForegroundColor Yellow
 Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
 Write-Host "[OK] Limpeza concluida." -ForegroundColor Green
 Write-Host ""
-Write-Host "[5/5] Processo finalizado." -ForegroundColor Yellow
+Write-Host "[5/6] Processo finalizado." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host "[OK] Build Concluido com Sucesso!" -ForegroundColor Green

@@ -51,7 +51,7 @@ $totalChecks++
 Write-Host ""
 # Verificar modulos JavaFX no runtime bundled
 Write-Host "[3/6] Verificando modulos JavaFX no runtime..." -ForegroundColor Yellow
-$javaExe = "$PackagePath\GAMA\runtime\bin\java.exe"
+$javaExe = "$PackagePath\runtime\bin\java.exe"
 $totalChecks++
 if (-not (Test-Path $javaExe)) {
     Write-Host "[ERRO] java.exe nao encontrado em runtime\bin" -ForegroundColor Red
