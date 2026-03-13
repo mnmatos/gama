@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import com.digitallib.utils.RobustFileDeleter;
 import com.digitallib.utils.ZipUtils;
 
@@ -260,6 +261,28 @@ public class ProjectManagerController {
                     err.setTitle("Erro");
                     err.showAndWait();
                     return;
+                }
+            }
+
+            // Ask to import classes.yaml
+            Alert importClassesAlert = new Alert(Alert.AlertType.CONFIRMATION, "Deseja importar um arquivo de classes (classes.yaml)?", ButtonType.YES, ButtonType.NO);
+            importClassesAlert.setTitle("Importar Classes");
+            Optional<ButtonType> importResult = importClassesAlert.showAndWait();
+
+            if (importResult.isPresent() && importResult.get() == ButtonType.YES) {
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Selecione o arquivo classes.yaml");
+                fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("YAML files", "*.yaml"));
+                File selectedFile = fileChooser.showOpenDialog(projectTableView.getScene().getWindow());
+
+                if (selectedFile != null) {
+                    try {
+                        Path destPath = new File(projectDir, "classes.yaml").toPath();
+                        Files.copy(selectedFile.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        logger.error("Failed to copy classes.yaml", e);
+                        showAlert("Erro", "Não foi possível copiar o arquivo classes.yaml: " + e.getMessage());
+                    }
                 }
             }
 

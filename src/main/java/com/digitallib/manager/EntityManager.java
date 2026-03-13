@@ -6,7 +6,6 @@ import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
 import com.digitallib.utils.RobustFileDeleter;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,13 +26,26 @@ public class EntityManager {
 
     private static final Logger logger = LogManager.getLogger(EntityManager.class);
 
-    public static final String REPO = "repo/entities";
+    public static final String ENTITIES_FOLDER_NAME = "repo/entities";
+
+    private static Path getRepoPath(){
+        String projectPath = System.getProperty("selected.project.path");
+        if (projectPath == null) {
+            throw new IllegalStateException("Project path is not set. Please select a project first.");
+        }
+        Path path = Paths.get(projectPath, ENTITIES_FOLDER_NAME);
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return path;
+    }
 
     public static void addEntry(Entity entity){
         try {
             entity.setId(getLatestCode());
             String jsonText = GenerateJsonFromDoc(entity);
-            Files.createDirectories(Paths.get(REPO));
             saveFiles(entity, jsonText);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -83,7 +95,7 @@ public class EntityManager {
     }
 
     private static Path getFilePath(String id) {
-        return Paths.get(String.format("%s/%s.json", REPO, id));
+        return Paths.get(String.format("%s/%s.json", getRepoPath(), id));
     }
 
     public static Entity getEntryById (String codigo) throws EntityNotFoundException {
@@ -109,10 +121,7 @@ public class EntityManager {
     }
 
     private static Stream<Path> getPathStream() throws IOException {
-        if(!Files.exists(Paths.get(REPO))) Files.createDirectories(Paths.get(REPO));
-        ;
-        Stream<Path> paths = Files.walk(Paths.get(REPO));
-        return paths;
+        return Files.walk(getRepoPath());
     }
 
     private static Entity getDoc(Path javaFile) {

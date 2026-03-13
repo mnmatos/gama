@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -21,11 +23,10 @@ public class CategoryManager {
     static CategoryMapper mapper = loadMapper();
 
     static CategoryMapper loadMapper() {
-        String configFilePath = "classes.yaml";
         InputStream inputStream;
 
         try {
-            inputStream = LoadConfigAsStream(configFilePath);
+            inputStream = LoadConfigAsStream();
             logger.log(Level.INFO,"Classes config file found.");
         } catch (FileNotFoundException e) {
             inputStream = CategoryManager.class.getResourceAsStream("/classes.yaml");
@@ -37,12 +38,16 @@ public class CategoryManager {
 
     }
 
-    private static FileInputStream LoadConfigAsStream(String configFilePath) throws FileNotFoundException {
-        InputStream inputStream;
-        File configFile = new File(configFilePath);
+    private static FileInputStream LoadConfigAsStream() throws FileNotFoundException {
+        String projectPath = System.getProperty("selected.project.path");
+        if (projectPath == null) {
+            throw new IllegalStateException("Project path is not set. Please select a project first.");
+        }
+        Path configFilePath = Paths.get(projectPath, "classes.yaml");
+        File configFile = configFilePath.toFile();
 
         if (!configFile.exists()) {
-            throw new FileNotFoundException("classes.yaml file not found!!!");
+            throw new FileNotFoundException("classes.yaml file not found in project path!");
         }
 
         return new FileInputStream(configFile);

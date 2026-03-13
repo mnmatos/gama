@@ -22,6 +22,7 @@ import java.util.stream.Stream;
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class RepositoryManager {
+    public static final String DOCUMENTS_FOLDER = "repo/documents";
     private static Logger logger = LogManager.getLogger();
 
     public static void addEntry(Documento documento, List<File> files){
@@ -131,7 +132,7 @@ public class RepositoryManager {
         if (projectPath == null) {
             throw new IllegalStateException("Project path is not set. Please select a project first.");
         }
-        Path path = Paths.get(projectPath, "documents");
+        Path path = Paths.get(projectPath, DOCUMENTS_FOLDER);
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
