@@ -176,9 +176,13 @@ public class DocumentListController implements Initializable {
         numDocField.setText(String.format("Número de documentos: %d", docs.size()));
 
         // Refresh indexes logic from Swing
-        new SubClassIndexManager().updateIndex(docs);
-        new DocByEntityIndexManager().updateIndex(docs);
-        new EntityIndexManager().updateIndex(EntityManager.getEntries());
+        try {
+            new SubClassIndexManager().updateIndex(docs);
+            new DocByEntityIndexManager().updateIndex(docs);
+            new EntityIndexManager().updateIndex(EntityManager.getEntries());
+        } catch (RepositoryException e) {
+            logger.error("Failed to update indexes", e);
+        }
     }
 
     private List<Documento> getDocumentosFiltrados() {
@@ -259,8 +263,16 @@ public class DocumentListController implements Initializable {
              if (!title.trim().isEmpty()) {
                  MultiSourcedDocument doc = new MultiSourcedDocument();
                  doc.setTitulo(title);
-                 String code = MultiSourcedDocumentManager.addEntry(doc);
-                 handleAddPoliItem(code);
+                 try {
+                     String code = MultiSourcedDocumentManager.addEntry(doc);
+                     handleAddPoliItem(code);
+                 } catch (RepositoryException e) {
+                     logger.error("Failed to create multi-source document", e);
+                     Alert err = new Alert(Alert.AlertType.ERROR);
+                     err.setTitle("Erro");
+                     err.setContentText("Não foi possível criar o documento politestemunhal: " + e.getMessage());
+                     err.showAndWait();
+                 }
              }
          });
     }
@@ -320,7 +332,15 @@ public class DocumentListController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            RepositoryManager.removeEntry(doc.getCodigo());
+            try {
+                RepositoryManager.removeEntry(doc.getCodigo());
+            } catch (RepositoryException e) {
+                logger.error("Failed to remove document: " + doc.getCodigo(), e);
+                Alert err = new Alert(Alert.AlertType.ERROR);
+                err.setTitle("Erro");
+                err.setContentText("Não foi possível remover o documento: " + e.getMessage());
+                err.showAndWait();
+            }
             refreshTable();
         }
     }

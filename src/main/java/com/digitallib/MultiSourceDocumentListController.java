@@ -127,10 +127,14 @@ public class MultiSourceDocumentListController implements Initializable {
     public void save() {
          if (multiDoc != null) {
              multiDoc.setTitulo(titleField.getText());
-             MultiSourcedDocumentManager.updateEntry(multiDoc);
-             for (Documento doc : documentos) {
-                 doc.setGrupo(multiDoc.getId());
-                 RepositoryManager.updateEntry(doc);
+             try {
+                 MultiSourcedDocumentManager.updateEntry(multiDoc);
+                 for (Documento doc : documentos) {
+                     doc.setGrupo(multiDoc.getId());
+                     RepositoryManager.updateEntry(doc);
+                 }
+             } catch (com.digitallib.exception.RepositoryException e) {
+                 logger.error("Failed to save multi-source document group", e);
              }
          }
     }

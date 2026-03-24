@@ -26,7 +26,7 @@ public class ClasseDeserializer  extends JsonDeserializer<Classe> {
         try {
             return categoryManager.getClasseForName(classe);
         } catch (RepositoryException e) {
-            throw new RuntimeException(e);
+            throw new IOException("Failed to deserialize Classe '" + classe + "': " + e.getMessage(), e);
         }
     }
 }

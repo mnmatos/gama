@@ -4,17 +4,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import com.digitallib.exception.RepositoryException;
 import com.digitallib.utils.RobustFileDeleter;
 
 public abstract class IndexManager<O> {
 
     public final String REPO = "repo/index";
 
-    public void clearIndex(O indexObj){
+    public void clearIndex(O indexObj) throws RepositoryException {
         try {
             RobustFileDeleter.delete(getFilePath(getIndexName(indexObj)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to clear index for: " + getIndexName(indexObj), e);
         }
     }
 
@@ -33,5 +34,4 @@ public abstract class IndexManager<O> {
     protected abstract String getSubRepoFolder();
 
     protected abstract String getIndexName(O indexObj);
-
 }

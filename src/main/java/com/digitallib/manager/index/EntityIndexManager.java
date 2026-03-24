@@ -1,5 +1,6 @@
 package com.digitallib.manager.index;
 
+import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.IndexElement;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
@@ -26,7 +27,7 @@ public class EntityIndexManager extends IndexManager<EntityType> {
         return SUB_REPO;
     }
 
-    public void updateIndex(List<Entity> entities){
+    public void updateIndex(List<Entity> entities) throws RepositoryException {
         try {
             Map<EntityType, List<IndexElement>> docByIndex = getResumeIndexTypeList(entities);
             for (Map.Entry<EntityType, List<IndexElement>> entry : docByIndex.entrySet()){
@@ -35,7 +36,7 @@ public class EntityIndexManager extends IndexManager<EntityType> {
                 saveFiles(getIndexName(entry.getKey()), jsonText);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to update Entity index", e);
         }
     }
 
