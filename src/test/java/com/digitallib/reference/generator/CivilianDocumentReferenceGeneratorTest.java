@@ -38,7 +38,7 @@ class CivilianDocumentReferenceGeneratorTest {
         doc.setTitulo("Certidão de Nascimento [de] tal pessoa");
         doc.setInstituicaoCustodia("Cartório de Registro Civil tal de Feira de Santana");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         DataDocumento dataDocumento = new DataDocumento();
         dataDocumento.setDia(21);

@@ -116,6 +116,14 @@ Ao executar a aplicação, a janela principal exibirá a lista de documentos cad
     *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
 *   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
 
+## Testes
+
+O projeto inclui testes de interface gráfica (UI) para validar o comportamento do formulário de cadastro de documentos.
+
+*   **[`DocumentCreatorUITest`](TESTING.md)** – Teste de integração de UI baseado em [TestFX](https://github.com/TestFX/TestFX) que exercita o fluxo completo de criação e edição de um documento (`DocumentCreator.fxml`).
+
+Para documentação detalhada sobre os testes, consulte o **[Guia de Testes (TESTING.md)](TESTING.md)**.
+
 ## Dependências
 
 *   [Jackson](https://github.com/FasterXML/jackson): Para manipulação de dados em formato JSON.
@@ -245,6 +253,14 @@ Ao executar a aplicação, a janela principal exibirá a lista de documentos cad
     *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
     *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
 *   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+
+## Tests
+
+The project includes graphical user interface (UI) tests to validate the behaviour of the document registration form.
+
+*   **[`DocumentCreatorUITest`](TESTING.md)** – A UI integration test based on [TestFX](https://github.com/TestFX/TestFX) that exercises the full create-and-edit document flow through the graphical interface (`DocumentCreator.fxml`).
+
+For detailed test documentation, see the **[Testing Guide (TESTING.md)](TESTING.md)**.
 
 ## Dependências
 

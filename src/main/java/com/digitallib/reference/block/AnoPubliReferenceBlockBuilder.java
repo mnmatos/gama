@@ -10,8 +10,8 @@ public class AnoPubliReferenceBlockBuilder extends BasicReferenceBlockBuilder {
 
     @Override
     protected String getContent(Documento doc) {
-        if(doc.getAno() != null && doc.getAno() != "") {
-            return String.format("ano %s", doc.getAno());
+        if(doc.getAnoRevista() != null && doc.getAnoRevista() != "") {
+            return String.format("ano %s", doc.getAnoRevista());
         } else {
             return "";
         }

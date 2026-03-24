@@ -128,8 +128,8 @@
                                         <Label text="Editora" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                                         <TextField fx:id="editoraField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-                                        <Label text="Ano" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                                        <TextField fx:id="anoField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                                        <Label text="Ano da Revista" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="anoRevistaField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
                                         <Label text="Volume" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
                                         <TextField fx:id="volumeField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>

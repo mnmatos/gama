@@ -75,14 +75,26 @@ public class DocumentListController implements Initializable {
 
         // Listeners
         filtroCodigo.textProperty().addListener((obs, oldVal, newVal) -> refreshTable());
+        classeFilter.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> {
+            updateTestemunhoVisibility(newVal.intValue());
+            refreshTable();
+        });
+        testemunhoFilter.getSelectionModel().selectedIndexProperty().addListener((obs, oldVal, newVal) -> refreshTable());
 
-        // Toggle visibility logic
-        // logic from Swing: if (classeFilter.getSelectedIndex() == 1) ...
-        // Index 1 corresponds to "Todas as Séries" being 0?
-        // In Swing: model.insertElementAt("Todas as Séries", 0);
-        // So index 1 is the first real class.
-        // We need to check what index 1 was in Swing.
-        // Assuming the logic is based on the selected item.
+        updateTestemunhoVisibility(classeFilter.getSelectionModel().getSelectedIndex());
+    }
+
+    /**
+     * The testemunho (inédito/édito) filter is only meaningful when "Todas as Séries" (index 0)
+     * is selected. When a specific class is chosen the filter is hidden and reset.
+     */
+    private void updateTestemunhoVisibility(int classeIndex) {
+        if (classeIndex == 0) {
+            testemunhoFilter.setVisible(true);
+        } else {
+            testemunhoFilter.getSelectionModel().select(0);
+            testemunhoFilter.setVisible(false);
+        }
     }
 
     @FXML
@@ -104,18 +116,8 @@ public class DocumentListController implements Initializable {
 
     @FXML
     private void handleRefresh() {
-        // Toggle logic
-        int selectedIndex = classeFilter.getSelectionModel().getSelectedIndex();
-         if (selectedIndex == 1) { // Assuming index 1 matches Swing logic
-             // Need to verify what logic was there.
-             // Swing: if (classeFilter.getSelectedIndex() == 1) { visible = true } else { visible = false }
-             // Only visible for specific selection?
-             testemunhoFilter.setVisible(true);
-         } else {
-             testemunhoFilter.getSelectionModel().select(0);
-             testemunhoFilter.setVisible(false);
-         }
-         refreshTable();
+        updateTestemunhoVisibility(classeFilter.getSelectionModel().getSelectedIndex());
+        refreshTable();
     }
 
     private void initializeTable() {
@@ -218,7 +220,7 @@ public class DocumentListController implements Initializable {
                     controller.saveDocument();
                     // If save succeeded, refresh the table and allow the dialog to close
                     refreshTable();
-                } catch (Exception | ValidationException | RepositoryException e) {
+                } catch (ValidationException | RepositoryException e) {
                     logger.error("Error saving doc", e);
                     Alert alert = new Alert(Alert.AlertType.ERROR);
                     alert.setTitle("Erro");

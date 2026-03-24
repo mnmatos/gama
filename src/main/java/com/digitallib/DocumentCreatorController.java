@@ -49,7 +49,7 @@ public class DocumentCreatorController implements Initializable {
     @FXML private ComboBox<String> classeDrop;
     @FXML private ComboBox<String> tipoDrop;
     @FXML private ComboBox<String> tipoNbrDrop;
-    @FXML private TextField anoField;
+    @FXML private TextField anoRevistaField;
     @FXML private Spinner<Integer> mesSpinner;
     @FXML private Spinner<Integer> diaSpinner;
     @FXML private CheckBox dataIncertaCheckBox;
@@ -243,6 +243,18 @@ public class DocumentCreatorController implements Initializable {
     }
 
     public void setDocumento(Documento doc) {
+        // Reset transient state so a reused controller doesn't carry data from a previous invocation
+        files.clear();
+        authorMap.clear();
+        authorPubliMap.clear();
+        citacoesMap.clear();
+        authorList.getItems().clear();
+        authorPubliList.getItems().clear();
+        listaCitacao.getItems().clear();
+        linkList.getItems().clear();
+        lugarPublicacao = null;
+        editedDocCode = null;
+
         this.documento = doc;
         if (doc != null) {
             this.editedDocCode = doc.getCodigo();
@@ -288,7 +300,7 @@ public class DocumentCreatorController implements Initializable {
                          Entity e = EntityManager.getEntryById(authorId);
                          authorMap.put(e.getName(), e.getId());
                          authorList.getItems().add(e.getName());
-                     } catch (Exception | EntityNotFoundException e) {
+                     } catch (EntityNotFoundException e) {
                          logger.error("Failed to load author for id: " + authorId, e);
                      }
                 }
@@ -300,7 +312,7 @@ public class DocumentCreatorController implements Initializable {
                          Entity e = EntityManager.getEntryById(authorId);
                          authorPubliMap.put(e.getName(), e.getId());
                          authorPubliList.getItems().add(e.getName());
-                     } catch (Exception | EntityNotFoundException e) {
+                     } catch (EntityNotFoundException e) {
                          logger.error("Failed to load publi author for id: " + authorId, e);
                      }
                  }
@@ -312,7 +324,7 @@ public class DocumentCreatorController implements Initializable {
                          Entity e = EntityManager.getEntryById(citacaoId);
                          citacoesMap.put(e.getName(), e.getId());
                          listaCitacao.getItems().add(e.getName());
-                     } catch (Exception | EntityNotFoundException e) {
+                     } catch (EntityNotFoundException e) {
                          logger.error("Failed to load citation for id: " + citacaoId, e);
                      }
                  }
@@ -322,7 +334,7 @@ public class DocumentCreatorController implements Initializable {
                 try {
                     lugarPublicacao = EntityManager.getEntryById(doc.getLugarPublicacao());
                     lugarPublicacaoText.setText(lugarPublicacao.getName());
-                } catch (Exception | EntityNotFoundException e) {
+                } catch (EntityNotFoundException e) {
                     logger.error("Failed to load publication place", e);
                 }
             }
@@ -335,7 +347,7 @@ public class DocumentCreatorController implements Initializable {
             subTituloPublicacaoField.setText(doc.getSubtituloPublicacao());
             if (doc.getEdicao() != null) edicaoSpinner.getValueFactory().setValue(doc.getEdicao());
             editoraField.setText(doc.getEditora());
-            anoField.setText(doc.getAno());
+            anoRevistaField.setText(doc.getAnoRevista());
             volumeField.setText(doc.getVolume());
             numPubliSpinner.getValueFactory().setValue(doc.getNumPublicacao() == null ? 0 : doc.getNumPublicacao());
             disponivelField.setText(doc.getDisponivelEm());
@@ -434,7 +446,7 @@ public class DocumentCreatorController implements Initializable {
         documento.setAutoresPubli(new ArrayList<>(authorPubliMap.values()));
         documento.setEdicao(edicaoSpinner.getValue());
         documento.setEditora(editoraField.getText());
-        documento.setAno(anoField.getText());
+        documento.setAnoRevista(anoRevistaField.getText());
         documento.setVolume(volumeField.getText());
         documento.setNumPublicacao(numPubliSpinner.getValue());
         documento.setDisponivelEm(disponivelField.getText());
@@ -480,7 +492,7 @@ public class DocumentCreatorController implements Initializable {
         return documento;
     }
 
-    public void saveDocument() throws Exception, ValidationException, RepositoryException {
+    public void saveDocument() throws ValidationException, RepositoryException {
         getDocumento(); // updates 'documento' from fields
 
         if (editedDocCode != null) {
@@ -490,7 +502,7 @@ public class DocumentCreatorController implements Initializable {
         }
     }
 
-    private void updateDoc(Documento documento) throws Exception, ValidationException, RepositoryException {
+    private void updateDoc(Documento documento) throws ValidationException, RepositoryException {
         String newCode;
         if (manualCodeCheckBox.isSelected()) {
             newCode = codigoField.getText();
@@ -559,7 +571,7 @@ public class DocumentCreatorController implements Initializable {
              try {
                 lugarPublicacao = EntityManager.getEntryById(ids.get(0));
                 lugarPublicacaoText.setText(lugarPublicacao.getName());
-             } catch (Exception | EntityNotFoundException e) { logger.error("Failed to select place of publication", e); }
+             } catch (EntityNotFoundException e) { logger.error("Failed to select place of publication", e); }
          }
     }
 
@@ -572,7 +584,9 @@ public class DocumentCreatorController implements Initializable {
                      authorMap.put(e.getName(), e.getId());
                      authorList.getItems().add(e.getName());
                  }
-             } catch (Exception | EntityNotFoundException e) {}
+             } catch (EntityNotFoundException e) {
+                 logger.error("Failed to load author entity id: " + id, e);
+             }
          }
     }
 
@@ -593,7 +607,9 @@ public class DocumentCreatorController implements Initializable {
                      authorPubliMap.put(e.getName(), e.getId());
                      authorPubliList.getItems().add(e.getName());
                  }
-             } catch (Exception | EntityNotFoundException e) {}
+             } catch (EntityNotFoundException e) {
+                 logger.error("Failed to load publi author entity id: " + id, e);
+             }
          }
     }
 
@@ -624,7 +640,9 @@ public class DocumentCreatorController implements Initializable {
                      citacoesMap.put(e.getName(), e.getId());
                      listaCitacao.getItems().add(e.getName());
                  }
-             } catch (Exception | EntityNotFoundException e) {}
+             } catch (EntityNotFoundException e) {
+                 logger.error("Failed to load citation entity id: " + id, e);
+             }
         }
     }
 

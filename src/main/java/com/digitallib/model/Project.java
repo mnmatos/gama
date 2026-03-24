@@ -1,20 +1,24 @@
 package com.digitallib.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Project {
     private String name;
     private String path;
     private String acervo;
-    private String code_type;
+
+    @JsonProperty("code_type")
+    private String codeType;
 
     // Jackson requires a no-arg constructor for deserialization
     public Project() {
     }
 
-    public Project(String name, String path, String acervo, String code_type) {
+    public Project(String name, String path, String acervo, String codeType) {
         this.name = name;
         this.path = path;
         this.acervo = acervo;
-        this.code_type = code_type;
+        this.codeType = codeType;
     }
 
     public Project(String name, String path, String acervo) {
@@ -45,12 +49,12 @@ public class Project {
         this.acervo = acervo;
     }
 
-    public String getCode_type() {
-        return code_type;
+    public String getCodeType() {
+        return codeType;
     }
 
-    public void setCode_type(String code_type) {
-        this.code_type = code_type;
+    public void setCodeType(String codeType) {
+        this.codeType = codeType;
     }
 
     @Override

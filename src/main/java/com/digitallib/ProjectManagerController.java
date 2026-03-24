@@ -124,10 +124,14 @@ public class ProjectManagerController {
 
         System.setProperty("selected.project.path", selected.getPath());
         System.setProperty("acervo", selected.getAcervo());
-        if (selected.getCode_type() != null) {
-            System.setProperty("code_type", selected.getCode_type());
+        if (selected.getCodeType() != null) {
+            System.setProperty("code_type", selected.getCodeType());
         }
         System.setProperty("selected.project.name", selected.getName());
+        // Reload CategoryManager so it picks up this project's classes.yaml
+        com.digitallib.manager.CategoryManager.reload();
+        // Reload CodeManager so the code generator type is re-resolved for the new project
+        com.digitallib.code.CodeManager.reload();
 
 
         // Launch Main Window
@@ -140,6 +144,7 @@ public class ProjectManagerController {
             stage.setScene(new Scene(root, 1200, 800));
             stage.setTitle("Gama Filologia - " + selected.getName());
             stage.centerOnScreen();
+            stage.show();
         } catch (IOException e) {
             logger.error("Failed to load main window", e);
             showAlert("Error", "Could not load main window: " + e.getMessage());

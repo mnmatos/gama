@@ -40,21 +40,23 @@ public class ZipUtils {
     }
 
     public static void unzip(Path zipFilePath, Path destDirectory) throws IOException {
-        File destDir = destDirectory.toFile();
+        Path canonicalDest = destDirectory.toAbsolutePath().normalize();
+        File destDir = canonicalDest.toFile();
         if (!destDir.exists()) destDir.mkdirs();
 
         try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath.toFile()))) {
             ZipEntry entry = zipIn.getNextEntry();
-            // iterates over entries in the zip file
             while (entry != null) {
-                String filePath = destDirectory + File.separator + entry.getName();
+                // Guard against Zip Slip: ensure resolved path stays inside destDirectory
+                Path resolvedPath = canonicalDest.resolve(entry.getName()).normalize();
+                if (!resolvedPath.startsWith(canonicalDest)) {
+                    throw new IOException("Zip Slip detected – refusing to extract outside destination: " + entry.getName());
+                }
+
                 if (!entry.isDirectory()) {
-                    // if the entry is a file, extracts it
-                    extractFile(zipIn, filePath);
+                    extractFile(zipIn, resolvedPath.toString());
                 } else {
-                    // if the entry is a directory, make the directory
-                    File dir = new File(filePath);
-                    dir.mkdirs();
+                    resolvedPath.toFile().mkdirs();
                 }
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();

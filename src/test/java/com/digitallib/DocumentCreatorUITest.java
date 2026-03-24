@@ -145,7 +145,7 @@ public class DocumentCreatorUITest {
     void tearDown() throws IOException {
         // Cleanup
         if (tempProjectDir != null) {
-            RobustFileDeleter.delete(tempProjectDir);
+//            RobustFileDeleter.delete(tempProjectDir);
         }
     }
 
@@ -209,7 +209,7 @@ public class DocumentCreatorUITest {
         sleep(delay);
 
         log("Step 3: Filling Date and Place of Origin...");
-        fillField(robot, "#anoField", "1955");
+        fillField(robot, "#anoRevistaField", "1");
         fillField(robot, "#encontradoEmField", "Biblioteca Nacional");
         sleep(delay);
 
@@ -367,7 +367,7 @@ public class DocumentCreatorUITest {
         // 6. Verify File Creation
         log("Step 9: Verifying file creation on disk...");
         // RepositoryManager builds repo path as: <projectPath>/documents/<code parts...>
-        Path expectedDir = tempProjectDir.resolve("documents").resolve(PROJECT_PREFIX).resolve("TEST").resolve("001");
+        Path expectedDir = tempProjectDir.resolve("repo").resolve("documents").resolve(PROJECT_PREFIX).resolve("TEST").resolve("001");
         Path expectedFile = expectedDir.resolve(PROJECT_PREFIX + ".TEST.001.json");
 
         assertThat(expectedFile).exists();
@@ -382,7 +382,7 @@ public class DocumentCreatorUITest {
             assertThat(savedDoc.getTitulo()).isEqualTo("O Auto da Compadecida");
             assertThat(savedDoc.getSubtitulo()).isEqualTo("Classic Play");
             assertThat(savedDoc.getInstituicaoCustodia()).isEqualTo("Archive X");
-            assertThat(savedDoc.getAno()).isEqualTo("1955");
+            assertThat(savedDoc.getAnoRevista()).isEqualTo("1");
             assertThat(savedDoc.getCodigo()).isEqualTo(PROJECT_PREFIX + ".TEST.001");
             assertThat(savedDoc.getEncontradoEm()).isEqualTo("Biblioteca Nacional");
 

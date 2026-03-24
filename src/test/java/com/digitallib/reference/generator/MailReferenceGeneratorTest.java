@@ -35,7 +35,7 @@ class MailReferenceGeneratorTest {
         doc.setSubClasseProducao(testSubClass);
         doc.setTitulo("[correspondência]");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         Entity author = registerAuthor("Alcina Dantas");
         doc.setAutores(Collections.singletonList(author.getId()));

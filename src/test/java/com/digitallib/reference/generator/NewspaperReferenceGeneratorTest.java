@@ -37,7 +37,7 @@ class NewspaperReferenceGeneratorTest {
         doc.setTitulo("Direitos femininos");
         doc.setEncontradoEm("Folha do Norte");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         DataDocumento dataDocumento = new DataDocumento();
         dataDocumento.setDia(22);
