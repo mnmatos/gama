@@ -145,7 +145,7 @@ public class DocumentCreatorUITest {
     void tearDown() throws IOException {
         // Cleanup
         if (tempProjectDir != null) {
-//            RobustFileDeleter.delete(tempProjectDir);
+            RobustFileDeleter.delete(tempProjectDir);
         }
     }
 
