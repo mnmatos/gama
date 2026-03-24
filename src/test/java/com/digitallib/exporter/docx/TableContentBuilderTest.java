@@ -35,6 +35,7 @@ class TableContentBuilderTest {
     @Test
     void testAddDocument() {
         Documento doc = new Documento();
+        doc.setTitulo("Tiltulo");
         doc.setCodigo("D1");
         doc.setEncontradoEm("Inst 1");
         doc.setTipoNbr(TipoNBR.JORNAL);

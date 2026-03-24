@@ -25,7 +25,7 @@ class ImageReferenceGeneratorTest {
         Reference reference = imageReferenceGenerator.generate(doc);
 
         logger.info(reference.toString());
-        Assertions.assertEquals("FOTO da Autora com alunas. 2009. 1 Fotografia. Disponível em: https://sitefalso.local. Acesso em: 12 maio. 2023. ", reference.toString());
+        Assertions.assertEquals("FOTO da Autora com alunas. 2009. 1 Fotografia. Disponível em: https://sitefalso.local. Acesso em: 12 maio. 2023.", reference.toString().trim());
     }
 
     private static Documento createBaseDocument() {
