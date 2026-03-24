@@ -9,6 +9,8 @@ import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -18,14 +20,26 @@ public class CategoryManager {
 
     static Logger logger = LogManager.getLogger();
 
-    static CategoryMapper mapper = loadMapper();
+    // Lazily initialized so it is not loaded at class-load time (before a project is selected).
+    private static CategoryMapper mapper = null;
+
+    private static CategoryMapper getMapper() {
+        if (mapper == null) {
+            mapper = loadMapper();
+        }
+        return mapper;
+    }
+
+    /** Call this after the project path system property has been set to force a reload. */
+    public static void reload() {
+        mapper = null;
+    }
 
     static CategoryMapper loadMapper() {
-        String configFilePath = "classes.yaml";
         InputStream inputStream;
 
         try {
-            inputStream = LoadConfigAsStream(configFilePath);
+            inputStream = LoadConfigAsStream();
             logger.log(Level.INFO,"Classes config file found.");
         } catch (FileNotFoundException e) {
             inputStream = CategoryManager.class.getResourceAsStream("/classes.yaml");
@@ -34,58 +48,59 @@ public class CategoryManager {
 
         Yaml yaml = new Yaml();
         return yaml.loadAs(inputStream, CategoryMapper.class);
-
     }
 
-    private static FileInputStream LoadConfigAsStream(String configFilePath) throws FileNotFoundException {
-        InputStream inputStream;
-        File configFile = new File(configFilePath);
+    private static FileInputStream LoadConfigAsStream() throws FileNotFoundException {
+        String projectPath = System.getProperty("selected.project.path");
+        if (projectPath == null) {
+            throw new FileNotFoundException("Project path is not set; falling back to bundled classes.yaml.");
+        }
+        Path configFilePath = Paths.get(projectPath, "classes.yaml");
+        File configFile = configFilePath.toFile();
 
         if (!configFile.exists()) {
-            throw new FileNotFoundException("classes.yaml file not found!!!");
+            throw new FileNotFoundException("classes.yaml file not found in project path!");
         }
 
         return new FileInputStream(configFile);
     }
 
     public List<Classe> getClasses() {
-        return mapper.getClasses();
+        return getMapper().getClasses();
     }
 
     public String[] getClasseAsStringArray() {
-        String[] classes = mapper.getClasses().stream()
+        String[] classes = getMapper().getClasses().stream()
                 .map(Classe::getDesc)
                 .toArray(String[]::new);
         return classes;
     }
+
     public String[] getClasseAndCodeAsStringArray() {
-        String[] classes = mapper.getClasses().stream()
+        String[] classes = getMapper().getClasses().stream()
                 .map(classe -> String.format("%s. %s", classe.getCode(), classe.getDesc()))
                 .toArray(String[]::new);
         return classes;
     }
 
-
     public List<SubClasse> getSubClassesForIndex(int index) {
-        return mapper.getClasses().get(index).getSubclasses();
+        return getMapper().getClasses().get(index).getSubclasses();
     }
-
 
     public Classe getClasseForIndex(int index) {
-        return mapper.getClasses().get(index);
+        return getMapper().getClasses().get(index);
     }
 
-
     public int getPositionInList(Classe classe) {
-        int pos = IntStream.range(0, mapper.getClasses().size())
-                .filter(i -> mapper.getClasses().get(i).equals(classe))
+        int pos = IntStream.range(0, getMapper().getClasses().size())
+                .filter(i -> getMapper().getClasses().get(i).equals(classe))
                 .findFirst()
                 .orElse(-1);
         return pos;
     }
 
     public Classe getClasseForName(String name) throws RepositoryException {
-        List<Classe> filteredList = mapper.getClasses()
+        List<Classe> filteredList = getMapper().getClasses()
                 .stream()
                 .filter(classe -> classe.getName().equals(name))
                 .collect(Collectors.toList());
@@ -95,7 +110,7 @@ public class CategoryManager {
     }
 
     public SubClasse getSubClasseForName(String subName) throws RepositoryException {
-        for (Classe classe : mapper.getClasses()) {
+        for (Classe classe : getMapper().getClasses()) {
             List<SubClasse> filteredList = classe.getSubclasses()
                     .stream()
                     .filter(subClasse -> subClasse.getName().equals(subName))
@@ -106,6 +121,5 @@ public class CategoryManager {
         }
         throw new RepositoryException("Could not find category: " + subName);
     }
-
 
 }

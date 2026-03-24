@@ -40,7 +40,7 @@ class PaperReferenceGeneratorTest {
         doc.setSubtitulo("Subtitulo do artigo");
         doc.setTituloPublicacao("Titulo da revista");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         Entity author = registerAuthor("Alcina Dantas");
         doc.setAutores(Collections.singletonList(author.getId()));
@@ -51,7 +51,7 @@ class PaperReferenceGeneratorTest {
         dataDocumento.setDataIncerta(false);
         doc.setDataDocumento(dataDocumento);
 
-        doc.setAno("3");
+        doc.setAnoRevista("3");
         doc.setVolume("9");
         doc.setEditora("Editora falsa");
         doc.setPaginaInicio(3);

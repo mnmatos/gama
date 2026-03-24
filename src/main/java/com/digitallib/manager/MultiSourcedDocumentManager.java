@@ -3,7 +3,7 @@ package com.digitallib.manager;
 import com.digitallib.JsonGenerator;
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.MultiSourcedDocument;
-import com.digitallib.model.SubClasse;
+import com.digitallib.utils.RobustFileDeleter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,17 +16,36 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 
 public class MultiSourcedDocumentManager {
 
-    public static final String REPO = "repo/multi";
+    private static final Logger logger = LogManager.getLogger(MultiSourcedDocumentManager.class);
+
+    public static final String MULTI_SOURCE_FOLDER = "repo/multi";
+
+    private static Path getRepoPath(){
+        String projectPath = System.getProperty("selected.project.path");
+        if (projectPath == null) {
+            throw new IllegalStateException("Project path is not set. Please select a project first.");
+        }
+        Path path = Paths.get(projectPath, MULTI_SOURCE_FOLDER);
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return path;
+    }
 
     public static String addEntry(MultiSourcedDocument multiSourcedDocument){
         try {
             multiSourcedDocument.setId(getLatestCode());
             String jsonText = GenerateJsonFromDoc(multiSourcedDocument);
-            Files.createDirectories(Paths.get(REPO));
+            Files.createDirectories(getRepoPath());
             saveFiles(multiSourcedDocument, jsonText);
             return multiSourcedDocument.getId();
         } catch (IOException e) {
@@ -45,7 +64,7 @@ public class MultiSourcedDocumentManager {
 
     public static void removeEntry(String code){
         try {
-            Files.delete(getFilePath(code));
+            RobustFileDeleter.delete(getFilePath(code));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +96,7 @@ public class MultiSourcedDocumentManager {
     }
 
     private static Path getFilePath(String id) {
-        return Paths.get(String.format("%s/%s.json", REPO, id));
+        return getRepoPath().resolve(String.format("%s.json", id));
     }
 
     public static MultiSourcedDocument getEntryById (String codigo) throws RepositoryException {
@@ -93,15 +112,15 @@ public class MultiSourcedDocumentManager {
             Stream<Path> paths = getPathStream();
             paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> entries.add(getDoc(javaPath)));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao listar MultiSourcedDocuments", e);
         }
         return entries;
     }
 
     private static Stream<Path> getPathStream() throws IOException {
-        if(!Files.exists(Paths.get(REPO))) Files.createDirectories(Paths.get(REPO));
+        if(!Files.exists(getRepoPath())) Files.createDirectories(getRepoPath());
         ;
-        Stream<Path> paths = Files.walk(Paths.get(REPO));
+        Stream<Path> paths = Files.walk(getRepoPath());
         return paths;
     }
 

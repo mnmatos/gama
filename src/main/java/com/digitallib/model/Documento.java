@@ -4,6 +4,7 @@ import com.digitallib.serialization.ClasseDeserializer;
 import com.digitallib.serialization.ClasseSerializer;
 import com.digitallib.serialization.SubClasseDeserializer;
 import com.digitallib.serialization.SubClasseSerializer;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -95,8 +96,9 @@ public class Documento {
     String editora;
 
 
-    @JsonProperty("ano")
-    String ano;
+    @JsonProperty("ano_revista")
+    @JsonAlias("ano")
+    String anoRevista;
 
     @JsonProperty("volume")
     String volume;
@@ -202,12 +204,12 @@ public class Documento {
         this.lugarPublicacao = lugarPublicacao;
     }
 
-    public String getAno() {
-        return ano;
+    public String getAnoRevista() {
+        return anoRevista;
     }
 
-    public void setAno(String ano) {
-        this.ano = ano;
+    public void setAnoRevista(String anoRevista) {
+        this.anoRevista = anoRevista;
     }
 
     public String getVolume() {

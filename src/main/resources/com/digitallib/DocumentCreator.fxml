@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:id="rootPane"
+            fx:controller="com.digitallib.DocumentCreatorController"
+            prefHeight="800.0" prefWidth="1000.0">
+
+    <content>
+        <!-- Make General panel wider by default (55% of total width). Users can still adjust the divider. -->
+        <SplitPane dividerPositions="0.55">
+            <items>
+                <ScrollPane fitToWidth="true" fitToHeight="true">
+                    <content>
+                        <!-- Header (Always visible - General Info) -->
+                        <TitledPane text="Geral" collapsible="false" maxHeight="Infinity">
+                            <GridPane hgap="10" vgap="10">
+                                <!-- Ensure the label column stays compact and the field column expands to use available space -->
+                                <columnConstraints>
+                                    <!-- labels column slightly smaller to give more room to fields -->
+                                    <ColumnConstraints percentWidth="30" halignment="LEFT"/>
+                                    <ColumnConstraints percentWidth="70" hgrow="ALWAYS"/>
+                                </columnConstraints>
+                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+                                <Label text="Código documento" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <HBox spacing="10" GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                    <TextField fx:id="codigoField" editable="false" HBox.hgrow="ALWAYS"/>
+                                    <CheckBox fx:id="manualCodeCheckBox" text="Habilitar código manual"/>
+                                </HBox>
+
+                                <Label text="Série do documento" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="classeDrop" prefWidth="250" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Subsérie" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="tipoDrop" prefWidth="250" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Label text="Testemunho" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="testimonyField" promptText="Ex.: T1, T2" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                                <Label text="Título" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <TextField fx:id="tituloField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                                <Label text="Subtítulo" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <TextField fx:id="subtituloField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                                <Label text="Autor(a)" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                                <HBox spacing="10" GridPane.rowIndex="6" GridPane.columnIndex="1">
+                                    <Button text="Adicionar Autor(a)" onAction="#handleAddAuthor" prefWidth="140"/>
+                                    <!-- make the list a bit narrower so buttons have visual space -->
+                                    <ListView fx:id="authorList" prefHeight="60" prefWidth="160" HBox.hgrow="NEVER"/>
+                                    <Button text="Remover" onAction="#handleRemoveAuthor" prefWidth="80"/>
+                                </HBox>
+
+                                <Label text="Instituição de custódia" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                <TextField fx:id="instituicaoCustodiaField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                                <Label text="Encontrado em" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                                <TextField fx:id="encontradoEmField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                                <Label text="Coluna" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                                <Spinner fx:id="colunaSpinner" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                                <HBox spacing="20" GridPane.rowIndex="10" GridPane.columnIndex="0" GridPane.columnSpan="2" alignment="CENTER_LEFT">
+                                    <CheckBox fx:id="danosAoSuporteCheckBox" text="Danos ao suporte"/>
+                                    <CheckBox fx:id="ineditoCheckBox" text="Inédito"/>
+                                </HBox>
+
+                                <Label text="Arquivos anexados" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                                <HBox spacing="10" GridPane.rowIndex="11" GridPane.columnIndex="1">
+                                    <Button text="Anexar arquivos" onAction="#handleAttachFiles"/>
+                                    <TreeView fx:id="fileTree" prefHeight="80" HBox.hgrow="ALWAYS"/>
+                                </HBox>
+                            </GridPane>
+                        </TitledPane>
+                    </content>
+                </ScrollPane>
+
+                <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE">
+
+                    <!-- Tab: Descrição -->
+                    <Tab text="Descrição">
+                        <VBox spacing="10">
+                            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                            <Label text="Descrição" style="-fx-font-weight: bold"/>
+                            <TextArea fx:id="descriptionText" VBox.vgrow="ALWAYS"/>
+                            <Label text="Transcrição" style="-fx-font-weight: bold"/>
+                            <TextArea fx:id="transcriptionText" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Tab: ABNT -->
+                    <Tab text="ABNT">
+                        <ScrollPane fitToWidth="true" fitToHeight="true">
+                            <VBox spacing="10">
+                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                                <TitledPane text="Informações de Referência (ABNT)" collapsible="false">
+                                    <GridPane hgap="10" vgap="10">
+                                        <Label text="Tipo NBR" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <ComboBox fx:id="tipoNbrDrop" prefWidth="250" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                        <Label text="Título (Monografia/Periódico)" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="tituloPublicacaoField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                        <Label text="Subtítulo" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="subTituloPublicacaoField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                        <Label text="Contribuição a" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                        <HBox spacing="10" GridPane.rowIndex="3" GridPane.columnIndex="1">
+                                            <Button text="Adicionar Autor(a)" onAction="#handleAddAuthorPubli"/>
+                                            <ListView fx:id="authorPubliList" prefHeight="60" HBox.hgrow="ALWAYS"/>
+                                            <Button text="Remover" onAction="#handleRemoveAuthorPubli"/>
+                                        </HBox>
+
+                                        <Label text="Lugar" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                        <HBox spacing="10" GridPane.rowIndex="4" GridPane.columnIndex="1">
+                                            <Button text="Selecionar lugar" onAction="#handleSelectLugarPublicacao"/>
+                                            <TextField fx:id="lugarPublicacaoText" editable="false" HBox.hgrow="ALWAYS"/>
+                                        </HBox>
+
+                                        <Label text="Edição" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                        <Spinner fx:id="edicaoSpinner" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                                        <Label text="Editora" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="editoraField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+
+                                        <Label text="Ano da Revista" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="anoRevistaField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+                                        <Label text="Volume" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="volumeField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
+
+                                        <Label text="Número de publicação" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+                                        <Spinner fx:id="numPubliSpinner" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+
+                                        <Label text="Página/folha" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+                                        <Spinner fx:id="paginaSpinner" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
+
+                                        <Label text="Quantidade de páginas/folhas" GridPane.rowIndex="11" GridPane.columnIndex="0"/>
+                                        <Spinner fx:id="numPaginaSpinner" GridPane.rowIndex="11" GridPane.columnIndex="1"/>
+
+                                        <!-- Data Panel -->
+                                        <Label text="Data" GridPane.rowIndex="12" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+                                        <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 5;" GridPane.rowIndex="12" GridPane.columnIndex="1">
+                                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                                <Label text="Dia"/><Spinner fx:id="diaSpinner" prefWidth="70"/>
+                                                <Label text="Mês"/><Spinner fx:id="mesSpinner" prefWidth="70"/>
+                                            </HBox>
+                                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                                <Label text="Ano"/><TextField fx:id="anoPubliField" prefWidth="100"/>
+                                                <CheckBox fx:id="dataIncertaCheckBox" text="Data incerta?"/>
+                                            </HBox>
+                                        </VBox>
+
+                                        <!-- Electronic Panel -->
+                                        <Label text="Meio Eletrônico" GridPane.rowIndex="13" GridPane.columnIndex="0" GridPane.valignment="TOP"/>
+                                        <VBox spacing="5" style="-fx-border-color: lightgray; -fx-padding: 5;" GridPane.rowIndex="13" GridPane.columnIndex="1">
+                                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                                <Label text="Disponível em"/><TextField fx:id="disponivelField" HBox.hgrow="ALWAYS"/>
+                                            </HBox>
+                                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                                <Label text="Acesso em"/><TextField fx:id="acessoField" promptText="dd/MM/yyyy" HBox.hgrow="ALWAYS"/>
+                                            </HBox>
+                                        </VBox>
+                                    </GridPane>
+                                </TitledPane>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
+
+                    <!-- Tab: ABNT p2 -->
+                    <Tab text="ABNT p2">
+                        <ScrollPane fitToWidth="true" fitToHeight="true">
+                            <VBox spacing="10">
+                                <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+                                <!-- Academic Info -->
+                                <TitledPane text="Informações Acadêmicas" collapsible="false">
+                                    <GridPane hgap="10" vgap="5">
+                                        <Label text="Ano de depósito" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="anoDepositoField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <Label text="Tipo de Trabalho" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="tipoTrabalhoField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                        <Label text="Grau" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="grauField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                        <Label text="Curso" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="cursoField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                </TitledPane>
+
+                                <!-- Article -->
+                                <TitledPane text="Artigo" collapsible="false">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="DOI"/>
+                                        <TextField fx:id="doiField" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </TitledPane>
+
+                                <!-- Interview -->
+                                <TitledPane text="Entrevista" collapsible="false">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="Entrevistador"/>
+                                        <TextField fx:id="entrevistadorField" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </TitledPane>
+
+                                <!-- Audiovisual -->
+                                <TitledPane text="Audiovisual" collapsible="false">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="Publicado por"/>
+                                        <TextField fx:id="publicadoPorField" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </TitledPane>
+
+                                <!-- Correspondence -->
+                                <TitledPane text="Correspondência" collapsible="false">
+                                    <HBox spacing="10" alignment="CENTER_LEFT">
+                                        <Label text="Destinatário"/>
+                                        <TextField fx:id="destinatarioField" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                </TitledPane>
+
+                                <!-- General -->
+                                <TitledPane text="Geral" collapsible="false">
+                                    <GridPane hgap="10" vgap="5">
+                                        <Label text="Descrição Física" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="descricaoFisicaField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                        <Label text="Informações complementares" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                        <TextField fx:id="infoComplementarField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    </GridPane>
+                                </TitledPane>
+                            </VBox>
+                        </ScrollPane>
+                    </Tab>
+
+                    <!-- Tab: Relacionados -->
+                    <Tab text="Relacionados">
+                        <VBox spacing="10">
+                            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+                            <Label text="Citações" style="-fx-font-weight: bold"/>
+                            <HBox spacing="10">
+                                <VBox spacing="5">
+                                    <Button text="Adicionar Pessoa" onAction="#handleAddRefPessoa" maxWidth="Infinity"/>
+                                    <Button text="Adicionar Instituição" onAction="#handleAddRefInst" maxWidth="Infinity"/>
+                                    <Button text="Adicionar Local" onAction="#handleAddRefLocal" maxWidth="Infinity"/>
+                                </VBox>
+                                <ListView fx:id="listaCitacao" VBox.vgrow="ALWAYS"/>
+                            </HBox>
+
+                            <Separator/>
+
+                            <Label text="Documentos Relacionados" style="-fx-font-weight: bold"/>
+                            <HBox spacing="10">
+                                <VBox spacing="5" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="5">
+                                        <Button text="Selecionar doc" onAction="#handleSelectRelatedDoc"/>
+                                        <TextField fx:id="linkCodeField" editable="false" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <Label text="Tipo de Relacionamento"/>
+                                    <ComboBox fx:id="linkDropDown" maxWidth="Infinity"/>
+                                    <Button text="Adicionar >>>" onAction="#handleAddLink" maxWidth="Infinity"/>
+                                    <Button text="Remover selecionado" onAction="#handleRemoveLink" maxWidth="Infinity"/>
+                                </VBox>
+                                <ListView fx:id="linkList" VBox.vgrow="ALWAYS"/>
+                            </HBox>
+                        </VBox>
+                    </Tab>
+
+                    <!-- Tab: Teatro (Conditional) -->
+                    <Tab text="Teatral" fx:id="teatroTab">
+                        <VBox spacing="10">
+                            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                            <HBox spacing="10">
+                                <Label text="Personagens"/>
+                                <Spinner fx:id="teatroPersonagemSpinner"/>
+                                <Label text="Atos"/>
+                                <Spinner fx:id="teatroAtoSpinner"/>
+                                <Label text="Cenas"/>
+                                <Spinner fx:id="teatroCenaSpinner"/>
+                            </HBox>
+
+                            <Label text="Resumo"/>
+                            <TextArea fx:id="teatroResumoText" prefRowCount="5"/>
+
+                            <Label text="Palavras-chave"/>
+                            <HBox spacing="5">
+                                <TextField fx:id="teatroKeywordInput" HBox.hgrow="ALWAYS"/>
+                                <Button text="Adicionar" onAction="#handleTeatroAddKeyword"/>
+                            </HBox>
+                            <ListView fx:id="teatroKeywordList" prefHeight="100"/>
+                            <Button text="Remover Keyword" onAction="#handleTeatroRemoveKeyword"/>
+                        </VBox>
+                    </Tab>
+
+                </TabPane>
+            </items>
+        </SplitPane>
+    </content>
+
+    <buttonTypes>
+        <ButtonType fx:constant="OK"/>
+        <ButtonType fx:constant="CANCEL"/>
+    </buttonTypes>
+</DialogPane>

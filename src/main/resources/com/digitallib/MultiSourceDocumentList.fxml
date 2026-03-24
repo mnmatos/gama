@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.MultiSourceDocumentListController"
+            prefHeight="400.0" prefWidth="600.0">
+
+    <content>
+        <VBox spacing="10">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Título"/>
+                <TextField fx:id="titleField" HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <TableView fx:id="docTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colCodigo" text="Código"/>
+                    <TableColumn fx:id="colTitulo" text="Título"/>
+                    <TableColumn fx:id="colSerie" text="Série"/>
+                    <TableColumn fx:id="colEncontradoEm" text="Encontrado em"/>
+                    <TableColumn fx:id="colAcoes" text="Ações"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+            </TableView>
+
+            <Button text="Adicionar" onAction="#handleAdd"/>
+        </VBox>
+    </content>
+
+    <buttonTypes>
+        <ButtonType fx:constant="OK"/> <!-- Label: Salvar -->
+        <ButtonType fx:constant="CANCEL"/>
+    </buttonTypes>
+
+</DialogPane>

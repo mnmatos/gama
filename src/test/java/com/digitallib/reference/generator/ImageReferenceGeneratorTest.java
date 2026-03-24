@@ -35,14 +35,14 @@ class ImageReferenceGeneratorTest {
         doc.setSubClasseProducao(testSubClass);
         doc.setTitulo("Foto da Autora com alunas");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         DataDocumento dataDocumento = new DataDocumento();
         dataDocumento.setAno("2009");
         dataDocumento.setDataIncerta(false);
         doc.setDataDocumento(dataDocumento);
 
-        doc.setAno("3");
+        doc.setAnoRevista("3");
         doc.setVolume("9");
         doc.setEditora("Editora falsa");
         doc.setPaginaInicio(3);

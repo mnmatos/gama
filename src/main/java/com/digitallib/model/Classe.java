@@ -1,6 +1,5 @@
 package com.digitallib.model;
 
-import com.digitallib.utils.ConfigReader;
 
 import java.util.*;
 

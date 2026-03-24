@@ -40,7 +40,7 @@ class CompositeAuthorTitleReferenceBlockBuilderTest {
         doc.setSubtitulo("Este é um subtitulo");
         doc.setEncontradoEm("Folha do Norte");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         Entity author = registerAuthor("Alcina Dantas");
         doc.setAutores(Collections.singletonList(author.getId()));

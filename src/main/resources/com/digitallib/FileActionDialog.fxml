@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.FileActionDialogController"
+            prefHeight="200.0" prefWidth="300.0">
+
+    <content>
+        <VBox spacing="10" alignment="CENTER">
+            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+            <Label fx:id="fileNameLabel" text="filename.ext" style="-fx-font-weight: bold;"/>
+
+            <Button fx:id="openButton" text="Abrir Arquivo" maxWidth="Infinity" onAction="#handleOpen"/>
+            <Button fx:id="openFolderButton" text="Abrir Pasta" maxWidth="Infinity" onAction="#handleOpenFolder"/>
+            <Button fx:id="removeButton" text="Remover Arquivo" maxWidth="Infinity" onAction="#handleRemove"/>
+            <Button fx:id="analyzeButton" text="Analisar PDF" maxWidth="Infinity" onAction="#handleAnalyze"/>
+
+        </VBox>
+    </content>
+
+    <buttonTypes>
+        <ButtonType fx:constant="CLOSE"/>
+    </buttonTypes>
+
+</DialogPane>

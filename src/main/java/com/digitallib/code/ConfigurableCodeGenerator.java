@@ -3,16 +3,16 @@ package com.digitallib.code;
 import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.Documento;
-import com.digitallib.utils.ConfigReader;
+import com.digitallib.manager.ProjectManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static com.digitallib.main.ACERVO;
 import static com.digitallib.utils.TextUtils.getAcronimo;
 
 public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
 
     private Logger logger = LogManager.getLogger();
+    public static final String ACERVO = "acervo";
 
     @Override
     public String generateCodeWithoutAppendix(Documento documento) throws ValidationException {
@@ -21,7 +21,7 @@ public class ConfigurableCodeGenerator extends CodeGeneratorImpl {
         String[] CodeFields = format.split("\\.");
 
         StringBuilder codeBuilder = new StringBuilder();
-        String acervo = ConfigReader.getProperty(ACERVO);
+        String acervo = ProjectManager.getInstance().getCurrentProject() != null ? ProjectManager.getInstance().getCurrentProject().getAcervo() : "";
         codeBuilder.append(acervo+"."+documento.getSubClasseProducao().getCode());
         for (String field : CodeFields) {
             if (codeBuilder.length() > 0 ) codeBuilder.append(".");

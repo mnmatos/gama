@@ -39,7 +39,7 @@ class AcademicReferenceGeneratorTest {
         doc.setSubtitulo("Subtitulo da dissertação");
         doc.setInstituicaoCustodia("Faculdade de letras, Universidade Estadual de Feira de Santana");
         doc.setLugarPublicacao("5");
-        doc.setAno("22");
+        doc.setAnoRevista("22");
 
         Entity author = registerAuthor("Alcina Dantas");
         doc.setAutores(Collections.singletonList(author.getId()));
@@ -57,7 +57,7 @@ class AcademicReferenceGeneratorTest {
         infoAdicionais.setCurso("Literatura");
         doc.setInfoAdicionais(infoAdicionais);
 
-        doc.setAno("3");
+        doc.setAnoRevista("3");
         doc.setVolume("9");
         doc.setEditora("Editora falsa");
         doc.setPaginaInicio(3);
