@@ -51,8 +51,8 @@ public class TableContentBuilder {
             writeWithBasicFont(tableRow.getCell(0), "1", 1);
             TipoNBR tipoNbr = doc.getTipoNbr() == null ? TipoNBR.JORNAL : doc.getTipoNbr();
             setReferenceCell(doc, tableRow.getCell(1), tipoNbr);
-            writeWithBasicFont(tableRow.getCell(2), doc.getEncontradoEm(), 1);
-            writeWithBasicFont(tableRow.getCell(3), doc.getCodigo(), 1);
+            writeWithBasicFont(tableRow.getCell(2), doc.getEncontradoEm() != null ? doc.getEncontradoEm() : "", 1);
+            writeWithBasicFont(tableRow.getCell(3), doc.getCodigo() != null ? doc.getCodigo() : "", 1);
         } catch (ReferenceBlockBuilderException e) {
             table.removeRow(table.getNumberOfRows()-1);
             throw new RuntimeException(e);
@@ -61,7 +61,7 @@ public class TableContentBuilder {
     }
 
     private static void setReferenceCell(Documento doc, XWPFTableCell cell, TipoNBR tipoNbr) throws ReferenceBlockBuilderException {
-        XWPFParagraph paragraph = cell.getParagraphs().get(0);
+        XWPFParagraph paragraph = cell.getParagraphs().isEmpty() ? cell.addParagraph() : cell.getParagraphs().get(0);
         PrintReference(doc, tipoNbr, paragraph);
     }
 
@@ -84,7 +84,7 @@ public class TableContentBuilder {
     }
 
     private static void writeWithBasicFont(XWPFTableCell cell, String text, int align) {
-        XWPFParagraph paragraph = cell.getParagraphs().get(0);
+        XWPFParagraph paragraph = cell.getParagraphs().isEmpty() ? cell.addParagraph() : cell.getParagraphs().get(0);
         paragraph.setFontAlignment(align);
         XWPFRun fieldRun = paragraph.createRun();
         setBasicFont(fieldRun);

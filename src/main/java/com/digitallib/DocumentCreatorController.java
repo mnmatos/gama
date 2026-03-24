@@ -1,17 +1,15 @@
 package com.digitallib;
 
-import com.digitallib.code.CodeManager;
 import com.digitallib.exception.EntityNotFoundException;
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
-import com.digitallib.manager.MultiSourcedDocumentManager;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.*;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
-import com.digitallib.manager.ProjectManager;
+import com.digitallib.service.DocumentService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -107,6 +105,7 @@ public class DocumentCreatorController implements Initializable {
 
     private Documento documento;
     private final CategoryManager categoryManager = new CategoryManager();
+    private final DocumentService documentService = new DocumentService();
     private final Map<String, String> authorMap = new HashMap<>(); // Name -> ID
     private final Map<String, String> authorPubliMap = new HashMap<>();
     private final Map<String, String> citacoesMap = new HashMap<>();
@@ -495,74 +494,46 @@ public class DocumentCreatorController implements Initializable {
     public void saveDocument() throws ValidationException, RepositoryException {
         getDocumento(); // updates 'documento' from fields
 
+        String manualCode = manualCodeCheckBox.isSelected() ? codigoField.getText() : null;
+
         if (editedDocCode != null) {
-            updateDoc(documento);
-        } else {
-            generateNewDoc(documento);
-        }
-    }
+            // Update path — may need user confirmation if code changes
+            String newCodeBase = manualCode != null
+                    ? manualCode
+                    : null; // DocumentService will generate it
 
-    private void updateDoc(Documento documento) throws ValidationException, RepositoryException {
-        String newCode;
-        if (manualCodeCheckBox.isSelected()) {
-            newCode = codigoField.getText();
-        } else {
-            newCode = CodeManager.getCodeGenerator().generateCodeWithoutAppendix(documento);
-        }
-
-        String oldCode = editedDocCode;
-        if (oldCode.matches(".*\\.\\d{3}$")) {
-             oldCode = oldCode.substring(0, oldCode.length() - 4);
-        }
-
-        if (oldCode.equals(newCode)) {
-            documento.setCodigo(editedDocCode);
-            RepositoryManager.updateEntry(documento);
-        } else {
-            // Confirmation dialog would be shown in UI thread usually, assuming confirmed for now or throw exception to ask UI
-             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-             alert.setTitle("Atenção!!");
-             alert.setHeaderText("Mudança de Código");
-             alert.setContentText(String.format("Suas alterações irão mudar o código deste documento de %s para %s \nTodos os anexos prévios também serão perdidos. Você tem certeza?", editedDocCode, newCode));
-
-             Optional<ButtonType> result = alert.showAndWait();
-             if (result.isPresent() && result.get() == ButtonType.OK) {
-                 String finalCode = generateNewDoc(documento);
-                 if (documento.getGrupo() != null) updateGroup(documento, editedDocCode, finalCode);
-                 RepositoryManager.removeEntry(editedDocCode);
-             } else {
-                 throw new ValidationException("Operação cancelada pelo usuário.");
-             }
-        }
-    }
-
-    private void updateGroup(Documento doc, String oldCode, String newCode) throws RepositoryException {
-            MultiSourcedDocument group = MultiSourcedDocumentManager.getEntryById(doc.getGrupo());
-            group.getDocuments().remove(oldCode);
-            group.getDocuments().add(newCode);
-            MultiSourcedDocumentManager.updateEntry(group);
-    }
-
-    private String generateNewDoc(Documento documento) throws ValidationException {
-        String code;
-        if (manualCodeCheckBox.isSelected()) {
-            code = codigoField.getText();
-             // Validation logic
-             String acervoPrefix = ProjectManager.getInstance().getCurrentProject() != null ? ProjectManager.getInstance().getCurrentProject().getAcervo() : null;
-             if (code == null) throw new ValidationException("Código inválido: vazio");
-             if (code.matches(".*\\s+.*")) throw new ValidationException("Código inválido. Não deve conter espaços.");
-             if (!code.contains(".")) throw new ValidationException("Código inválido. Deve conter o separador '.'.");
-             if (acervoPrefix != null && !acervoPrefix.isEmpty()) {
-                if (!code.startsWith(acervoPrefix)) {
-                     throw new ValidationException(String.format("Código inválido. Deve começar com o prefixo configurado: %s", acervoPrefix));
+            // Check whether the code will change so we can prompt the user first
+            if (codeWillChange(manualCode)) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Atenção!!");
+                alert.setHeaderText("Mudança de Código");
+                alert.setContentText(String.format(
+                        "Suas alterações irão mudar o código deste documento de %s.\n" +
+                        "Todos os anexos prévios também serão perdidos. Você tem certeza?", editedDocCode));
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isEmpty() || result.get() != ButtonType.OK) {
+                    throw new ValidationException("Operação cancelada pelo usuário.");
                 }
-             }
-             documento.setCodigo(code);
+            }
+            documentService.updateDocument(documento, editedDocCode, manualCode);
         } else {
-            code = CodeManager.getCodeGenerator().generateCode(documento);
+            documentService.createDocument(documento, files, manualCode);
         }
-        RepositoryManager.addEntry(documento, files);
-        return code;
+    }
+
+    /** Returns true if saving would result in a different code than the current one. */
+    private boolean codeWillChange(String manualCode) {
+        try {
+            String newCode = manualCode != null
+                    ? manualCode
+                    : com.digitallib.code.CodeManager.getCodeGenerator().generateCodeWithoutAppendix(documento);
+            String oldBase = editedDocCode.matches(".*\\.\\d{3}$")
+                    ? editedDocCode.substring(0, editedDocCode.length() - 4)
+                    : editedDocCode;
+            return !oldBase.equals(newCode);
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @FXML private void handleSelectLugarPublicacao() {

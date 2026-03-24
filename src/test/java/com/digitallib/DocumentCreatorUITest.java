@@ -1,7 +1,5 @@
 package com.digitallib;
 
-import com.digitallib.exception.RepositoryException;
-import com.digitallib.exception.ValidationException;
 import com.digitallib.model.Documento;
 import com.digitallib.utils.RobustFileDeleter;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -131,19 +129,30 @@ public class DocumentCreatorUITest {
     void setUp() throws IOException {
         // Create a temporary directory for the project repository
         tempProjectDir = Files.createTempDirectory("gama-test-project");
+
+        // Configure system properties so the app behaves as if a real project is loaded
         System.setProperty("selected.project.path", tempProjectDir.toAbsolutePath().toString());
+        System.setProperty("acervo", PROJECT_PREFIX);      // prefix must match codes used in the test
+        System.setProperty("code_type", "custom");
 
-        // Ensure the 'documents/repo' structure exists if the app expects it
-        // RepositoryManager uses getRepoPath() -> selected.project.path + /documents
+        // Write a minimal .gama file so ProjectManager can load the project metadata
+        com.digitallib.model.Project fakeProject = new com.digitallib.model.Project(
+                "Test Project", tempProjectDir.toAbsolutePath().toString(), PROJECT_PREFIX, "custom");
+        new com.fasterxml.jackson.databind.ObjectMapper()
+                .writeValue(tempProjectDir.resolve(".gama").toFile(), fakeProject);
 
-        // Also mocking ConfigReader properties if necessary
-        // System.setProperty("acervo", "TEST_ACERVO");
-        // Or if ConfigReader uses a file, we might depend on defaults.
+        // Reset the ProjectManager singleton so it picks up the new path / acervo
+        com.digitallib.manager.ProjectManager.getInstance().loadCurrentProject();
     }
 
     @AfterEach
     void tearDown() throws IOException {
-        // Cleanup
+        // Clear project-related system properties so they don't bleed into other tests
+        System.clearProperty("selected.project.path");
+        System.clearProperty("acervo");
+        System.clearProperty("code_type");
+
+        // Cleanup temp directory
         if (tempProjectDir != null) {
             RobustFileDeleter.delete(tempProjectDir);
         }
@@ -162,7 +171,7 @@ public class DocumentCreatorUITest {
         saveButton.setOnAction(event -> {
             try {
                 controller.saveDocument();
-            } catch (Exception | ValidationException | RepositoryException e) {
+            } catch (Exception e) {
                 // propagate as runtime in test so failures bubble up
                 throw new RuntimeException(e);
             }

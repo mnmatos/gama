@@ -1,13 +1,18 @@
 package com.digitallib;
 
+import com.digitallib.exception.RepositoryException;
 import com.digitallib.manager.EntityManager;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EntityFormController {
+
+    private static final Logger logger = LogManager.getLogger(EntityFormController.class);
 
     @FXML private TextField nameField;
     @FXML private TextArea descField;
@@ -29,10 +34,14 @@ public class EntityFormController {
     }
 
     public void saveData() {
-        if (edited != null) {
-            EntityManager.updateEntry(new Entity(edited.getType(), nameField.getText(), descField.getText(), edited.getId()));
-        } else {
-            EntityManager.addEntry(new Entity(type, nameField.getText(), descField.getText()));
+        try {
+            if (edited != null) {
+                EntityManager.updateEntry(new Entity(edited.getType(), nameField.getText(), descField.getText(), edited.getId()));
+            } else {
+                EntityManager.addEntry(new Entity(type, nameField.getText(), descField.getText()));
+            }
+        } catch (RepositoryException e) {
+            logger.error("Failed to save entity", e);
         }
     }
 }

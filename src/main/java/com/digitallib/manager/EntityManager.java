@@ -2,6 +2,7 @@ package com.digitallib.manager;
 
 import com.digitallib.JsonGenerator;
 import com.digitallib.exception.EntityNotFoundException;
+import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
 import com.digitallib.utils.RobustFileDeleter;
@@ -37,35 +38,35 @@ public class EntityManager {
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("Failed to create entities directory: " + path, e);
         }
         return path;
     }
 
-    public static void addEntry(Entity entity){
+    public static void addEntry(Entity entity) throws RepositoryException {
         try {
             entity.setId(getLatestCode());
             String jsonText = GenerateJsonFromDoc(entity);
             saveFiles(entity, jsonText);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to add entity: " + entity.getName(), e);
         }
     }
 
-    public static void updateEntry(Entity entity){
+    public static void updateEntry(Entity entity) throws RepositoryException {
         try {
             String jsonText = GenerateJsonFromDoc(entity);
             saveFiles(entity, jsonText);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to update entity: " + entity.getId(), e);
         }
     }
 
-    public static void removeEntry(String code){
+    public static void removeEntry(String code) throws RepositoryException {
         try {
             RobustFileDeleter.delete(getFilePath(code));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to remove entity: " + code, e);
         }
     }
 
@@ -113,7 +114,13 @@ public class EntityManager {
         List<Entity> entries = new ArrayList<>();
         try {
             Stream<Path> paths = getPathStream();
-            paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> entries.add(getDoc(javaPath)));
+            paths.filter(Files::isRegularFile).filter((path) -> path.toString().endsWith("json")).forEach(javaPath -> {
+                try {
+                    entries.add(getDoc(javaPath));
+                } catch (RepositoryException e) {
+                    logger.error("Failed to read entity at path: " + javaPath, e);
+                }
+            });
         } catch (Exception e) {
             logger.error("Erro ao listar entidades", e);
         }
@@ -124,12 +131,11 @@ public class EntityManager {
         return Files.walk(getRepoPath());
     }
 
-    private static Entity getDoc(Path javaFile) {
+    private static Entity getDoc(Path javaFile) throws RepositoryException {
         try {
             return JsonGenerator.GenerateEntityFromJson(new String(Files.readAllBytes(javaFile)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to read entity file: " + javaFile, e);
         }
     }
-
 }

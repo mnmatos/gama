@@ -2,7 +2,6 @@ package com.digitallib.serialization;
 
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.manager.CategoryManager;
-import com.digitallib.model.Classe;
 import com.digitallib.model.SubClasse;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -25,7 +24,7 @@ public class SubClasseDeserializer extends JsonDeserializer<SubClasse> {
         try {
             return categoryManager.getSubClasseForName(subClasse.toLowerCase());
         } catch (RepositoryException e) {
-            throw new RuntimeException(e);
+            throw new IOException("Failed to deserialize SubClasse '" + subClasse + "': " + e.getMessage(), e);
         }
     }
 }

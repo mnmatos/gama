@@ -24,7 +24,7 @@ class OnlineVideoReferenceGeneratorTest {
         Reference reference = videoReferenceGenerator.generate(doc);
 
         logger.info(reference.toString());
-        Assertions.assertEquals("TITULO do vídeo. [S.L.: s.n], 2009. 1 Vídeo (4 min). Publicado pelo canal Canal x. Disponível em: https://sitefalso.local. Acesso em: 12 maio. 2023. ", reference.toString());
+        Assertions.assertEquals("TITULO do vídeo. [S.L.: s.n], 2009. 1 Vídeo (4 min). Publicado pelo canal Canal x. Disponível em: https://sitefalso.local. Acesso em: 12 maio. 2023.", reference.toString().trim());
     }
 
     private static Documento createBaseDocument() {

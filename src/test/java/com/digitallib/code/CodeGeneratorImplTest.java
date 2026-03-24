@@ -1,10 +1,13 @@
 package com.digitallib.code;
 
 import com.digitallib.exception.ValidationException;
+import com.digitallib.manager.ProjectManager;
 import com.digitallib.model.Classe;
 import com.digitallib.model.DataDocumento;
 import com.digitallib.model.Documento;
+import com.digitallib.model.Project;
 import com.digitallib.model.SubClasse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,6 +17,11 @@ import java.util.HashSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CodeGeneratorImplTest {
+
+    @BeforeEach
+    void setUp() {
+        ProjectManager.getInstance().setCurrentProject(new Project("Test Project", "/tmp/test", "AAD"));
+    }
 
     private static Documento getBasicDocumento() {
         Documento documento = new Documento();

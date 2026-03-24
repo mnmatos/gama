@@ -112,7 +112,11 @@ public class EntitySelectorController implements Initializable {
 
         if (result.isPresent() && result.get() == ButtonType.OK) {
              for (Entity e : selected) {
-                 EntityManager.removeEntry(e.getId());
+                 try {
+                     EntityManager.removeEntry(e.getId());
+                 } catch (com.digitallib.exception.RepositoryException ex) {
+                     logger.error("Failed to remove entity: " + e.getId(), ex);
+                 }
              }
              loadEntities();
         }

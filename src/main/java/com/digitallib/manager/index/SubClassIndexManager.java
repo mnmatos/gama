@@ -1,5 +1,6 @@
 package com.digitallib.manager.index;
 
+import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.IndexElement;
 import com.digitallib.model.Documento;
 import com.digitallib.model.SubClasse;
@@ -18,16 +19,16 @@ public class SubClassIndexManager extends IndexManager<SubClasse> {
 
     public final String SUB_REPO = "/subClass";
 
-    public void updateIndex(List documento){
+    public void updateIndex(List documento) throws RepositoryException {
         try {
             Map<SubClasse, List<IndexElement>> docByIndex = getResumeIndexTypeList(documento);
-            for (Map.Entry<SubClasse, List<IndexElement>> entry : docByIndex.entrySet()){
+            for (Map.Entry<SubClasse, List<IndexElement>> entry : docByIndex.entrySet()) {
                 String jsonText = GenerateJsonFromDoc(new Index(entry.getValue()));
                 Files.createDirectories(getRepoPath(REPO));
                 saveFiles(getIndexName(entry.getKey()), jsonText);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RepositoryException("Failed to update SubClass index", e);
         }
     }
 
@@ -35,6 +36,7 @@ public class SubClassIndexManager extends IndexManager<SubClasse> {
     protected String getSubRepoFolder() {
         return SUB_REPO;
     }
+
     List<SubClasse> getIndexKeyFromDocument(Documento documento) {
         return List.of(documento.getSubClasseProducao());
     }
@@ -46,7 +48,7 @@ public class SubClassIndexManager extends IndexManager<SubClasse> {
 
     Map<SubClasse, List<IndexElement>> getResumeIndexTypeList(List<Documento> documentos) {
         Map<SubClasse, List<IndexElement>> resumes = new HashMap<>();
-        documentos.stream().forEach(documento -> {
+        documentos.forEach(documento -> {
             List<SubClasse> indexes = getIndexKeyFromDocument(documento);
             indexes.forEach(o -> {
                 if (!resumes.containsKey(o))
