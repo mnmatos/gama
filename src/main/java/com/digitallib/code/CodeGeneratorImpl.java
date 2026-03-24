@@ -2,8 +2,9 @@ package com.digitallib.code;
 
 import com.digitallib.exception.ValidationException;
 import com.digitallib.manager.RepositoryManager;
+import com.digitallib.manager.ProjectManager;
 import com.digitallib.model.Documento;
-import com.digitallib.utils.ConfigReader;
+import com.digitallib.model.Documento;
 
 import java.util.HashSet;
 
@@ -35,7 +36,7 @@ public class CodeGeneratorImpl implements CodeGenerator{
     @Override
     public String generateCodeWithoutAppendix(Documento documento) throws ValidationException {
         StringBuilder codigoBuilder = new StringBuilder();
-        String acervo = ConfigReader.getProperty(ACERVO);
+        String acervo = ProjectManager.getInstance().getCurrentProject() != null ? ProjectManager.getInstance().getCurrentProject().getAcervo() : "";
         codigoBuilder.append(acervo+"."+documento.getSubClasseProducao().getCode()).append(".");
         switch (documento.getClasseProducao().getName()) {
             case "producao_intelectual":

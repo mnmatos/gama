@@ -46,7 +46,8 @@ public class ProjectManagerController {
     @FXML
     private TableColumn<Project, String> projectPathColumn;
 
-    private static final File PROJECTS_FILE = new File(System.getProperty("user.home"), ".gama_projects.json");
+    private static final File GAMA_DIR = new File(System.getProperty("user.home"), ".gama");
+    private static final File PROJECTS_FILE = new File(GAMA_DIR, "projects.json");
     private final ObjectMapper mapper = new ObjectMapper();
     private final ObservableList<Project> projects = FXCollections.observableArrayList();
 
@@ -74,6 +75,10 @@ public class ProjectManagerController {
     }
 
     private void loadProjects() {
+        if (!GAMA_DIR.exists()) {
+            GAMA_DIR.mkdirs();
+        }
+
         if (PROJECTS_FILE.exists()) {
             try {
                 List<Project> list = mapper.readValue(PROJECTS_FILE, new TypeReference<List<Project>>() {});
@@ -87,6 +92,9 @@ public class ProjectManagerController {
 
     private void saveProjects() {
         try {
+            if (!GAMA_DIR.exists()) {
+                GAMA_DIR.mkdirs();
+            }
             mapper.writeValue(PROJECTS_FILE, new ArrayList<>(projects));
         } catch (IOException e) {
             logger.error("Failed to save projects", e);
@@ -116,6 +124,11 @@ public class ProjectManagerController {
 
         System.setProperty("selected.project.path", selected.getPath());
         System.setProperty("acervo", selected.getAcervo());
+        if (selected.getCode_type() != null) {
+            System.setProperty("code_type", selected.getCode_type());
+        }
+        System.setProperty("selected.project.name", selected.getName());
+
 
         // Launch Main Window
         try {
@@ -125,7 +138,7 @@ public class ProjectManagerController {
             if (projectTableView != null && projectTableView.getScene() != null) stage = (Stage) projectTableView.getScene().getWindow();
             else stage = new Stage();
             stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle("Gama Filologia - Lista de Documentos");
+            stage.setTitle("Gama Filologia - " + selected.getName());
             stage.centerOnScreen();
         } catch (IOException e) {
             logger.error("Failed to load main window", e);

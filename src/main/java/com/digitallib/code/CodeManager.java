@@ -1,6 +1,6 @@
 package com.digitallib.code;
 
-import com.digitallib.utils.ConfigReader;
+import com.digitallib.manager.ProjectManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,8 +9,7 @@ public class CodeManager {
     static CodeGenerator codeGenerator = InitializeCodeGenerator();
 
     private static CodeGenerator InitializeCodeGenerator() {
-        String code_type = "code_type";
-        String codeType = ConfigReader.getProperty(code_type);
+        String codeType = ProjectManager.getInstance().getCurrentProject() != null ? ProjectManager.getInstance().getCurrentProject().getCode_type() : null;
 
         if(codeType != null && "custom".equals(codeType)){
             logger.info("Using custom code generation");

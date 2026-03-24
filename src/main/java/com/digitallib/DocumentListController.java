@@ -19,12 +19,15 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -43,12 +46,15 @@ public class DocumentListController implements Initializable {
     @FXML private TableColumn<Documento, String> colSerie;
     @FXML private TableColumn<Documento, String> colEncontradoEm;
     @FXML private TableColumn<Documento, String> colAcoes;
+    @FXML private Label projectNameLabel;
+
 
     private CategoryManager categoryManager = new CategoryManager();
     private List<Filter> filterList = new ArrayList<>();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        projectNameLabel.setText(System.getProperty("selected.project.name"));
         initializeFilters();
         initializeTable();
         refreshTable();
@@ -77,6 +83,23 @@ public class DocumentListController implements Initializable {
         // So index 1 is the first real class.
         // We need to check what index 1 was in Swing.
         // Assuming the logic is based on the selected item.
+    }
+
+    @FXML
+    private void handleProjectManager() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/ProjectManager.fxml"));
+            Stage stage = (Stage) tabelaPoemas.getScene().getWindow();
+            stage.setScene(new Scene(loader.load()));
+        } catch (IOException e) {
+            logger.error("Failed to load Project Manager", e);
+            // Show an alert to the user
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Could not load the project management window.");
+            alert.setContentText("An unexpected error occurred. Please check the logs for more details.");
+            alert.showAndWait();
+        }
     }
 
     @FXML

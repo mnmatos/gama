@@ -11,7 +11,7 @@ import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.*;
 import com.digitallib.model.entity.Entity;
 import com.digitallib.model.entity.EntityType;
-import com.digitallib.utils.ConfigReader;
+import com.digitallib.manager.ProjectManager;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -536,7 +536,7 @@ public class DocumentCreatorController implements Initializable {
         if (manualCodeCheckBox.isSelected()) {
             code = codigoField.getText();
              // Validation logic
-             String acervoPrefix = ConfigReader.getProperty("acervo");
+             String acervoPrefix = ProjectManager.getInstance().getCurrentProject() != null ? ProjectManager.getInstance().getCurrentProject().getAcervo() : null;
              if (code == null) throw new ValidationException("Código inválido: vazio");
              if (code.matches(".*\\s+.*")) throw new ValidationException("Código inválido. Não deve conter espaços.");
              if (!code.contains(".")) throw new ValidationException("Código inválido. Deve conter o separador '.'.");

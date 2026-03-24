@@ -13,6 +13,8 @@
         <VBox>
             <MenuBar>
                 <Menu text="Arquivo">
+                    <MenuItem text="Gerenciar projetos" onAction="#handleProjectManager"/>
+                    <SeparatorMenuItem />
                     <MenuItem text="Adicionar monotestemunhal" onAction="#handleAddMono"/>
                     <MenuItem text="Adicionar politestemunhal" onAction="#handleAddPoli"/>
                 </Menu>
@@ -22,11 +24,13 @@
                 </Menu>
             </MenuBar>
 
-            <Label text="Documentos" style="-fx-font-size: 18px; -fx-font-weight: bold;">
-                <VBox.margin>
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <padding>
                     <Insets top="10" left="20" bottom="5"/>
-                </VBox.margin>
-            </Label>
+                </padding>
+                <Label text="Projeto:" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                <Label fx:id="projectNameLabel" style="-fx-font-size: 18px;"/>
+            </HBox>
 
             <TitledPane text="Filtros" collapsible="false">
                 <HBox spacing="10" alignment="CENTER_LEFT">

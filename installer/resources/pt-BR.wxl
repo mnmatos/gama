@@ -1,0 +1,34 @@
+<WixLocalization Culture="pt-br" xmlns="http://schemas.microsoft.com/wix/2006/localization">
+    <String Id="InstallDirDlg_Title">{\WixUI_Font_Title}Destino da Instalação</String>
+    <String Id="InstallDirDlg_SubTitle">{\WixUI_Font_Normal}Especifique a pasta de destino</String>
+    <String Id="InstallDirDlg_Description">{\WixUI_Font_Normal}Instalar [ProductName] na seguinte pasta. Para instalar em uma pasta diferente, clique em Alterar.</String>
+    <String Id="InstallDirDlg_Browse">A_lterar...</String>
+    <String Id="InstallDirDlg_Install">_Instalar</String>
+    <String Id="InstallDirDlg_Cancel">Cancelar</String>
+    <String Id="InstallDirDlg_Back">&lt; _Voltar</String>
+    <String Id="InstallDirDlg_Next">_Avançar &gt;</String>
+    <String Id="WelcomeDlg_Title">{\WixUI_Font_Title}Bem-vindo ao Assistente de Instalação do [ProductName]</String>
+    <String Id="WelcomeDlg_Description">{\WixUI_Font_Bigger}O Assistente de Instalação permitirá que você instale o [ProductName] [ProductVersion] no seu computador.</String>
+    <String Id="WelcomeDlg_Next">_Avançar &gt;</String>
+    <String Id="WelcomeDlg_Cancel">Cancelar</String>
+    <String Id="VerifyReadyDlg_Title">{\WixUI_Font_Title}Pronto para Instalar</String>
+    <String Id="VerifyReadyDlg_SubTitle">{\WixUI_Font_Normal}O assistente está pronto para iniciar a instalação.</String>
+    <String Id="VerifyReadyDlg_Description">{\WixUI_Font_Normal}Clique em Instalar para iniciar a instalação. Se desejar revisar ou alterar alguma de suas configurações de instalação, clique em Voltar.</String>
+    <String Id="VerifyReadyDlg_Install">_Instalar</String>
+    <String Id="VerifyReadyDlg_Cancel">Cancelar</String>
+    <String Id="VerifyReadyDlg_Back">&lt; _Voltar</String>
+    <String Id="ProgressDlg_Title">{\WixUI_Font_Title}Instalando [ProductName]</String>
+    <String Id="ProgressDlg_SubTitle">{\WixUI_Font_Normal}Aguarde enquanto o assistente instala o [ProductName].</String>
+    <String Id="ProgressDlg_ActionText">Instalando [ProductName]...</String>
+    <String Id="ProgressDlg_Cancel">Cancelar</String>
+    <String Id="ExitDialog_Title">{\WixUI_Font_Title}Assistente de Instalação Concluído</String>
+    <String Id="ExitDialog_Description1">{\WixUI_Font_Bigger}[ProductName] foi instalado com sucesso.</String>
+    <String Id="ExitDialog_Finish">_Concluir</String>
+    <String Id="UserExit_Title">{\WixUI_Font_Title}Instalação Interrompida</String>
+    <String Id="UserExit_Description">{\WixUI_Font_Normal}A instalação foi interrompida antes que [ProductName] pudesse ser completamente instalado.</String>
+    <String Id="UserExit_Finish">_Concluir</String>
+    <String Id="FatalError_Title">{\WixUI_Font_Title}Erro na Instalação</String>
+    <String Id="FatalError_Description1">{\WixUI_Font_Bigger}O assistente encontrou um erro inesperado ao instalar este pacote.</String>
+    <String Id="FatalError_Finish">_Concluir</String>
+</WixLocalization>
+

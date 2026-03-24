@@ -131,7 +131,7 @@ $jlinkDir = Join-Path $tempDir "gama-runtime"
 if (Test-Path $jlinkDir) { Remove-Item -Path $jlinkDir -Recurse -Force }
 $jlinkArgs = @(
     "--module-path", "$($javafxLibDir.FullName);$($env:JAVA_HOME)\jmods",
-    "--add-modules", "javafx.controls,javafx.fxml,javafx.graphics,javafx.base",
+    "--add-modules", "javafx.controls,javafx.fxml,javafx.graphics,javafx.base,java.management,java.naming",
     "--output", $jlinkDir,
     "--strip-debug",
     "--no-header-files",
@@ -194,17 +194,18 @@ $jpackageArgs = @(
     "--type", "msi",
     "--dest", $destPath,
     "--app-version", $projectVersion,
+    "--win-upgrade-uuid", "50a210dc-e326-48e2-ab4e-9ed49e6ac20a",
     "--vendor", "Projeto Acervo Alcina Dantas",
     "--description", "GAMA Document Management System",
     "--java-options", $javaOptions,
     "--runtime-image", $jlinkDir,
     "--license-file", "LICENSE",
     "--copyright", "Copyright (c) 2024 GAMA",
-    "--win-console",
+    "--resource-dir", (Join-Path $PSScriptRoot "installer\resources"),
+    "--win-per-user-install",
     "--win-menu",
     "--win-shortcut",
-    "--win-dir-chooser",
-    "--win-upgrade-uuid", "c6d9a4b7-56f5-40d4-b351-6d7c4a32b149"
+    "--win-dir-chooser"
 )
 
 # Add icon if exists
