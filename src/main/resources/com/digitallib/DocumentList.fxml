@@ -22,6 +22,9 @@
                     <MenuItem text="Exportar Inventário" onAction="#handleExportInventory"/>
                     <MenuItem text="Exportar Ficha-catálogo" onAction="#handleExportCatalog"/>
                 </Menu>
+                <Menu text="Ferramentas">
+                    <MenuItem text="Configurações LLM…" onAction="#handleLlmSettings"/>
+                </Menu>
             </MenuBar>
 
             <HBox alignment="CENTER_LEFT" spacing="10">

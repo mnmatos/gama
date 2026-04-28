@@ -28,7 +28,10 @@
                 <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
             </TableView>
 
-            <Button text="Adicionar" onAction="#handleAdd"/>
+            <HBox spacing="10">
+                <Button text="Adicionar" onAction="#handleAdd"/>
+                <Button text="Comparar Transcrições" onAction="#handleCompareTranscriptions"/>
+            </HBox>
         </VBox>
     </content>
 

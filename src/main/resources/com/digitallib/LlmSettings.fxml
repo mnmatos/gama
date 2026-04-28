@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.digitallib.LlmSettingsController"
+      spacing="10" prefWidth="520">
+    <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Provedor ativo:" style="-fx-font-weight:bold;"/>
+        <ComboBox fx:id="activeProviderCombo" prefWidth="160"/>
+    </HBox>
+    <TabPane tabClosingPolicy="UNAVAILABLE">
+        <!-- Anthropic -->
+        <Tab text="Anthropic">
+            <VBox fx:id="anthropicPane" spacing="8"><padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="API Key:"/>
+                <PasswordField fx:id="anthropicApiKey" promptText="sk-ant-…"/>
+                <Label text="Modelo:"/>
+                <ComboBox fx:id="anthropicModel" prefWidth="300" editable="true"/>
+            </VBox>
+        </Tab>
+        <!-- OpenAI -->
+        <Tab text="OpenAI">
+            <VBox fx:id="openaiPane" spacing="8"><padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="API Key:"/>
+                <PasswordField fx:id="openaiApiKey" promptText="sk-…"/>
+                <Label text="Modelo:"/>
+                <ComboBox fx:id="openaiModel" prefWidth="300" editable="true"/>
+            </VBox>
+        </Tab>
+        <!-- AWS Bedrock -->
+        <Tab text="AWS Bedrock">
+            <VBox fx:id="bedrockPane" spacing="8"><padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="Regiao:"/>
+                <TextField fx:id="bedrockRegion" promptText="us-east-1"/>
+                <Label text="Model ID:"/>
+                <TextField fx:id="bedrockModelId" promptText="anthropic.claude-3-5-sonnet-20241022-v2:0"/>
+                <Label text="Endpoint URL (opcional — para VPC ou endpoint privado):"/>
+                <TextField fx:id="bedrockEndpointUrl" promptText="https://bedrock-runtime.us-east-1.amazonaws.com"/>
+                <Separator/>
+                <Label text="Opcao 1 — API Key (bedrock-api-key-…):" style="-fx-font-weight: bold;"/>
+                <PasswordField fx:id="bedrockApiKey" promptText="bedrock-api-key-xxxx"/>
+                <Label text="Use a chave gerada em 'Generate a short-term API key' no console AWS." style="-fx-font-size: 11; -fx-text-fill: gray;" wrapText="true"/>
+                <Separator/>
+                <Label text="Opcao 2 — Credenciais IAM:" style="-fx-font-weight: bold;"/>
+                <Label text="Access Key ID:"/>
+                <PasswordField fx:id="bedrockAccessKeyId" promptText="AKIA…"/>
+                <Label text="Secret Access Key:"/>
+                <PasswordField fx:id="bedrockSecretAccessKey" promptText="wJalrX…"/>
+                <Label text="Session Token (credenciais de curta duracao / STS):"/>
+                <PasswordField fx:id="bedrockSessionToken" promptText="FwoGZX… (opcional)"/>
+                <Label text="Se tudo estiver em branco, usa AWS credential chain (env vars / ~/.aws/credentials)" style="-fx-font-size: 11; -fx-text-fill: gray;" wrapText="true"/>
+            </VBox>
+        </Tab>
+        <!-- Ollama -->
+        <Tab text="Ollama">
+            <VBox fx:id="ollamaPane" spacing="8"><padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="Base URL:"/>
+                <TextField fx:id="ollamaBaseUrl" promptText="http://localhost:11434"/>
+                <Label text="Modelo (deve suportar visao):"/>
+                <TextField fx:id="ollamaModel" promptText="llava"/>
+            </VBox>
+        </Tab>
+        <!-- LM Studio -->
+        <Tab text="LM Studio">
+            <VBox fx:id="lmStudioPane" spacing="8"><padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+                <Label text="Base URL:"/>
+                <TextField fx:id="lmStudioBaseUrl" promptText="http://localhost:1234"/>
+                <Label text="Modelo:"/>
+                <TextField fx:id="lmStudioModel" promptText="nome-do-modelo"/>
+            </VBox>
+        </Tab>
+    </TabPane>
+    <Label fx:id="statusLabel" text="" wrapText="true" prefWidth="480"/>
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Testar Conexao" onAction="#handleTest"/>
+        <Button text="Salvar" onAction="#handleSave" style="-fx-font-weight:bold;"/>
+        <Button text="Fechar" onAction="#handleClose"/>
+    </HBox>
+</VBox>

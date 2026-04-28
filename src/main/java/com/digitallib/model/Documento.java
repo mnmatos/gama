@@ -95,7 +95,6 @@ public class Documento {
     @JsonProperty("editora")
     String editora;
 
-
     @JsonProperty("ano_revista")
     @JsonAlias("ano")
     String anoRevista;
@@ -139,6 +138,9 @@ public class Documento {
 
     @JsonProperty("texto_teatral")
     TextoTeatral textoTeatro;
+
+    @JsonProperty("transcriptions")
+    java.util.Map<String, TranscriptionRecord> transcriptions = new java.util.LinkedHashMap<>();
 
     public Classe getClasseProducao() {
         return classeProducao;
@@ -446,5 +448,14 @@ public class Documento {
 
     public void setCodigoManual(boolean codigoManual) {
         this.codigoManual = codigoManual;
+    }
+
+    public java.util.Map<String, TranscriptionRecord> getTranscriptions() {
+        if (transcriptions == null) transcriptions = new java.util.LinkedHashMap<>();
+        return transcriptions;
+    }
+
+    public void setTranscriptions(java.util.Map<String, TranscriptionRecord> transcriptions) {
+        this.transcriptions = transcriptions;
     }
 }
