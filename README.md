@@ -1,6 +1,6 @@
 # Sistema de Gerenciamento de Documentos GAMA
 
-[![Última versão](https://img.shields.io/github/v/release/mnmatos/gama-filologia?label=Download)](https://github.com/SEU_USUARIO/gama-filologia/releases/latest)
+[![Última versão](https://img.shields.io/github/v/release/mnmatos/gama-filologia?label=Download)](https://github.com/mnmatos/gama/releases/latest)
 
 > 📖 **Quer começar rapidamente?** Veja o [Guia Rápido](QUICK_START.md)  
 > 📦 **Usuário final?** [Baixe a última versão aqui](https://github.com/mnmatos/gama-filologia/releases/latest) — extraia e execute `GAMA.exe`, sem instalar nada.
@@ -131,10 +131,10 @@ mvn test
 
 #  Philology Document Management System GAMA
 
-[![Latest Release](https://img.shields.io/github/v/release/SEU_USUARIO/gama-filologia?label=Download)](https://github.com/SEU_USUARIO/gama-filologia/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/mnmatos/gama?label=Download)](https://github.com/mnmatos/gama/releases/latest)
 
 > 📖 **Want to get started quickly?** See the [Quick Start Guide](QUICK_START.md)  
-> 📦 **End user?** [Download the latest release here](https://github.com/SEU_USUARIO/gama-filologia/releases/latest) — extract and run `GAMA.exe`, no installation needed.
+> 📦 **End user?** [Download the latest release here](https://github.com/mnmatos/gama/releases/latest) — extract and run `GAMA.exe`, no installation needed.
 
 ## License
 
