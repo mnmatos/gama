@@ -123,6 +123,7 @@ mvn test
 *   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
 *   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
 *   [Tess4J](https://tess4j.sourceforge.net/): Wrapper Java para o Tesseract OCR (transcrição offline).
+*   [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (Google, Apache License 2.0): Motor de reconhecimento óptico de caracteres usado para transcrição offline. Os modelos de linguagem (`.traineddata`) são fornecidos pelo projeto [tessdata](https://github.com/tesseract-ocr/tessdata) e [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast), também sob Apache License 2.0.
 *   [AWS SDK for Java v2 – Bedrock Runtime](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html): Integração com Amazon Bedrock para LLMs em nuvem.
 *   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
 
@@ -202,7 +203,7 @@ The system provides a graphical interface for the user to register, classify, an
 #### Windows CMD:
 
 ```cmd
-# Create a standalone package (GAMA folder with executable)
+# Create a standalone package (GAMA folder with executável)
 build-package.bat
 ```
 
@@ -255,6 +256,7 @@ mvn test
 *   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
 *   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
 *   [Tess4J](https://tess4j.sourceforge.net/): Wrapper Java para o Tesseract OCR (transcrição offline).
+*   [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (Google, Apache License 2.0): Motor de reconhecimento óptico de caracteres usado para transcrição offline. Os modelos de linguagem (`.traineddata`) são fornecidos pelo projeto [tessdata](https://github.com/tesseract-ocr/tessdata) e [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast), também sob Apache License 2.0.
 *   [AWS SDK for Java v2 – Bedrock Runtime](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html): Integração com Amazon Bedrock para LLMs em nuvem.
 *   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
 
@@ -292,4 +294,3 @@ java --module-path "$javafxLib" --add-modules=javafx.controls,javafx.fxml,javafx
   - Se desenvolvendo: Use `mvn javafx:run` ou adicione os parâmetros `--module-path` e `--add-modules`
   
 - **Incompatibilidade de versão:** Use JavaFX que corresponda à versão do seu JDK (Java 17 → JavaFX 17)
-
