@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.digitallib.BlockEditorController"
+      VBox.vgrow="ALWAYS">
+    <HBox spacing="6" style="-fx-padding: 4;">
+        <Button fx:id="btnAddBlock" text="+ Bloco" onAction="#handleAddBlock"/>
+        <Button fx:id="btnSplit" text="Dividir" onAction="#handleSplit">
+            <tooltip><Tooltip text="Divide o bloco selecionado ao meio"/></tooltip>
+        </Button>
+        <Button fx:id="btnMerge" text="Mesclar" onAction="#handleMerge">
+            <tooltip><Tooltip text="Mescla os blocos selecionados (Ctrl+Clique para multi-seleção)"/></tooltip>
+        </Button>
+        <Button fx:id="btnRemove" text="🗑 Remover" onAction="#handleRemove" style="-fx-text-fill: #c0392b;">
+            <tooltip><Tooltip text="Remove os blocos selecionados (Delete)"/></tooltip>
+        </Button>
+    </HBox>
+    <ListView fx:id="blockListView" VBox.vgrow="ALWAYS"/>
+</VBox>

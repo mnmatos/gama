@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.TranscriptionComparisonController"
+            prefWidth="1200" prefHeight="750">
+    <top>
+        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 8; -fx-background-color: #f5f5f5;">
+            <Label text="Comparacao de Transcricoes —" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+            <Label fx:id="titleLabel" style="-fx-font-size: 14;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <ToggleButton fx:id="syncScrollToggle" text="Sincronizar Scroll"/>
+        </HBox>
+    </top>
+    <center>
+        <ScrollPane fx:id="horizontalScroll" fitToHeight="true" fitToWidth="false" hbarPolicy="ALWAYS">
+            <HBox fx:id="panelsBox" spacing="0"/>
+        </ScrollPane>
+    </center>
+    <bottom>
+        <HBox style="-fx-padding: 4 8; -fx-background-color: #f0f0f0;">
+            <Label text="Amarelo = texto diferente entre testemunhos  |  Vermelho = bloco ausente em algum testemunho"
+                   style="-fx-font-size: 11; -fx-text-fill: #555;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,7 +1,7 @@
 # 📚 Índice de Documentação GAMA
 
-**Última atualização:** 2026-03-09  
-**Versão GAMA:** 1.2.2
+**Última atualização:** 2026-05-22  
+**Versão GAMA:** 1.2.5
 
 Este índice organiza toda a documentação do projeto GAMA para facilitar a navegação.
 
@@ -163,6 +163,7 @@ Primeiro acesso? Comece aqui:
 
 | Documento | Público-Alvo | Descrição |
 |-----------|--------------|-----------|
+| [TESTING.md](TESTING.md) | Desenvolvedores | Guia de testes de UI (TestFX) |
 | [LICENSE](LICENSE) | Todos | Licença GNU AGPL v3.0 |
 
 ---
@@ -287,6 +288,19 @@ Começar
 ---
 
 ## 🔄 Histórico de Mudanças
+
+### 2026-05-22 - Transcrição com IA/OCR (v1.2.5)
+- ✅ Motor de transcrição configurável: Tesseract OCR (offline) + LLMs em nuvem/local
+- ✅ `TranscriptionAdapterFactory` unifica OCR e LLM sob interface `TranscriptionAdapter`
+- ✅ `TesseractOcrAdapter`: pré-processamento de imagem, segmentação de blocos, multi-idioma
+- ✅ Adaptadores LLM: Anthropic, OpenAI, BedrockRuntime (AWS SDK v2), Ollama, LM Studio
+- ✅ `TranscriptionService`: execução assíncrona, persistência incremental (PROCESSING → DONE/ERROR)
+- ✅ Editor de blocos (`BlockEditorController`): arrastar, dividir e mesclar blocos
+- ✅ Tela de transcrição (`ImageTranscriptionController`): fac-símile + editor + exportação DOCX/TXT
+- ✅ Tela de comparação (`TranscriptionComparisonController`): diff visual entre testemunhos
+- ✅ Configurações LLM (`LlmSettingsController`): seleção de provedor, API keys, Test Connection
+- ✅ `TranscriptionRecord` e `TextBlock` embutidos no JSON do documento (retrocompatível)
+- ✅ README.md atualizado com novas funcionalidades e dependências
 
 ### 2026-03-09 - Correção do Erro JavaFX
 - ✅ Corrigido erro "Module javafx.base not found"

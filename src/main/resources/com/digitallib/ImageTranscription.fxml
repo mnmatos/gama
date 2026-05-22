@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.ImageTranscriptionController"
+            prefWidth="1100" prefHeight="750">
+    <top>
+        <VBox>
+            <ToolBar>
+                <Label fx:id="imageNameLabel" style="-fx-font-weight:bold; -fx-font-size:13;"/>
+                <Separator orientation="VERTICAL"/>
+                <Button fx:id="btnTranscribe" text="Transcrever com LLM" onAction="#handleTranscribe"
+                        style="-fx-font-weight:bold;"/>
+                <ProgressIndicator fx:id="progressIndicator" prefWidth="24" prefHeight="24"/>
+                <Separator orientation="VERTICAL"/>
+                <Button text="Salvar" onAction="#handleSave"/>
+                <Button text="Exportar DOCX" onAction="#handleExportDocx"/>
+                <Button text="Exportar TXT" onAction="#handleExportTxt"/>
+            </ToolBar>
+        </VBox>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.5">
+            <!-- Image Panel -->
+            <VBox>
+                <HBox spacing="6" style="-fx-padding: 4;">
+                    <Button text="+" onAction="#handleZoomIn" prefWidth="30"/>
+                    <Button text="-" onAction="#handleZoomOut" prefWidth="30"/>
+                    <Button text="1:1" onAction="#handleZoomReset" prefWidth="40"/>
+                </HBox>
+                <ScrollPane fx:id="imageScrollPane" VBox.vgrow="ALWAYS" fitToWidth="false" pannable="true">
+                    <ImageView fx:id="imageView" preserveRatio="true"/>
+                </ScrollPane>
+            </VBox>
+            <!-- Block Editor Panel -->
+            <VBox fx:id="blockEditorContainer" VBox.vgrow="ALWAYS"/>
+        </SplitPane>
+    </center>
+    <bottom>
+        <Label fx:id="statusLabel" wrapText="true" style="-fx-padding: 4 8; -fx-font-size: 11; -fx-text-fill: #444;"/>
+    </bottom>
+</BorderPane>

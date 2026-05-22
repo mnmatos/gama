@@ -133,6 +133,57 @@ mvn install
 2. Abra a pasta do projeto
 3. Use Maven commands na barra lateral
 
+### Transcrever Imagens (Novo em v1.2.5)
+
+1. Na lista de documentos, clique em **"Imagens / Transcrição"** na coluna de ações.
+2. Selecione a imagem desejada no seletor.
+3. Acesse **`Configurações > Configurações LLM…`** e escolha o motor:
+   - **OCR (Tesseract)** — offline, sem chave de API. Informe o caminho do `tessdata` e o idioma (ex: `por`).
+   - **Anthropic / OpenAI / AWS Bedrock / Ollama / LM Studio** — informe a chave de API ou URL.
+4. Clique em **"Transcrever com LLM"** na barra de ferramentas da tela de transcrição.
+5. Edite os blocos no painel à direita, depois clique em **"Salvar"**.
+
+---
+
+## Como Usar o GAMA
+
+Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
+
+*   **Filtros**: Utilize os campos na parte superior para filtrar por código, série ou tipo de testemunho (édito/inédito).
+*   **Adicionar Documento**:
+    *   `Arquivo > Adicionar mono-testemunhal` — novo documento de fonte única.
+    *   `Arquivo > Adicionar poli-testemunhal` — agrupa múltiplos testemunhos.
+*   **Exportar Dados**: Menu `Exportar`:
+    *   `Exportar Inventário` — lista completa em DOCX.
+    *   `Exportar Ficha-catálogo` — fichas detalhadas em DOCX.
+*   **Transcrever Imagens**: Na coluna "Ações", clique em **"Imagens / Transcrição"** para abrir o seletor de imagens. A **Tela de Transcrição** exibe:
+    *   Fac-símile (com zoom in/out) à esquerda.
+    *   **Editor de blocos** à direita: tipo (`HEADING`, `PARAGRAPH`, `LIST`, etc.), texto, confiança, dividir/mesclar.
+    *   Barra de ferramentas: **Transcrever com LLM**, **Salvar**, **Exportar DOCX**, **Exportar TXT**.
+*   **Configurar Motor de Transcrição**: `Configurações > Configurações LLM…`:
+    *   **OCR local (Tesseract)** — offline, sem chave de API; configure `tessdata` e idioma (ex: `por`).
+    *   **LLM em nuvem**: Anthropic, OpenAI, AWS Bedrock.
+    *   **LLM local**: Ollama, LM Studio.
+*   **Comparar Transcrições**: Para documentos poli-testemunhais, clique em **"Comparar Transcrições"** — painéis sincronizados com diff visual (amarelo = divergente, vermelho = ausente/extra).
+*   **Editar/Excluir**: Botões na coluna "Ações" da lista.
+
+---
+
+## Usage (English)
+
+When the application starts, the main window shows the list of registered documents.
+
+*   **Filters**: Use the fields at the top to filter by code, series, or testimony type.
+*   **Add Document**: `Arquivo > Adicionar mono-testemunhal` (single witness) or `Adicionar poli-testemunhal` (multi-witness).
+*   **Export**: Menu `Exportar` → Inventory (full list DOCX) or Catalog Card (per-document DOCX).
+*   **Transcribe Images**: Click **"Imagens / Transcrição"** in the Actions column → pick an image → **Transcription View**:
+    *   Left pane: facsimile with zoom.
+    *   Right pane: block editor (type, text, confidence badge, split/merge).
+    *   Toolbar: **Transcribe with LLM**, **Save**, **Export DOCX**, **Export TXT**.
+*   **Configure Transcription Engine**: `Configurações > Configurações LLM…` — choose **OCR (Tesseract)** for offline use or an LLM provider (Anthropic, OpenAI, AWS Bedrock, Ollama, LM Studio).
+*   **Compare Transcriptions**: For multi-witness documents, click **"Comparar Transcrições"** → synchronized side-by-side diff view.
+*   **Edit / Delete**: Action buttons in the document list.
+
 ---
 
 ## Recursos Adicionais
@@ -181,5 +232,5 @@ The package will be created in `dist\GAMA\` and can be distributed by copying th
 
 ---
 
-*Last updated: 2026-03-09*
+*Last updated: 2026-05-22*
 

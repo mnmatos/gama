@@ -18,6 +18,7 @@
             <Button fx:id="openFolderButton" text="Abrir Pasta" maxWidth="Infinity" onAction="#handleOpenFolder"/>
             <Button fx:id="removeButton" text="Remover Arquivo" maxWidth="Infinity" onAction="#handleRemove"/>
             <Button fx:id="analyzeButton" text="Analisar PDF" maxWidth="Infinity" onAction="#handleAnalyze"/>
+            <Button fx:id="transcribeButton" text="Transcrever Imagem" maxWidth="Infinity" onAction="#handleTranscribe"/>
 
         </VBox>
     </content>

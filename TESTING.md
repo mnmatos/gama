@@ -1,5 +1,19 @@
 # Testes / Testing
 
+O projeto inclui testes de interface gráfica (UI) para validar o comportamento da aplicação.  
+The project includes UI integration tests to validate application behaviour.
+
+Para executar todos os testes / To run all tests:
+
+```bash
+mvn test
+```
+
+> **Nota / Note:** Os testes de UI requerem um ambiente gráfico disponível. Em ambientes headless (ex.: CI sem servidor X no Linux), configure um display virtual (ex.: Xvfb).  
+> UI tests require a graphical display. In headless CI environments on Linux, configure a virtual display (e.g. Xvfb).
+
+---
+
 ## `DocumentCreatorUITest`
 
 **Localização / Location:** `src/test/java/com/digitallib/DocumentCreatorUITest.java`

@@ -11,7 +11,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.net.URL;
@@ -137,5 +139,22 @@ public class MultiSourceDocumentListController implements Initializable {
                  logger.error("Failed to save multi-source document group", e);
              }
          }
+    }
+
+    @FXML
+    public void handleCompareTranscriptions() {
+        if (multiDoc == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/TranscriptionComparison.fxml"));
+            javafx.scene.Parent root = loader.load();
+            TranscriptionComparisonController ctrl = loader.getController();
+            ctrl.setMultiDoc(multiDoc);
+            Stage stage = new Stage();
+            stage.setTitle("Comparar Transcrições — " + multiDoc.getTitulo());
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (java.io.IOException e) {
+            logger.error("Failed to open TranscriptionComparison", e);
+        }
     }
 }

@@ -1,6 +1,9 @@
 # Sistema de Gerenciamento de Documentos GAMA
 
-> 📖 **Quer começar rapidamente?** Veja o [Guia Rápido](QUICK_START.md)
+[![Última versão](https://img.shields.io/github/v/release/mnmatos/gama-filologia?label=Download)](https://github.com/SEU_USUARIO/gama-filologia/releases/latest)
+
+> 📖 **Quer começar rapidamente?** Veja o [Guia Rápido](QUICK_START.md)  
+> 📦 **Usuário final?** [Baixe a última versão aqui](https://github.com/mnmatos/gama-filologia/releases/latest) — extraia e execute `GAMA.exe`, sem instalar nada.
 
 ## Licença
 
@@ -25,6 +28,8 @@ O sistema fornece uma interface gráfica para que o(a) usuário(a) possa registr
 *   **Suporte a Múltiplas Fontes**: Gerenciamento de documentos mono e poli-testemunhais.
 *   **Exportação**: Gera relatórios em formato DOCX, incluindo um **Inventário** completo e uma **Ficha-Catálogo** para documentos específicos.
 *   **Armazenamento Flexível**: Os dados são salvos em formato JSON, e os arquivos de mídia associados são mantidos em um diretório local.
+*   **Transcrição de Imagens com IA**: Transcrição automática de fac-símiles utilizando LLMs (Anthropic Claude, OpenAI GPT-4o, AWS Bedrock, Ollama, LM Studio) ou OCR local (Tesseract). Os resultados são editados em um **editor de blocos** com suporte a arrastar-para-reordenar, dividir e mesclar blocos, e são exportáveis em DOCX ou TXT.
+*   **Comparação de Transcrições**: Visualização lado a lado das transcrições de diferentes testemunhos de um documento poli-testemunhal, com destaque visual para divergências (amarelo = texto diferente; vermelho = bloco ausente/extra).
 
 ## Começando
 
@@ -33,6 +38,7 @@ O sistema fornece uma interface gráfica para que o(a) usuário(a) possa registr
 - **Java JDK 17 ou superior** (recomendado JDK 17 com suporte a jpackage)
 - **Maven 3.6+** para compilar o projeto
 - **WiX Toolset 3.11+** (opcional, apenas para criar instaladores MSI)
+- **Tesseract OCR 5+** (opcional, apenas para transcrição offline via OCR — requer `tessdata` com o modelo de idioma desejado, ex: `por.traineddata`)
 
 ### Opção 1: Executar com Maven (Desenvolvimento)
 
@@ -73,11 +79,6 @@ O script irá:
 2. Criar o pacote usando jpackage com JavaFX embutido
 3. Gerar a aplicação em `dist\GAMA\`
 
-**Vantagens:**
-- ✅ JavaFX incluído no runtime - usuário não precisa instalar nada
-- ✅ Aplicação standalone - basta copiar a pasta GAMA
-- ✅ Funciona sem configuração adicional
-
 ### Opção 3: Compilar Manualmente
 
 Se preferir executar os comandos manualmente:
@@ -91,7 +92,7 @@ Se preferir executar os comandos manualmente:
     ```cmd
     jpackage --input target ^
       --name GAMA ^
-      --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar ^
+      --main-jar digital-library-api-1.2.5-jar-with-dependencies.jar ^
       --main-class com.digitallib.MainFX ^
       --type app-image ^
       --dest dist ^
@@ -105,24 +106,15 @@ Se preferir executar os comandos manualmente:
 
 ## Uso
 
-Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
-
-*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
-*   **Adicionar Documento**:
-    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
-    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
-*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
-    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
-    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
-*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+Para instruções detalhadas sobre como usar o GAMA — filtros, cadastro de documentos, exportação, transcrição de imagens, configuração de provedores LLM/OCR e comparação de transcrições — consulte o **[Guia Rápido (QUICK_START.md)](QUICK_START.md#como-usar-o-gama)**.
 
 ## Testes
 
-O projeto inclui testes de interface gráfica (UI) para validar o comportamento do formulário de cadastro de documentos.
+O projeto inclui testes de interface gráfica (UI) baseados em [TestFX](https://github.com/TestFX/TestFX). Para documentação completa, consulte o **[Guia de Testes (TESTING.md)](TESTING.md)**.
 
-*   **[`DocumentCreatorUITest`](TESTING.md)** – Teste de integração de UI baseado em [TestFX](https://github.com/TestFX/TestFX) que exercita o fluxo completo de criação e edição de um documento (`DocumentCreator.fxml`).
-
-Para documentação detalhada sobre os testes, consulte o **[Guia de Testes (TESTING.md)](TESTING.md)**.
+```bash
+mvn test
+```
 
 ## Dependências
 
@@ -130,13 +122,19 @@ Para documentação detalhada sobre os testes, consulte o **[Guia de Testes (TES
 *   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
 *   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
 *   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [Tess4J](https://tess4j.sourceforge.net/): Wrapper Java para o Tesseract OCR (transcrição offline).
+*   [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (Google, Apache License 2.0): Motor de reconhecimento óptico de caracteres usado para transcrição offline. Os modelos de linguagem (`.traineddata`) são fornecidos pelo projeto [tessdata](https://github.com/tesseract-ocr/tessdata) e [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast), também sob Apache License 2.0.
+*   [AWS SDK for Java v2 – Bedrock Runtime](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html): Integração com Amazon Bedrock para LLMs em nuvem.
 *   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
 
 ---
 
 #  Philology Document Management System GAMA
 
-> 📖 **Want to get started quickly?** See the [Quick Start Guide](QUICK_START.md)
+[![Latest Release](https://img.shields.io/github/v/release/SEU_USUARIO/gama-filologia?label=Download)](https://github.com/SEU_USUARIO/gama-filologia/releases/latest)
+
+> 📖 **Want to get started quickly?** See the [Quick Start Guide](QUICK_START.md)  
+> 📦 **End user?** [Download the latest release here](https://github.com/SEU_USUARIO/gama-filologia/releases/latest) — extract and run `GAMA.exe`, no installation needed.
 
 ## License
 
@@ -163,6 +161,8 @@ The system provides a graphical interface for the user to register, classify, an
 *   **Multi-source Support**: Manages single and multi-testimonial documents.
 *   **Exporting**: Generates reports in DOCX format, including a full **Inventory** and a **Catalog Card** for specific documents.
 *   **Flexible Storage**: Data is saved in JSON format, and associated media files are kept in a local directory.
+*   **AI Image Transcription**: Automatic transcription of facsimiles using LLMs (Anthropic Claude, OpenAI GPT-4o, AWS Bedrock, Ollama, LM Studio) or local OCR (Tesseract). Results are edited in a **block editor** with drag-to-reorder, split, and merge support, and are exportable as DOCX or TXT.
+*   **Transcription Comparison**: Side-by-side view of transcriptions from different witnesses of a multi-testimonial document, with visual highlighting for divergences (yellow = different text; red = missing/extra block).
 
 ## Getting Started
 
@@ -171,6 +171,7 @@ The system provides a graphical interface for the user to register, classify, an
 - **Java JDK 17 or higher** (JDK 17 with jpackage support recommended)
 - **Maven 3.6+** to build the project
 - **WiX Toolset 3.11+** (optional, only needed to create MSI installers)
+- **Tesseract OCR 5+** (optional, only for offline OCR transcription — requires `tessdata` with the desired language model, e.g. `por.traineddata`)
 
 ### Option 1: Run with Maven (Development)
 
@@ -202,7 +203,7 @@ The system provides a graphical interface for the user to register, classify, an
 #### Windows CMD:
 
 ```cmd
-# Create a standalone package (GAMA folder with executable)
+# Create a standalone package (GAMA folder with executável)
 build-package.bat
 ```
 
@@ -210,11 +211,6 @@ The script will:
 1. Compile the project with Maven
 2. Create the package using jpackage with embedded JavaFX
 3. Generate the application in `dist\GAMA\`
-
-**Advantages:**
-- ✅ JavaFX included in runtime - user doesn't need to install anything
-- ✅ Standalone application - just copy the GAMA folder
-- ✅ Works without additional configuration
 
 ### Option 3: Build Manually
 
@@ -229,7 +225,7 @@ If you prefer to run the commands manually:
     ```cmd
     jpackage --input target ^
       --name GAMA ^
-      --main-jar digital-library-api-1.2.2-jar-with-dependencies.jar ^
+      --main-jar digital-library-api-1.2.5-jar-with-dependencies.jar ^
       --main-class com.digitallib.MainFX ^
       --type app-image ^
       --dest dist ^
@@ -241,26 +237,17 @@ If you prefer to run the commands manually:
 
 **Important note:** The `--add-modules` parameter ensures that JavaFX modules are included in the packaged runtime.
 
-## Uso
+## Usage
 
-Ao executar a aplicação, a janela principal exibirá a lista de documentos cadastrados.
-
-*   **Filtros**: Utilize os campos na parte superior da janela para filtrar a lista de documentos por código, série ou tipo de testemunho (édito/inédito).
-*   **Adicionar Documento**:
-    *   Clique no menu `Arquivo > Adicionar mono-testemunhal` para abrir o formulário de cadastro de um novo documento.
-    *   Use `Arquivo > Adicionar poli-testemunhal` para agrupar múltiplos testemunhos sob um mesmo título.
-*   **Exportar Dados**: No menu `Exportar`, você pode escolher entre:
-    *   `Exportar Inventário`: Gera um documento Word com a lista de todos os documentos filtrados.
-    *   `Exportar Ficha-catálogo`: Gera um documento Word com fichas detalhadas para os documentos selecionados.
-*   **Editar/Excluir**: Na lista de documentos, a coluna "Ações" contém botões para editar ou excluir um registro.
+For detailed usage instructions — filters, adding documents, exporting, image transcription, configuring LLM/OCR providers, and comparing transcriptions — see the **[Quick Start Guide (QUICK_START.md)](QUICK_START.md#usage-english)**.
 
 ## Tests
 
-The project includes graphical user interface (UI) tests to validate the behaviour of the document registration form.
+The project includes UI integration tests based on [TestFX](https://github.com/TestFX/TestFX). For full documentation see the **[Testing Guide (TESTING.md)](TESTING.md)**.
 
-*   **[`DocumentCreatorUITest`](TESTING.md)** – A UI integration test based on [TestFX](https://github.com/TestFX/TestFX) that exercises the full create-and-edit document flow through the graphical interface (`DocumentCreator.fxml`).
-
-For detailed test documentation, see the **[Testing Guide (TESTING.md)](TESTING.md)**.
+```bash
+mvn test
+```
 
 ## Dependências
 
@@ -268,6 +255,9 @@ For detailed test documentation, see the **[Testing Guide (TESTING.md)](TESTING.
 *   [Apache POI](https://poi.apache.org/): Para criação e manipulação de arquivos do Microsoft Office (DOCX).
 *   [Log4j](https://logging.apache.org/log4j/2.x/): Para registro de logs da aplicação.
 *   [SnakeYAML](https://bitbucket.org/snakeyaml/snakeyaml/src/master/): Para manipulação de arquivos de configuração YAML.
+*   [Tess4J](https://tess4j.sourceforge.net/): Wrapper Java para o Tesseract OCR (transcrição offline).
+*   [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) (Google, Apache License 2.0): Motor de reconhecimento óptico de caracteres usado para transcrição offline. Os modelos de linguagem (`.traineddata`) são fornecidos pelo projeto [tessdata](https://github.com/tesseract-ocr/tessdata) e [tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast), também sob Apache License 2.0.
+*   [AWS SDK for Java v2 – Bedrock Runtime](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html): Integração com Amazon Bedrock para LLMs em nuvem.
 *   [JUnit](https://junit.org/junit5/): Para a execução de testes unitários.
 
 ## JavaFX Runtime
@@ -293,7 +283,7 @@ O Maven configura automaticamente o JavaFX.
 
 ```powershell
 $javafxLib = 'C:\caminho\para\javafx-sdk-17.0.8\lib'
-$jar = '.\target\digital-library-api-1.2.2-jar-with-dependencies.jar'
+$jar = '.\target\digital-library-api-1.2.5-jar-with-dependencies.jar'
 java --module-path "$javafxLib" --add-modules=javafx.controls,javafx.fxml,javafx.graphics -jar "$jar"
 ```
 
@@ -304,4 +294,3 @@ java --module-path "$javafxLib" --add-modules=javafx.controls,javafx.fxml,javafx
   - Se desenvolvendo: Use `mvn javafx:run` ou adicione os parâmetros `--module-path` e `--add-modules`
   
 - **Incompatibilidade de versão:** Use JavaFX que corresponda à versão do seu JDK (Java 17 → JavaFX 17)
-

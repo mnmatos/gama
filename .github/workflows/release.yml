@@ -1,0 +1,60 @@
+name: Release
+
+# Triggered by pushing a version tag, e.g.: git tag v1.2.5 && git push origin v1.2.5
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # ── Standalone ZIP (app-image) ───────────────────────────────────────────
+      # build-package.ps1 compiles with Maven and creates dist\GAMA\ via jpackage
+      - name: Create standalone package (ZIP)
+        shell: pwsh
+        run: .\build-package.ps1 -OutputDir .\dist
+
+      - name: Zip standalone package
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          Compress-Archive -Path .\dist\GAMA -DestinationPath "GAMA-$tag-windows.zip"
+          echo "ZIP_NAME=GAMA-$tag-windows.zip" >> $env:GITHUB_ENV
+
+      # ── MSI Installer ────────────────────────────────────────────────────────
+      # build-installer.ps1 downloads JavaFX, runs jlink, then jpackage --type msi
+      # WiX Toolset 3.x is pre-installed on windows-latest runners
+      - name: Create MSI installer
+        shell: pwsh
+        run: .\build-installer.ps1 -OutputDir .\dist
+
+      - name: Find MSI file
+        shell: pwsh
+        run: |
+          $msi = Get-ChildItem -Path .\dist -Filter "*.msi" | Select-Object -First 1
+          if (-not $msi) { throw "MSI file not found in .\dist" }
+          echo "MSI_NAME=$($msi.Name)" >> $env:GITHUB_ENV
+          echo "MSI_PATH=$($msi.FullName)" >> $env:GITHUB_ENV
+
+      # ── Publish GitHub Release ───────────────────────────────────────────────
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "GAMA ${{ github.ref_name }}"
+          generate_release_notes: true
+          files: |
+            ${{ env.ZIP_NAME }}
+            ${{ env.MSI_PATH }}

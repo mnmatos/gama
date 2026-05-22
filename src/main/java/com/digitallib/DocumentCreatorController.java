@@ -141,6 +141,23 @@ public class DocumentCreatorController implements Initializable {
         // Hide Teatro tab by default
         tabPane.getTabs().remove(teatroTab);
 
+        // Register file tree double-click handler once
+        fileTree.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                javafx.scene.Node node = event.getPickResult().getIntersectedNode();
+                while (node != null && !(node instanceof TreeCell)) {
+                    node = node.getParent();
+                }
+                if (node instanceof TreeCell) {
+                    @SuppressWarnings("unchecked")
+                    TreeItem<String> item = ((TreeCell<String>) node).getTreeItem();
+                    if (item != null && item != fileTree.getRoot()) {
+                        handleFileAction(item);
+                    }
+                }
+            }
+        });
+
         // Resize dialog/window to use more of the screen when available
         Platform.runLater(() -> {
             try {
@@ -648,9 +665,12 @@ public class DocumentCreatorController implements Initializable {
                     RepositoryManager.saveFiles(editedDocCode, selectedFiles);
                     if (documento.getArquivos() == null) documento.setArquivos(new ArrayList<>());
                     for(File f : selectedFiles) {
-                        documento.getArquivos().add(f.getName());
+                        if (!documento.getArquivos().contains(f.getName())) {
+                            documento.getArquivos().add(f.getName());
+                        }
                     }
-                } catch (IOException e) {
+                    RepositoryManager.updateEntry(documento);
+                } catch (IOException | com.digitallib.exception.RepositoryException e) {
                     logger.error("Failed to save files", e);
                 }
             } else {
@@ -678,15 +698,6 @@ public class DocumentCreatorController implements Initializable {
         }
         fileTree.setRoot(root);
         fileTree.setShowRoot(false);
-
-        fileTree.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                TreeItem<String> item = fileTree.getSelectionModel().getSelectedItem();
-                if (item != null) {
-                     handleFileAction(item);
-                }
-            }
-        });
     }
 
     private void handleFileAction(TreeItem<String> item) {
@@ -735,7 +746,7 @@ public class DocumentCreatorController implements Initializable {
                 refreshFileTree();
             };
 
-            controller.setFile(file, isSaved ? editedDocCode : null, onRemove);
+            controller.setFile(file, isSaved ? editedDocCode : null, documento, onRemove);
 
             Dialog<ButtonType> dialog = new Dialog<>();
             dialog.setDialogPane(pane);

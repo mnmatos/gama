@@ -6,7 +6,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>digital-library-api</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -75,6 +75,12 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.4</version>
         </dependency>
+        <!-- Tess4J — Tesseract OCR wrapper for Java -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.18.0</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -91,6 +97,17 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>2.0.27</version>
+        </dependency>
+        <!-- AWS Bedrock for LLM transcription -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>bedrockruntime</artifactId>
+            <version>2.25.70</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>auth</artifactId>
+            <version>2.25.70</version>
         </dependency>
         <dependency>
             <groupId>org.testfx</groupId>
@@ -113,6 +130,23 @@
     </dependencies>
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <!-- Do not filter binary/xml resources, just copy them -->
+                    <nonFilteredFileExtensions>
+                        <nonFilteredFileExtension>fxml</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>png</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jpg</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>gif</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
@@ -169,6 +203,36 @@
                             <options>
                                 <option>-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005</option>
                             </options>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>verify-tess4j-checksum</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- Gera o SHA-256 do jar local e verifica contra o valor esperado -->
+                                <checksum file="${settings.localRepository}/net/sourceforge/tess4j/tess4j/5.18.0/tess4j-5.18.0.jar"
+                                          algorithm="SHA-256"
+                                          property="tess4j.sha256"/>
+                                <condition property="tess4j.checksum.ok">
+                                    <equals arg1="${tess4j.sha256}"
+                                            arg2="92f05ace88470e64a3ecb02646afdadd834d2adf5c0c00c8b40f3dc44dfab430"
+                                            casesensitive="false"/>
+                                </condition>
+                                <fail unless="tess4j.checksum.ok"
+                                      message="SECURITY WARNING: Checksum of tess4j-5.18.0.jar does not match the expected value! The artifact may have been tampered with. SHA-256 found: ${tess4j.sha256}"/>
+                                <echo message="[OK] Checksum of tess4j-5.18.0.jar verified successfully."/>
+                            </target>
                         </configuration>
                     </execution>
                 </executions>

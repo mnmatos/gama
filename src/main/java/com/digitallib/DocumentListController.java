@@ -158,6 +158,12 @@ public class DocumentListController implements Initializable {
                             btnEdit.setOnAction(e -> handleEdit(doc));
                             hbox.getChildren().add(btnEdit);
 
+                            if (hasActiveTranscription(doc)) {
+                                Button btnImg = new Button("Transcrição");
+                                btnImg.setOnAction(e -> handleOpenImageTranscription(doc));
+                                hbox.getChildren().add(btnImg);
+                            }
+
                             Button btnRemove = new Button("Remover");
                             btnRemove.setOnAction(e -> handleRemove(doc));
                             hbox.getChildren().add(btnRemove);
@@ -342,6 +348,72 @@ public class DocumentListController implements Initializable {
                 err.showAndWait();
             }
             refreshTable();
+        }
+    }
+
+    private boolean hasActiveTranscription(Documento doc) {
+        if (doc.getTranscriptions() == null || doc.getTranscriptions().isEmpty()) return false;
+        if (doc.getArquivos() == null || doc.getArquivos().isEmpty()) return false;
+
+        Set<String> imageFiles = doc.getArquivos().stream()
+                .filter(f -> f.matches("(?i).+\\.(jpg|jpeg|png|tif|tiff|webp)"))
+                .collect(java.util.stream.Collectors.toSet());
+
+        return doc.getTranscriptions().values().stream()
+                .anyMatch(t -> t.getStatus() == com.digitallib.model.TranscriptionStatus.DONE
+                        && t.getImagePath() != null
+                        && imageFiles.contains(new java.io.File(t.getImagePath()).getName()));
+    }
+
+    private void handleOpenImageTranscription(Documento doc) {
+        List<String> images = doc.getArquivos() == null ? java.util.Collections.emptyList() :
+                doc.getArquivos().stream()
+                        .filter(f -> f.matches("(?i).+\\.(jpg|jpeg|png|tif|tiff|webp)"))
+                        .collect(java.util.stream.Collectors.toList());
+        if (images.isEmpty()) return;
+
+        String chosen;
+        if (images.size() == 1) {
+            chosen = images.get(0);
+        } else {
+            ChoiceDialog<String> dlg = new ChoiceDialog<>(images.get(0), images);
+            dlg.setTitle("Selecionar Imagem");
+            dlg.setHeaderText("Escolha a imagem para transcrever:");
+            Optional<String> res = dlg.showAndWait();
+            if (res.isEmpty()) return;
+            chosen = res.get();
+        }
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/ImageTranscription.fxml"));
+            javafx.scene.Parent root = loader.load();
+            ImageTranscriptionController ctrl = loader.getController();
+            ctrl.setData(doc, chosen);
+            Stage stage = new Stage();
+            stage.setTitle("Transcrição — " + doc.getCodigo() + " / " + chosen);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open ImageTranscription", e);
+        }
+    }
+
+    @FXML
+    public void handleLlmSettings() {
+        if (System.getProperty("selected.project.path") == null) {
+            new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.WARNING,
+                    "Selecione um projeto antes de configurar o LLM.").showAndWait();
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/LlmSettings.fxml"));
+            javafx.scene.Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Configurações de Transcrição");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open LlmSettings", e);
         }
     }
 }
