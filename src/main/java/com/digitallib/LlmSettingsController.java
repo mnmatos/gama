@@ -4,13 +4,24 @@ import com.digitallib.llm.LlmAdapterFactory;
 import com.digitallib.llm.LlmException;
 import com.digitallib.manager.LlmSettingsManager;
 import com.digitallib.model.LlmSettings;
+import com.digitallib.ocr.TesseractOcrAdapter;
+import com.digitallib.transcription.TranscriptionException;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import java.io.File;
 import java.util.concurrent.Executors;
 public class LlmSettingsController {
+    @FXML private RadioButton radioLlm;
+    @FXML private RadioButton radioOcr;
+    @FXML private ToggleGroup transcriptionToolGroup;
+    @FXML private TitledPane llmSection;
+    @FXML private TitledPane ocrSection;
+    @FXML private Button btnTestLlm;
+    @FXML private Button btnTestOcr;
     @FXML private ComboBox<String> activeProviderCombo;
     // Panes
     @FXML private VBox anthropicPane;
@@ -38,6 +49,9 @@ public class LlmSettingsController {
     // LM Studio
     @FXML private TextField lmStudioBaseUrl;
     @FXML private TextField lmStudioModel;
+    // OCR
+    @FXML private TextField tessdataPath;
+    @FXML private TextField ocrLanguage;
     @FXML private Label statusLabel;
     @FXML
     public void initialize() {
@@ -45,6 +59,13 @@ public class LlmSettingsController {
         anthropicModel.getItems().setAll("claude-3-5-sonnet-20241022","claude-3-opus-20240229","claude-3-haiku-20240307");
         openaiModel.getItems().setAll("gpt-4o","gpt-4o-mini","gpt-4-turbo");
         LlmSettings s = LlmSettingsManager.getInstance().loadMasked();
+        // Transcription tool
+        boolean isOcr = "ocr".equalsIgnoreCase(s.getTranscriptionTool());
+        radioOcr.setSelected(isOcr);
+        radioLlm.setSelected(!isOcr);
+        updateSectionVisibility(isOcr);
+        radioLlm.setOnAction(e -> updateSectionVisibility(false));
+        radioOcr.setOnAction(e -> updateSectionVisibility(true));
         activeProviderCombo.setValue(s.getProvider() != null ? s.getProvider() : "anthropic");
         anthropicApiKey.setText(s.getAnthropicApiKey() != null ? s.getAnthropicApiKey() : "");
         anthropicModel.setValue(s.getAnthropicModel());
@@ -61,9 +82,20 @@ public class LlmSettingsController {
         ollamaModel.setText(s.getOllamaModel() != null ? s.getOllamaModel() : "llava");
         lmStudioBaseUrl.setText(s.getLmStudioBaseUrl() != null ? s.getLmStudioBaseUrl() : "http://localhost:1234");
         lmStudioModel.setText(s.getLmStudioModel() != null ? s.getLmStudioModel() : "");
-        // Apply disabled state initially and whenever the combo changes
+        tessdataPath.setText(s.getTessdataPath() != null ? s.getTessdataPath() : "");
+        ocrLanguage.setText(s.getOcrLanguage() != null ? s.getOcrLanguage() : "por");
         updatePaneStates(activeProviderCombo.getValue());
         activeProviderCombo.valueProperty().addListener((obs, old, val) -> updatePaneStates(val));
+    }
+    private void updateSectionVisibility(boolean ocrSelected) {
+        llmSection.setVisible(!ocrSelected);
+        llmSection.setManaged(!ocrSelected);
+        ocrSection.setVisible(ocrSelected);
+        ocrSection.setManaged(ocrSelected);
+        btnTestLlm.setVisible(!ocrSelected);
+        btnTestLlm.setManaged(!ocrSelected);
+        btnTestOcr.setVisible(ocrSelected);
+        btnTestOcr.setManaged(ocrSelected);
     }
     /** Disable all panes except the one matching the active provider. */
     private void updatePaneStates(String provider) {
@@ -73,6 +105,17 @@ public class LlmSettingsController {
         bedrockPane.setDisable(!"bedrock".equals(p));
         ollamaPane.setDisable(!"ollama".equals(p));
         lmStudioPane.setDisable(!"lmstudio".equals(p));
+    }
+    @FXML
+    private void handleBrowseTessdata() {
+        DirectoryChooser dc = new DirectoryChooser();
+        dc.setTitle("Selecionar pasta tessdata");
+        if (!tessdataPath.getText().isBlank()) {
+            File f = new File(tessdataPath.getText());
+            if (f.exists()) dc.setInitialDirectory(f);
+        }
+        File dir = dc.showDialog(tessdataPath.getScene().getWindow());
+        if (dir != null) tessdataPath.setText(dir.getAbsolutePath());
     }
     @FXML
     private void handleSave() {
@@ -88,7 +131,7 @@ public class LlmSettingsController {
     }
     @FXML
     private void handleTest() {
-        statusLabel.setText("Testando conexao...");
+        statusLabel.setText("Testando conexao LLM...");
         statusLabel.setStyle("-fx-text-fill: gray;");
         LlmSettings base = LlmSettingsManager.getInstance().load();
         LlmSettings s = buildFromForm();
@@ -103,15 +146,24 @@ public class LlmSettingsController {
             try {
                 LlmAdapter adapter = LlmAdapterFactory.getAdapter(s);
                 String msg = adapter.testConnection();
-                Platform.runLater(() -> {
-                    statusLabel.setText("OK: " + msg);
-                    statusLabel.setStyle("-fx-text-fill: green;");
-                });
+                Platform.runLater(() -> { statusLabel.setText("OK: " + msg); statusLabel.setStyle("-fx-text-fill: green;"); });
             } catch (LlmException e) {
-                Platform.runLater(() -> {
-                    statusLabel.setText("Falha: " + e.getMessage());
-                    statusLabel.setStyle("-fx-text-fill: red;");
-                });
+                Platform.runLater(() -> { statusLabel.setText("Falha: " + e.getMessage()); statusLabel.setStyle("-fx-text-fill: red;"); });
+            }
+        });
+    }
+    @FXML
+    private void handleTestOcr() {
+        statusLabel.setText("Testando Tesseract OCR...");
+        statusLabel.setStyle("-fx-text-fill: gray;");
+        LlmSettings s = buildFromForm();
+        Executors.newSingleThreadExecutor(r -> { Thread t = new Thread(r); t.setDaemon(true); return t; })
+                .submit(() -> {
+            try {
+                String msg = new TesseractOcrAdapter(s).testConnection();
+                Platform.runLater(() -> { statusLabel.setText("OK: " + msg); statusLabel.setStyle("-fx-text-fill: green;"); });
+            } catch (TranscriptionException e) {
+                Platform.runLater(() -> { statusLabel.setText("Falha OCR: " + e.getMessage()); statusLabel.setStyle("-fx-text-fill: red;"); });
             }
         });
     }
@@ -121,6 +173,7 @@ public class LlmSettingsController {
     }
     private LlmSettings buildFromForm() {
         LlmSettings s = new LlmSettings();
+        s.setTranscriptionTool(radioOcr.isSelected() ? "ocr" : "llm");
         s.setProvider(activeProviderCombo.getValue());
         s.setAnthropicApiKey(anthropicApiKey.getText());
         s.setAnthropicModel(anthropicModel.getValue());
@@ -137,6 +190,8 @@ public class LlmSettingsController {
         s.setOllamaModel(ollamaModel.getText());
         s.setLmStudioBaseUrl(lmStudioBaseUrl.getText());
         s.setLmStudioModel(lmStudioModel.getText());
+        s.setTessdataPath(tessdataPath.getText());
+        s.setOcrLanguage(ocrLanguage.getText());
         return s;
     }
     private boolean isMasked(String value) {

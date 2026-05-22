@@ -7,6 +7,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class LlmSettings {
     @JsonProperty("provider")
     private String provider = "anthropic";
+    /** Ferramenta padrão de transcrição: "llm" ou "ocr" */
+    @JsonProperty("transcriptionTool")
+    private String transcriptionTool = "ocr";
+    /** Caminho para a pasta tessdata (contendo *.traineddata) */
+    @JsonProperty("tessdataPath")
+    private String tessdataPath = "";
+    /** Idioma(s) para o Tesseract, ex: "por", "por+eng" */
+    @JsonProperty("ocrLanguage")
+    private String ocrLanguage = "por";
     @JsonProperty("anthropicApiKey")
     private String anthropicApiKey;
     @JsonProperty("anthropicModel")
@@ -40,6 +49,12 @@ public class LlmSettings {
     public LlmSettings() {}
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
+    public String getTranscriptionTool() { return transcriptionTool; }
+    public void setTranscriptionTool(String transcriptionTool) { this.transcriptionTool = transcriptionTool; }
+    public String getTessdataPath() { return tessdataPath; }
+    public void setTessdataPath(String tessdataPath) { this.tessdataPath = tessdataPath; }
+    public String getOcrLanguage() { return ocrLanguage; }
+    public void setOcrLanguage(String ocrLanguage) { this.ocrLanguage = ocrLanguage; }
     public String getAnthropicApiKey() { return anthropicApiKey; }
     public void setAnthropicApiKey(String anthropicApiKey) { this.anthropicApiKey = anthropicApiKey; }
     public String getAnthropicModel() { return anthropicModel; }

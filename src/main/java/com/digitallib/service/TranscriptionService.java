@@ -1,10 +1,10 @@
 package com.digitallib.service;
 import com.digitallib.exception.RepositoryException;
-import com.digitallib.llm.LlmAdapter;
-import com.digitallib.llm.LlmAdapterFactory;
-import com.digitallib.llm.LlmException;
 import com.digitallib.manager.RepositoryManager;
 import com.digitallib.model.*;
+import com.digitallib.transcription.TranscriptionAdapter;
+import com.digitallib.transcription.TranscriptionAdapterFactory;
+import com.digitallib.transcription.TranscriptionException;
 import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 public class TranscriptionService {
     private static final Logger logger = LogManager.getLogger(TranscriptionService.class);
     private static final ExecutorService executor = Executors.newCachedThreadPool(r -> {
-        Thread t = new Thread(r, "llm-transcription");
+        Thread t = new Thread(r, "transcription");
         t.setDaemon(true);
         return t;
     });
@@ -72,18 +72,18 @@ public class TranscriptionService {
                 Path imgPath = resolveImagePath(doc.getCodigo(), imageFilename);
                 byte[] bytes = Files.readAllBytes(imgPath);
                 String mime = mimeTypeOf(imageFilename);
-                LlmAdapter adapter = LlmAdapterFactory.getAdapter(settings);
+                TranscriptionAdapter adapter = TranscriptionAdapterFactory.getAdapter(settings);
                 List<TextBlock> blocks = adapter.transcribe(bytes, mime);
                 record.setBlocks(blocks);
                 record.setStatus(TranscriptionStatus.DONE);
-                record.setLlmProvider(settings.getProvider());
+                record.setLlmProvider(resolveEngineLabel(settings));
                 record.setLlmModel(resolveModel(settings));
                 record.setUpdatedAt(LocalDateTime.now());
                 if (record.getCreatedAt() == null) record.setCreatedAt(LocalDateTime.now());
                 doc.getTranscriptions().put(imageFilename, record);
                 persistQuietly(doc);
                 Platform.runLater(() -> onDone.accept(record));
-            } catch (IOException | LlmException e) {
+            } catch (IOException | TranscriptionException e) {
                 logger.error("Transcription failed for {}/{}", doc.getCodigo(), imageFilename, e);
                 record.setStatus(TranscriptionStatus.ERROR);
                 record.setErrorMessage(e.getMessage());
@@ -101,14 +101,21 @@ public class TranscriptionService {
             logger.error("Failed to persist document {} after transcription update", doc.getCodigo(), e);
         }
     }
+    /** Human-readable engine name stored in the TranscriptionRecord. */
+    private String resolveEngineLabel(LlmSettings s) {
+        if ("ocr".equalsIgnoreCase(s.getTranscriptionTool())) return "Tesseract OCR";
+        return s.getProvider() != null ? s.getProvider() : "llm";
+    }
     private String resolveModel(LlmSettings s) {
+        if ("ocr".equalsIgnoreCase(s.getTranscriptionTool()))
+            return "tesseract (" + (s.getOcrLanguage() != null ? s.getOcrLanguage() : "por") + ")";
         if (s.getProvider() == null) return "";
         switch (s.getProvider().toLowerCase(Locale.ROOT)) {
             case "anthropic": return s.getAnthropicModel();
-            case "openai": return s.getOpenaiModel();
-            case "bedrock": return s.getBedrockModelId();
-            case "ollama": return s.getOllamaModel();
-            case "lmstudio": return s.getLmStudioModel();
+            case "openai":    return s.getOpenaiModel();
+            case "bedrock":   return s.getBedrockModelId();
+            case "ollama":    return s.getOllamaModel();
+            case "lmstudio":  return s.getLmStudioModel();
             default: return "";
         }
     }

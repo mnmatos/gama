@@ -17,24 +17,29 @@ public class OpenAiCompatibleAdapter implements LlmAdapter {
     private final String baseUrl;
     private final String apiKey;
     private final String model;
+    private final int testTimeoutSeconds;
     private final HttpClient http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
     private final ObjectMapper mapper = new ObjectMapper();
     /** OpenAI direct */
     public static OpenAiCompatibleAdapter openAi(LlmSettings s) {
-        return new OpenAiCompatibleAdapter("https://api.openai.com/v1", s.getOpenaiApiKey(), s.getOpenaiModel());
+        return new OpenAiCompatibleAdapter("https://api.openai.com/v1", s.getOpenaiApiKey(), s.getOpenaiModel(), 15);
     }
     /** Ollama local */
     public static OpenAiCompatibleAdapter ollama(LlmSettings s) {
-        return new OpenAiCompatibleAdapter(s.getOllamaBaseUrl() + "/v1", "ollama", s.getOllamaModel());
+        return new OpenAiCompatibleAdapter(s.getOllamaBaseUrl() + "/v1", "ollama", s.getOllamaModel(), 60);
     }
     /** LM Studio local */
     public static OpenAiCompatibleAdapter lmStudio(LlmSettings s) {
-        return new OpenAiCompatibleAdapter(s.getLmStudioBaseUrl() + "/v1", "lm-studio", s.getLmStudioModel());
+        return new OpenAiCompatibleAdapter(s.getLmStudioBaseUrl() + "/v1", "lm-studio", s.getLmStudioModel(), 60);
     }
     public OpenAiCompatibleAdapter(String baseUrl, String apiKey, String model) {
+        this(baseUrl, apiKey, model, 15);
+    }
+    public OpenAiCompatibleAdapter(String baseUrl, String apiKey, String model, int testTimeoutSeconds) {
         this.baseUrl = baseUrl;
         this.apiKey = apiKey;
         this.model = model;
+        this.testTimeoutSeconds = testTimeoutSeconds;
     }
     @Override
     public List<TextBlock> transcribe(byte[] imageBytes, String mimeType) throws LlmException {
@@ -85,7 +90,7 @@ public class OpenAiCompatibleAdapter implements LlmAdapter {
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(body)))
-                    .timeout(Duration.ofSeconds(15))
+                    .timeout(Duration.ofSeconds(testTimeoutSeconds))
                     .build();
             HttpResponse<String> resp = http.send(req, HttpResponse.BodyHandlers.ofString());
             if (resp.statusCode() == 200) return "OK (" + baseUrl + ")";

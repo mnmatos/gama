@@ -23,7 +23,7 @@
                     <MenuItem text="Exportar Ficha-catálogo" onAction="#handleExportCatalog"/>
                 </Menu>
                 <Menu text="Ferramentas">
-                    <MenuItem text="Configurações LLM…" onAction="#handleLlmSettings"/>
+                    <MenuItem text="Configurações de Transcrição…" onAction="#handleLlmSettings"/>
                 </Menu>
             </MenuBar>
 

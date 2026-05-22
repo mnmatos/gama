@@ -5,8 +5,25 @@
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.digitallib.LlmSettingsController"
-      spacing="10" prefWidth="520">
+      spacing="10" prefWidth="560">
+    <ScrollPane fitToWidth="true" prefHeight="620" hbarPolicy="NEVER">
+      <VBox spacing="10">
     <padding><Insets top="15" right="15" bottom="15" left="15"/></padding>
+
+    <!-- ── Transcription tool selector ── -->
+    <fx:define>
+        <ToggleGroup fx:id="transcriptionToolGroup"/>
+    </fx:define>
+    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: #f0f4ff; -fx-padding: 8; -fx-border-color: #b0c4e8; -fx-border-radius: 4; -fx-background-radius: 4;">
+        <Label text="Ferramenta padrão de transcrição:" style="-fx-font-weight:bold;"/>
+        <RadioButton fx:id="radioLlm" text="LLM (Inteligência Artificial)" toggleGroup="$transcriptionToolGroup"/>
+        <RadioButton fx:id="radioOcr" text="OCR (Tesseract — offline, sem API)" toggleGroup="$transcriptionToolGroup"/>
+    </HBox>
+
+    <!-- ── LLM section ── -->
+    <TitledPane fx:id="llmSection" text="Motor de IA / LLM" collapsible="false" managed="false" visible="false">
+    <VBox spacing="10">
+        <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Provedor ativo:" style="-fx-font-weight:bold;"/>
         <ComboBox fx:id="activeProviderCombo" prefWidth="160"/>
@@ -73,9 +90,30 @@
             </VBox>
         </Tab>
     </TabPane>
-    <Label fx:id="statusLabel" text="" wrapText="true" prefWidth="480"/>
+    </VBox>
+    </TitledPane>
+
+    <!-- ── OCR section ── -->
+    <TitledPane fx:id="ocrSection" text="Configurações OCR (Tesseract)" collapsible="false" managed="true" visible="true">
+    <VBox fx:id="ocrPane" spacing="8">
+        <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+        <Label text="Pasta tessdata:" style="-fx-font-weight: bold;"/>
+        <HBox spacing="8" alignment="CENTER_LEFT">
+            <TextField fx:id="tessdataPath" promptText="Ex: C:\Program Files\Tesseract-OCR\tessdata" HBox.hgrow="ALWAYS"/>
+            <Button text="Procurar…" onAction="#handleBrowseTessdata"/>
+        </HBox>
+        <Label text="Baixe os ficheiros .traineddata em github.com/tesseract-ocr/tessdata e aponte para a pasta." style="-fx-font-size: 11; -fx-text-fill: gray;" wrapText="true"/>
+        <Label text="Idioma(s) do OCR:" style="-fx-font-weight: bold;"/>
+        <TextField fx:id="ocrLanguage" promptText="por   (use por+eng para multiplos idiomas)"/>
+        <Label text="Exemplos: por  /  por+eng  /  eng  /  lat" style="-fx-font-size: 11; -fx-text-fill: gray;"/>
+    </VBox>
+    </TitledPane>
+    </VBox>
+    </ScrollPane>
+    <Label fx:id="statusLabel" text="" wrapText="true" prefWidth="520"/>
     <HBox spacing="10" alignment="CENTER_RIGHT">
-        <Button text="Testar Conexao" onAction="#handleTest"/>
+        <Button fx:id="btnTestLlm" text="Testar Conexao LLM" onAction="#handleTest" managed="false" visible="false"/>
+        <Button fx:id="btnTestOcr" text="Testar OCR" onAction="#handleTestOcr" managed="true" visible="true"/>
         <Button text="Salvar" onAction="#handleSave" style="-fx-font-weight:bold;"/>
         <Button text="Fechar" onAction="#handleClose"/>
     </HBox>

@@ -88,6 +88,9 @@ public class LlmSettingsManager {
         masked.setOllamaModel(s.getOllamaModel());
         masked.setLmStudioBaseUrl(s.getLmStudioBaseUrl());
         masked.setLmStudioModel(s.getLmStudioModel());
+        masked.setTranscriptionTool(s.getTranscriptionTool());
+        masked.setTessdataPath(s.getTessdataPath());
+        masked.setOcrLanguage(s.getOcrLanguage());
         return masked;
     }
 }

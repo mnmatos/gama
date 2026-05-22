@@ -75,6 +75,12 @@
             <artifactId>snakeyaml</artifactId>
             <version>2.4</version>
         </dependency>
+        <!-- Tess4J — Tesseract OCR wrapper for Java -->
+        <dependency>
+            <groupId>net.sourceforge.tess4j</groupId>
+            <artifactId>tess4j</artifactId>
+            <version>5.11.0</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -139,8 +145,6 @@
                         <nonFilteredFileExtension>gif</nonFilteredFileExtension>
                     </nonFilteredFileExtensions>
                     <useDefaultDelimiters>false</useDefaultDelimiters>
-                    <!-- Strip BOM from output -->
-                    <addMavenDescriptor>false</addMavenDescriptor>
                 </configuration>
             </plugin>
             <plugin>

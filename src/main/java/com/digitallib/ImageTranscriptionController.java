@@ -62,6 +62,10 @@ public class ImageTranscriptionController {
         this.documento = doc;
         this.imageFilename = filename;
         imageNameLabel.setText(filename);
+        // Update button label based on configured transcription tool
+        LlmSettings cfg = LlmSettingsManager.getInstance().load();
+        boolean isOcr = "ocr".equalsIgnoreCase(cfg.getTranscriptionTool());
+        btnTranscribe.setText(isOcr ? "Transcrever com OCR" : "Transcrever com LLM");
         // Load image
         Path imgPath = TranscriptionService.getInstance().resolveImagePath(doc.getCodigo(), filename);
         if (Files.exists(imgPath)) {
@@ -81,15 +85,36 @@ public class ImageTranscriptionController {
             blockEditor.setBlocks(record.getBlocks());
             updateStatusBar(record);
         } else {
-            statusLabel.setText("Sem transcricao. Clique em 'Transcrever com LLM' para iniciar.");
+            String toolName = isOcr ? "OCR (Tesseract)" : "LLM";
+            statusLabel.setText("Sem transcricao. Clique em 'Transcrever com " + toolName + "' para iniciar.");
         }
     }
     @FXML
     private void handleTranscribe() {
         LlmSettings settings = LlmSettingsManager.getInstance().load();
-        if (settings.getProvider() == null) {
+        boolean isOcr = "ocr".equalsIgnoreCase(settings.getTranscriptionTool());
+        if (!isOcr && settings.getProvider() == null) {
             showAlert("Configure o provedor LLM antes de transcrever.");
             return;
+        }
+        if (isOcr && (settings.getTessdataPath() == null || settings.getTessdataPath().isBlank())) {
+            // Try to auto-detect Tesseract default installation on Windows
+            String autoPath = detectTessdataPath();
+            if (autoPath != null) {
+                settings.setTessdataPath(autoPath);
+            } else {
+                showAlert(
+                    "Tesseract OCR não encontrado.\n\n" +
+                    "A pasta 'tessdata' contém os modelos de reconhecimento de texto " +
+                    "e é necessária para o OCR funcionar.\n\n" +
+                    "Para usar o OCR:\n" +
+                    "1. Instale o Tesseract OCR: https://github.com/UB-Mannheim/tesseract/wiki\n" +
+                    "2. Durante a instalação, selecione o idioma 'Portuguese'\n" +
+                    "3. Em Ferramentas → Configurações de Transcrição → OCR,\n" +
+                    "   aponte para a pasta tessdata (ex: C:\\Program Files\\Tesseract-OCR\\tessdata)"
+                );
+                return;
+            }
         }
         btnTranscribe.setDisable(true);
         progressIndicator.setVisible(true);
@@ -185,5 +210,82 @@ public class ImageTranscriptionController {
     private void showAlert(String msg) {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
         a.showAndWait();
+    }
+
+    /**
+     * Tries to auto-detect the tessdata folder from common Tesseract installation paths.
+     * Falls back to bundled tessdata extracted from the JAR resources.
+     * Returns the path string if found, or null if not found.
+     */
+    private String detectTessdataPath() {
+        String[] candidates = {
+            "C:\\Program Files\\Tesseract-OCR\\tessdata",
+            "C:\\Program Files (x86)\\Tesseract-OCR\\tessdata",
+            System.getenv("TESSDATA_PREFIX"),
+            System.getenv("PROGRAMFILES") + "\\Tesseract-OCR\\tessdata",
+        };
+        for (String path : candidates) {
+            if (path != null && new java.io.File(path).isDirectory()) {
+                return path;
+            }
+        }
+        // Fallback: extract bundled .traineddata files from resources
+        return extractBundledTessdata();
+    }
+
+    /**
+     * Scans /tessdata/ in the classpath resources, copies every *.traineddata
+     * file found to a temp directory, and returns that directory's path.
+     * This way users only need to drop .traineddata files into
+     * src/main/resources/tessdata/ — no Tesseract installation required.
+     */
+    private String extractBundledTessdata() {
+        try {
+            java.net.URL resourceDir = getClass().getResource("/tessdata/");
+            if (resourceDir == null) {
+                logger.warn("No bundled tessdata folder found in resources.");
+                return null;
+            }
+            java.nio.file.Path tempTessdata = java.nio.file.Path.of(
+                    System.getProperty("java.io.tmpdir"), "digitallib-tessdata");
+            java.nio.file.Files.createDirectories(tempTessdata);
+
+            // Walk the resource directory and copy every .traineddata file
+            java.net.URI uri = resourceDir.toURI();
+            java.nio.file.Path resourcePath;
+            if (uri.getScheme().equals("jar")) {
+                java.nio.file.FileSystem fs = java.nio.file.FileSystems.newFileSystem(uri, java.util.Collections.emptyMap());
+                resourcePath = fs.getPath("/tessdata/");
+            } else {
+                resourcePath = java.nio.file.Path.of(uri);
+            }
+
+            boolean anyFound = false;
+            try (var stream = java.nio.file.Files.walk(resourcePath, 1)) {
+                for (java.nio.file.Path entry : (Iterable<java.nio.file.Path>) stream::iterator) {
+                    String name = entry.getFileName().toString();
+                    if (name.endsWith(".traineddata")) {
+                        java.nio.file.Path dest = tempTessdata.resolve(name);
+                        if (!java.nio.file.Files.exists(dest)) {
+                            try (java.io.InputStream is = getClass().getResourceAsStream("/tessdata/" + name)) {
+                                if (is != null) {
+                                    java.nio.file.Files.copy(is, dest);
+                                    logger.info("Extracted bundled tessdata: {}", name);
+                                }
+                            }
+                        }
+                        anyFound = true;
+                    }
+                }
+            }
+
+            if (anyFound) {
+                logger.info("Using bundled tessdata from: {}", tempTessdata);
+                return tempTessdata.toString();
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to extract bundled tessdata", e);
+        }
+        return null;
     }
 }

@@ -69,6 +69,8 @@ public class ResponseParser {
             case "date": return BlockType.DATE;
             case "label": return BlockType.LABEL;
             case "footer": return BlockType.FOOTER;
+            case "homenagem": return BlockType.HOMENAGEM;
+            case "estrofe": return BlockType.ESTROFE;
             case "paragraph": return BlockType.PARAGRAPH;
             default: return BlockType.OTHER;
         }

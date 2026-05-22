@@ -18,7 +18,10 @@ public class TranscriptionExporter {
                 boolean lowConf = block.getConfidence() < 0.8 && !block.isManuallyEdited();
                 if (lowConf) text += " [⚠ confianca: " + String.format("%.0f%%", block.getConfidence() * 100) + "]";
                 switch (block.getBlockType()) {
-                    case HEADING: {
+
+
+                     case HEADING:
+                    case HOMENAGEM: {
                         XWPFParagraph p = doc.createParagraph();
                         p.setStyle("Heading2");
                         p.createRun().setText(text);
@@ -33,6 +36,14 @@ public class TranscriptionExporter {
                     case TABLE: {
                         XWPFTable table = doc.createTable(1, 1);
                         table.getRow(0).getCell(0).setText(text);
+                        break;
+                    }
+                    case ESTROFE: {
+                        XWPFParagraph p = doc.createParagraph();
+                        p.setIndentationLeft(720);
+                        XWPFRun run = p.createRun();
+                        run.setItalic(true);
+                        run.setText(text);
                         break;
                     }
                     default: {

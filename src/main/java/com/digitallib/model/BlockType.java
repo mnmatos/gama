@@ -8,6 +8,8 @@ public enum BlockType {
     DATE("Data"),
     LABEL("Rótulo"),
     FOOTER("Rodapé"),
+    HOMENAGEM("Homenagem"),
+    ESTROFE("Estrofe"),
     OTHER("Outro");
 
     private final String displayName;

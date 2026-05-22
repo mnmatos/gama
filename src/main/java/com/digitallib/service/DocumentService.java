@@ -58,6 +58,18 @@ public class DocumentService {
         }
 
         documento.setCodigo(code);
+
+        if (files != null && !files.isEmpty()) {
+            if (documento.getArquivos() == null) {
+                documento.setArquivos(new java.util.ArrayList<>());
+            }
+            for (File f : files) {
+                if (!f.isDirectory() && !documento.getArquivos().contains(f.getName())) {
+                    documento.getArquivos().add(f.getName());
+                }
+            }
+        }
+
         RepositoryManager.addEntry(documento, files);
         return code;
     }

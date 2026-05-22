@@ -158,9 +158,8 @@ public class DocumentListController implements Initializable {
                             btnEdit.setOnAction(e -> handleEdit(doc));
                             hbox.getChildren().add(btnEdit);
 
-                            if (doc.getArquivos() != null && doc.getArquivos().stream()
-                                    .anyMatch(f -> f.matches("(?i).+\\.(jpg|jpeg|png|tif|tiff|webp)"))) {
-                                Button btnImg = new Button("Imagens");
+                            if (hasActiveTranscription(doc)) {
+                                Button btnImg = new Button("Transcrição");
                                 btnImg.setOnAction(e -> handleOpenImageTranscription(doc));
                                 hbox.getChildren().add(btnImg);
                             }
@@ -352,6 +351,20 @@ public class DocumentListController implements Initializable {
         }
     }
 
+    private boolean hasActiveTranscription(Documento doc) {
+        if (doc.getTranscriptions() == null || doc.getTranscriptions().isEmpty()) return false;
+        if (doc.getArquivos() == null || doc.getArquivos().isEmpty()) return false;
+
+        Set<String> imageFiles = doc.getArquivos().stream()
+                .filter(f -> f.matches("(?i).+\\.(jpg|jpeg|png|tif|tiff|webp)"))
+                .collect(java.util.stream.Collectors.toSet());
+
+        return doc.getTranscriptions().values().stream()
+                .anyMatch(t -> t.getStatus() == com.digitallib.model.TranscriptionStatus.DONE
+                        && t.getImagePath() != null
+                        && imageFiles.contains(new java.io.File(t.getImagePath()).getName()));
+    }
+
     private void handleOpenImageTranscription(Documento doc) {
         List<String> images = doc.getArquivos() == null ? java.util.Collections.emptyList() :
                 doc.getArquivos().stream()
@@ -396,7 +409,7 @@ public class DocumentListController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/LlmSettings.fxml"));
             javafx.scene.Parent root = loader.load();
             Stage stage = new Stage();
-            stage.setTitle("Configurações LLM");
+            stage.setTitle("Configurações de Transcrição");
             stage.setScene(new javafx.scene.Scene(root));
             stage.show();
         } catch (IOException e) {
