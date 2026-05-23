@@ -46,3 +46,6 @@ logs/
 repo/
 # Cache directory
 .cache/
+
+# PDF generation script
+generate-manual-pdf.ps1
