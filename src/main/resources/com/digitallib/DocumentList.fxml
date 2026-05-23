@@ -25,6 +25,9 @@
                 <Menu text="Ferramentas">
                     <MenuItem text="Configurações de Transcrição…" onAction="#handleLlmSettings"/>
                 </Menu>
+                <Menu text="Ajuda">
+                    <MenuItem text="Manual do Utilizador" onAction="#handleHelp"/>
+                </Menu>
             </MenuBar>
 
             <HBox alignment="CENTER_LEFT" spacing="10">
