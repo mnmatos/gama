@@ -62,7 +62,7 @@ public class TesseractOcrAdapter implements TranscriptionAdapter {
 
     private Tesseract buildTesseract() {
         Tesseract t = new Tesseract();
-        String datapath = settings.getTessdataPath();
+        String datapath = resolveTessdataPath();
         if (datapath != null && !datapath.isBlank()) t.setDatapath(datapath);
         t.setLanguage(resolveLanguage());
         // Page segmentation mode 1 = auto with OSD; try 6 (uniform block of text) for documents
@@ -106,6 +106,18 @@ public class TesseractOcrAdapter implements TranscriptionAdapter {
         gs.dispose();
 
         return scaled;
+    }
+
+    private String resolveTessdataPath() {
+        String path = settings.getTessdataPath();
+        if (path != null && !path.isBlank()) return path;
+        // Fall back to the system property injected by the installer (jpackage sets $APPDIR)
+        String sysProp = System.getProperty("tessdata.path");
+        if (sysProp != null && !sysProp.isBlank()) {
+            logger.debug("Using tessdata.path from system property: {}", sysProp);
+            return sysProp;
+        }
+        return null;
     }
 
     private String resolveLanguage() {

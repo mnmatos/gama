@@ -1,0 +1,4 @@
+eng.traineddata
+lat.traineddata
+por.traineddata
+
