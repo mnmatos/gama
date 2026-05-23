@@ -164,6 +164,16 @@ New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
 $jarFile = "target\$jarFileName"
 Copy-Item -Path (Join-Path $PSScriptRoot $jarFile) -Destination $stagingDir -Force
 
+# Copy tessdata models into staging so Tesseract can find them at runtime
+$tessdataSrc = Join-Path $PSScriptRoot "src\main\resources\tessdata"
+if (Test-Path $tessdataSrc) {
+    $tessdataDest = Join-Path $stagingDir "tessdata"
+    Copy-Item -Path $tessdataSrc -Destination $tessdataDest -Recurse -Force
+    Write-Host "  Tessdata models copied to staging." -ForegroundColor Green
+} else {
+    Write-Host "WARNING: tessdata folder not found at $tessdataSrc — OCR may fail." -ForegroundColor Yellow
+}
+
 # Copy JavaFX native DLLs into staging
 if (Test-Path $javafxBinDir) {
     Get-ChildItem -Path $javafxBinDir -Filter "*.dll" | ForEach-Object {
@@ -184,7 +194,7 @@ if (Test-Path $tempBuildPath) {
 New-Item -ItemType Directory -Path $tempBuildPath -Force | Out-Null
 
 # Build jpackage command
-$javaOptions = '--enable-preview -Dprism.order=d3d,es2,sw -Djava.library.path=$APPDIR'
+$javaOptions = '--enable-preview -Dprism.order=d3d,es2,sw -Djava.library.path=$APPDIR -Dtessdata.path=$APPDIR'
 $jpackageArgs = @(
     "--temp", $tempBuildPath,
     "--input", $inputPath,

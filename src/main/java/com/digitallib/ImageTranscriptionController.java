@@ -234,54 +234,49 @@ public class ImageTranscriptionController {
     }
 
     /**
-     * Scans /tessdata/ in the classpath resources, copies every *.traineddata
-     * file found to a temp directory, and returns that directory's path.
-     * This way users only need to drop .traineddata files into
-     * src/main/resources/tessdata/ — no Tesseract installation required.
+     * Copies every *.traineddata listed in /tessdata/index.txt from classpath
+     * resources to a temp directory. Uses only getResourceAsStream so it works
+     * whether the app is running from a plain JAR, a jpackage installer (where
+     * jdk.zipfs / "jar" FileSystem provider is absent), or an IDE.
      */
     private String extractBundledTessdata() {
         try {
-            java.net.URL resourceDir = getClass().getResource("/tessdata/");
-            if (resourceDir == null) {
-                logger.warn("No bundled tessdata folder found in resources.");
-                return null;
-            }
             java.nio.file.Path tempTessdata = java.nio.file.Path.of(
                     System.getProperty("java.io.tmpdir"), "digitallib-tessdata");
             java.nio.file.Files.createDirectories(tempTessdata);
 
-            // Walk the resource directory and copy every .traineddata file
-            java.net.URI uri = resourceDir.toURI();
-            java.nio.file.Path resourcePath;
-            if (uri.getScheme().equals("jar")) {
-                java.nio.file.FileSystem fs = java.nio.file.FileSystems.newFileSystem(uri, java.util.Collections.emptyMap());
-                resourcePath = fs.getPath("/tessdata/");
-            } else {
-                resourcePath = java.nio.file.Path.of(uri);
-            }
+            // Read the list of bundled traineddata files from the index
+            try (java.io.InputStream indexStream = getClass().getResourceAsStream("/tessdata/index.txt")) {
+                if (indexStream == null) {
+                    logger.warn("No bundled tessdata index found in resources.");
+                    return null;
+                }
+                java.util.List<String> lines = new java.io.BufferedReader(
+                        new java.io.InputStreamReader(indexStream, java.nio.charset.StandardCharsets.UTF_8))
+                        .lines()
+                        .map(String::trim)
+                        .filter(l -> !l.isEmpty())
+                        .collect(java.util.stream.Collectors.toList());
 
-            boolean anyFound = false;
-            try (var stream = java.nio.file.Files.walk(resourcePath, 1)) {
-                for (java.nio.file.Path entry : (Iterable<java.nio.file.Path>) stream::iterator) {
-                    String name = entry.getFileName().toString();
-                    if (name.endsWith(".traineddata")) {
-                        java.nio.file.Path dest = tempTessdata.resolve(name);
-                        if (!java.nio.file.Files.exists(dest)) {
-                            try (java.io.InputStream is = getClass().getResourceAsStream("/tessdata/" + name)) {
-                                if (is != null) {
-                                    java.nio.file.Files.copy(is, dest);
-                                    logger.info("Extracted bundled tessdata: {}", name);
-                                }
+                boolean anyFound = false;
+                for (String name : lines) {
+                    if (!name.endsWith(".traineddata")) continue;
+                    java.nio.file.Path dest = tempTessdata.resolve(name);
+                    if (!java.nio.file.Files.exists(dest)) {
+                        try (java.io.InputStream is = getClass().getResourceAsStream("/tessdata/" + name)) {
+                            if (is != null) {
+                                java.nio.file.Files.copy(is, dest);
+                                logger.info("Extracted bundled tessdata: {}", name);
                             }
                         }
-                        anyFound = true;
                     }
+                    anyFound = true;
                 }
-            }
 
-            if (anyFound) {
-                logger.info("Using bundled tessdata from: {}", tempTessdata);
-                return tempTessdata.toString();
+                if (anyFound) {
+                    logger.info("Using bundled tessdata from: {}", tempTessdata);
+                    return tempTessdata.toString();
+                }
             }
         } catch (Exception e) {
             logger.warn("Failed to extract bundled tessdata", e);
