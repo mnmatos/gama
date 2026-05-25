@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.digitallib.FailedDocumentsRepairController"
+            prefHeight="650.0" prefWidth="1050.0">
+
+    <top>
+        <VBox>
+            <padding><Insets top="10" right="15" bottom="5" left="15"/></padding>
+            <Label text="Documentos com falha no carregamento"
+                   style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Label fx:id="summaryLabel" style="-fx-text-fill: gray;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane orientation="VERTICAL" dividerPositions="0.45">
+            <items>
+                <!-- Top: table of failed documents -->
+                <TableView fx:id="failedTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colTitulo" text="Título"   prefWidth="220"/>
+                        <TableColumn fx:id="colCodigo" text="Código"   prefWidth="160"/>
+                        <TableColumn fx:id="colPath"   text="Arquivo"  prefWidth="300"/>
+                        <TableColumn fx:id="colError"  text="Erro"     prefWidth="250"/>
+                        <TableColumn fx:id="colType"   text="Tipo"     prefWidth="100"/>
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+                </TableView>
+
+                <!-- Bottom: detail / repair panel -->
+                <ScrollPane fitToWidth="true">
+                    <VBox spacing="10">
+                        <padding><Insets top="10" right="15" bottom="10" left="15"/></padding>
+
+                        <!-- Document identity + quick actions -->
+                        <TitledPane text="Documento selecionado" collapsible="false">
+                            <GridPane hgap="12" vgap="6">
+                                <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="15"/>
+                                    <ColumnConstraints percentWidth="55" hgrow="ALWAYS"/>
+                                    <ColumnConstraints percentWidth="30"/>
+                                </columnConstraints>
+
+                                <Label text="Título:" style="-fx-font-weight: bold;"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <Label fx:id="docTitleLabel"
+                                       style="-fx-font-style: italic;"
+                                       wrapText="true"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Código:" style="-fx-font-weight: bold;"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <Label fx:id="docCodigoLabel"
+                                       GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Arquivo:" style="-fx-font-weight: bold;"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <Label fx:id="docPathLabel" wrapText="true"
+                                       style="-fx-text-fill: gray; -fx-font-size: 11px;"
+                                       GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <!-- Three action buttons -->
+                                <VBox spacing="6" GridPane.rowIndex="0" GridPane.columnIndex="2"
+                                      GridPane.rowSpan="3" alignment="CENTER">
+                                    <Button fx:id="openFolderBtn" text="📂  Abrir pasta"
+                                            maxWidth="Infinity" onAction="#handleOpenFolder"
+                                            disable="true"/>
+                                    <Button fx:id="repairBtn" text="🔧  Reparar documento"
+                                            maxWidth="Infinity" onAction="#handleToggleRepair"
+                                            disable="true"/>
+                                    <Button fx:id="deleteDocBtn" text="🗑  Remover documento"
+                                            maxWidth="Infinity" onAction="#handleDeleteDoc"
+                                            disable="true"
+                                            style="-fx-text-fill: #c0392b;"/>
+                                </VBox>
+                            </GridPane>
+                        </TitledPane>
+
+                        <!-- Repair section — hidden until user clicks Reparar -->
+                        <VBox fx:id="repairSection" visible="false" managed="false" spacing="10">
+
+                            <TitledPane text="Mensagem de erro" collapsible="true" expanded="false">
+                                <TextArea fx:id="errorDetailArea" editable="false" prefRowCount="4" wrapText="true"/>
+                            </TitledPane>
+
+                            <GridPane hgap="10" vgap="8" fx:id="remapPane">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="30"/>
+                                    <ColumnConstraints percentWidth="70" hgrow="ALWAYS"/>
+                                </columnConstraints>
+
+                                <Label text="Valor atual no arquivo:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <Label fx:id="badValueLabel" style="-fx-font-style: italic; -fx-text-fill: red;"
+                                       GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                                <Label text="Nova Série (Classe):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="classeDrop" prefWidth="300"
+                                          onAction="#handleClasseSelected"
+                                          GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                                <Label text="Nova Subsérie:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="subclasseDrop" prefWidth="300"
+                                          GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                                <Button text="Aplicar correção" onAction="#handleApplyFix"
+                                        GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            </GridPane>
+
+                        </VBox>
+
+                        <Label fx:id="statusLabel" style="-fx-text-fill: green;"/>
+                    </VBox>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding><Insets top="8" right="15" bottom="8" left="15"/></padding>
+            <Button text="Recarregar lista" onAction="#handleReload"/>
+            <Button text="Fechar" onAction="#handleClose"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
+

@@ -76,7 +76,7 @@ public class DocumentCreatorController implements Initializable {
     @FXML private ListView<String> listaCitacao;
 
     @FXML private TextArea descriptionText;
-    @FXML private TextArea transcriptionText;
+    @FXML private javafx.scene.layout.VBox transcriptionPanel;
     @FXML private TreeView<String> fileTree;
 
     @FXML private Spinner<Integer> teatroPersonagemSpinner;
@@ -306,7 +306,6 @@ public class DocumentCreatorController implements Initializable {
             colunaSpinner.getValueFactory().setValue(doc.getColuna() == null ? 1 : doc.getColuna());
 
             descriptionText.setText(doc.getDescricao());
-            transcriptionText.setText(doc.getTranscricao());
 
 
             // Authors
@@ -401,6 +400,7 @@ public class DocumentCreatorController implements Initializable {
             }
 
             refreshFileTree();
+            refreshTranscriptionPanel();
         }
     }
 
@@ -446,7 +446,6 @@ public class DocumentCreatorController implements Initializable {
         documento.setColuna(colunaSpinner.getValue());
 
         documento.setDescricao(descriptionText.getText());
-        documento.setTranscricao(transcriptionText.getText());
 
         documento.setAutores(new ArrayList<>(authorMap.values()));
         documento.setCitacoes(new ArrayList<>(citacoesMap.values()));
@@ -677,6 +676,7 @@ public class DocumentCreatorController implements Initializable {
                 files.addAll(selectedFiles);
             }
             refreshFileTree();
+            refreshTranscriptionPanel();
         }
     }
 
@@ -698,6 +698,109 @@ public class DocumentCreatorController implements Initializable {
         }
         fileTree.setRoot(root);
         fileTree.setShowRoot(false);
+    }
+
+    private static final java.util.Set<String> IMAGE_EXTENSIONS =
+            new java.util.HashSet<>(java.util.Arrays.asList("jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp"));
+
+    private void refreshTranscriptionPanel() {
+        if (transcriptionPanel == null) return;
+        transcriptionPanel.getChildren().clear();
+
+        if (documento == null) return;
+
+        List<String> arquivos = documento.getArquivos();
+        List<String> imageFiles = new ArrayList<>();
+        if (arquivos != null) {
+            for (String f : arquivos) {
+                int dot = f.lastIndexOf('.');
+                if (dot >= 0) {
+                    String ext = f.substring(dot + 1).toLowerCase();
+                    if (IMAGE_EXTENSIONS.contains(ext)) imageFiles.add(f);
+                }
+            }
+        }
+
+        if (imageFiles.isEmpty()) return;
+
+        // Section header
+        javafx.scene.control.Label header = new javafx.scene.control.Label("Transcrições");
+        header.setStyle("-fx-font-weight: bold; -fx-font-size: 13;");
+        transcriptionPanel.getChildren().add(header);
+
+        for (String imgFile : imageFiles) {
+            com.digitallib.model.TranscriptionRecord rec =
+                    documento.getTranscriptions().get(imgFile);
+
+            javafx.scene.layout.VBox card = new javafx.scene.layout.VBox(6);
+            card.setStyle("-fx-border-color: #cccccc; -fx-border-radius: 4; -fx-padding: 8;");
+
+            javafx.scene.control.Label imgLabel = new javafx.scene.control.Label(imgFile);
+            imgLabel.setStyle("-fx-font-style: italic;");
+            card.getChildren().add(imgLabel);
+
+            if (rec != null && rec.getStatus() == com.digitallib.model.TranscriptionStatus.DONE
+                    && rec.getBlocks() != null && !rec.getBlocks().isEmpty()) {
+                // Build read-only text
+                StringBuilder sb = new StringBuilder();
+                rec.getBlocks().stream()
+                        .sorted(java.util.Comparator.comparingInt(com.digitallib.model.TextBlock::getOrderIndex))
+                        .forEach(b -> {
+                            sb.append(b.displayText());
+                            sb.append("\n");
+                        });
+
+                javafx.scene.control.TextArea readOnly = new javafx.scene.control.TextArea(sb.toString().trim());
+                readOnly.setEditable(false);
+                readOnly.setWrapText(true);
+                readOnly.setPrefRowCount(8);
+                javafx.scene.layout.VBox.setVgrow(readOnly, javafx.scene.layout.Priority.ALWAYS);
+                card.getChildren().add(readOnly);
+
+                javafx.scene.control.Button editBtn = new javafx.scene.control.Button("Editar Transcrição");
+                final String capturedFile = imgFile;
+                editBtn.setOnAction(e -> openTranscriptionEditor(capturedFile));
+                card.getChildren().add(editBtn);
+            } else {
+                // No transcription yet
+                String statusNote = "";
+                if (rec != null && rec.getStatus() == com.digitallib.model.TranscriptionStatus.ERROR) {
+                    statusNote = "Erro na transcrição anterior. ";
+                } else if (rec != null && rec.getStatus() == com.digitallib.model.TranscriptionStatus.PROCESSING) {
+                    statusNote = "Transcrição em andamento... ";
+                }
+                if (!statusNote.isEmpty()) {
+                    card.getChildren().add(new javafx.scene.control.Label(statusNote));
+                }
+                javafx.scene.control.Button transcribeBtn = new javafx.scene.control.Button("Transcrever Imagem");
+                final String capturedFile = imgFile;
+                transcribeBtn.setOnAction(e -> openTranscriptionEditor(capturedFile));
+                card.getChildren().add(transcribeBtn);
+            }
+
+            transcriptionPanel.getChildren().add(card);
+        }
+    }
+
+    private void openTranscriptionEditor(String imageFilename) {
+        if (documento == null || editedDocCode == null) {
+            new Alert(Alert.AlertType.INFORMATION,
+                    "Salve o documento antes de transcrever imagens.").showAndWait();
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/ImageTranscription.fxml"));
+            javafx.scene.Parent root = loader.load();
+            ImageTranscriptionController ctrl = loader.getController();
+            ctrl.setData(documento, imageFilename);
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Transcrição — " + editedDocCode + " / " + imageFilename);
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setOnHidden(e -> refreshTranscriptionPanel());
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open ImageTranscription for " + imageFilename, e);
+        }
     }
 
     private void handleFileAction(TreeItem<String> item) {

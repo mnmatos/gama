@@ -88,8 +88,10 @@
                             <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
                             <Label text="Descrição" style="-fx-font-weight: bold"/>
                             <TextArea fx:id="descriptionText" VBox.vgrow="ALWAYS"/>
-                            <Label text="Transcrição" style="-fx-font-weight: bold"/>
-                            <TextArea fx:id="transcriptionText" VBox.vgrow="ALWAYS"/>
+                            <!-- Transcription panel — populated dynamically by the controller -->
+                            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" minHeight="150">
+                                <VBox fx:id="transcriptionPanel" spacing="8"/>
+                            </ScrollPane>
                         </VBox>
                     </Tab>
 
