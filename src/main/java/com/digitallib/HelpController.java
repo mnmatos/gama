@@ -4,17 +4,17 @@ import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.data.MutableDataSet;
-
-import java.util.List;
-import javafx.fxml.FXML;
-import javafx.scene.web.WebView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.awt.Desktop;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,16 +22,12 @@ public class HelpController {
 
     private static final Logger logger = LogManager.getLogger(HelpController.class);
 
-    @FXML
-    private WebView webView;
-
-    @FXML
-    public void initialize() {
+    public static void openInBrowser() {
         try {
             String markdown;
-            try (InputStream is = getClass().getResourceAsStream("/help/manual.md")) {
+            try (InputStream is = HelpController.class.getResourceAsStream("/help/manual.md")) {
                 if (is == null) {
-                    webView.getEngine().loadContent("<html><body><p>Manual não encontrado.</p></body></html>");
+                    logger.error("Manual não encontrado no classpath: /help/manual.md");
                     return;
                 }
                 markdown = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -70,21 +66,29 @@ public class HelpController {
                     </html>
                     """.formatted(body);
 
-            webView.getEngine().loadContent(html, "text/html");
+            Path tmpFile = Files.createTempFile("gama-manual-", ".html");
+            tmpFile.toFile().deleteOnExit();
+            Files.writeString(tmpFile, html, StandardCharsets.UTF_8);
+
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(tmpFile.toUri());
+            } else {
+                // Fallback: try to open with the OS shell command
+                new ProcessBuilder("cmd", "/c", "start", "", tmpFile.toAbsolutePath().toString())
+                        .start();
+            }
 
         } catch (Exception e) {
-            logger.error("Erro ao carregar manual de ajuda", e);
-            webView.getEngine().loadContent("<html><body><p>Erro ao carregar o manual.</p></body></html>");
+            logger.error("Erro ao abrir manual de ajuda no navegador", e);
         }
     }
 
-    private String embedImagesAsBase64(String html) {
+    private static String embedImagesAsBase64(String html) {
         Pattern pattern = Pattern.compile("src=[\"'](?!data:)([^\"']+)[\"']");
         Matcher matcher = pattern.matcher(html);
         StringBuilder sb = new StringBuilder();
         while (matcher.find()) {
             String src = URLDecoder.decode(matcher.group(1), StandardCharsets.UTF_8);
-            // keep only the filename
             String filename = src.contains("/") ? src.substring(src.lastIndexOf('/') + 1) : src;
             String resourcePath = "/help/images/" + filename;
             String dataUri = toBase64DataUri(resourcePath);
@@ -99,8 +103,8 @@ public class HelpController {
         return sb.toString();
     }
 
-    private String toBase64DataUri(String resourcePath) {
-        try (InputStream in = getClass().getResourceAsStream(resourcePath)) {
+    private static String toBase64DataUri(String resourcePath) {
+        try (InputStream in = HelpController.class.getResourceAsStream(resourcePath)) {
             if (in == null) return null;
             byte[] bytes = in.readAllBytes();
             String ext = resourcePath.substring(resourcePath.lastIndexOf('.') + 1).toLowerCase();
@@ -117,3 +121,4 @@ public class HelpController {
         }
     }
 }
+

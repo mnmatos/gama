@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +39,7 @@ public class RepositoryManager {
     public static void updateEntry(Documento documento) throws RepositoryException {
         try {
             String jsonText = GenerateJsonFromDoc(documento);
-            Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes());
+            Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RepositoryException("Failed to update document entry: " + documento.getCodigo(), e);
         }
@@ -47,7 +48,7 @@ public class RepositoryManager {
     private static void createFolderAndJson(Documento documento) throws IOException, RepositoryException {
         String jsonText = GenerateJsonFromDoc(documento);
         Files.createDirectories(Paths.get(getPathFromCode(documento.getCodigo())));
-        Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes());
+        Files.write(Paths.get(String.format("%s/%s.json", getPathFromCode(documento.getCodigo()), documento.getCodigo())), jsonText.getBytes(StandardCharsets.UTF_8));
     }
 
     public static void removeEntry(String code) throws RepositoryException {
@@ -165,7 +166,7 @@ public class RepositoryManager {
 
     private static Documento getDoc(Path javaFile) throws RepositoryException {
         try {
-            return JsonGenerator.GenerateDocFromJson(new String(Files.readAllBytes(javaFile)));
+            return JsonGenerator.GenerateDocFromJson(new String(Files.readAllBytes(javaFile), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RepositoryException("Failed to read document file: " + javaFile, e);
         }

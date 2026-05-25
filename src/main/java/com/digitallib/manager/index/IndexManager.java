@@ -1,6 +1,7 @@
 package com.digitallib.manager.index;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,7 +21,7 @@ public abstract class IndexManager<O> {
     }
 
     void saveFiles(String indexName, String jsonText) throws IOException {
-        Files.write(getFilePath(indexName), jsonText.getBytes());
+        Files.write(getFilePath(indexName), jsonText.getBytes(StandardCharsets.UTF_8));
     }
 
     Path getFilePath(String id) {
