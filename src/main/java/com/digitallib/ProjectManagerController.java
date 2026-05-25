@@ -4,15 +4,21 @@ import com.digitallib.model.Project;
 import com.digitallib.service.ProjectService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -83,23 +89,65 @@ public class ProjectManagerController {
         if (selected.getCodeType() != null) System.setProperty("code_type", selected.getCodeType());
         System.setProperty("selected.project.name", selected.getName());
 
-        com.digitallib.manager.CategoryManager.reload();
-        com.digitallib.code.CodeManager.reload();
+        // Build loading stage
+        Stage loadingStage = new Stage(StageStyle.UNDECORATED);
+        loadingStage.initModality(Modality.APPLICATION_MODAL);
+        if (projectTableView != null && projectTableView.getScene() != null) {
+            loadingStage.initOwner(projectTableView.getScene().getWindow());
+        }
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.setMaxSize(60, 60);
+        Label loadingLabel = new Label("Carregando projeto: " + selected.getName() + "…");
+        loadingLabel.setStyle("-fx-font-size: 14px;");
+        VBox vbox = new VBox(16, progressIndicator, loadingLabel);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.setPadding(new Insets(30));
+        vbox.setStyle("-fx-background-color: white; -fx-border-color: #cccccc; -fx-border-width: 1;");
+        loadingStage.setScene(new Scene(vbox));
+        loadingStage.setWidth(340);
+        loadingStage.setHeight(160);
+        loadingStage.centerOnScreen();
 
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/DocumentList.fxml"));
-            Parent root = loader.load();
+        final Project finalSelected = selected;
+
+        Task<Parent> loadTask = new Task<>() {
+            @Override
+            protected Parent call() throws Exception {
+                updateMessage("Recarregando categorias…");
+                com.digitallib.manager.CategoryManager.reload();
+                updateMessage("Recarregando códigos…");
+                com.digitallib.code.CodeManager.reload();
+                updateMessage("Carregando interface…");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/DocumentList.fxml"));
+                return loader.load();
+            }
+        };
+
+        loadingLabel.textProperty().bind(loadTask.messageProperty());
+
+        loadTask.setOnSucceeded(e -> {
+            loadingStage.close();
+            Parent root = loadTask.getValue();
             Stage stage = (projectTableView != null && projectTableView.getScene() != null)
                     ? (Stage) projectTableView.getScene().getWindow()
                     : new Stage();
             stage.setScene(new Scene(root, 1200, 800));
-            stage.setTitle("Gama Filologia - " + selected.getName());
+            stage.setTitle("Gama Filologia - " + finalSelected.getName());
             stage.centerOnScreen();
             stage.show();
-        } catch (IOException e) {
-            logger.error("Failed to load main window", e);
-            showAlert("Error", "Could not load main window: " + e.getMessage());
-        }
+        });
+
+        loadTask.setOnFailed(e -> {
+            loadingStage.close();
+            Throwable ex = loadTask.getException();
+            logger.error("Failed to load main window", ex);
+            showAlert("Error", "Could not load main window: " + ex.getMessage());
+        });
+
+        loadingStage.show();
+        Thread thread = new Thread(loadTask, "project-load-thread");
+        thread.setDaemon(true);
+        thread.start();
     }
 
     @FXML
