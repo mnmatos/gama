@@ -1,0 +1,42 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0
+            https://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <id>jar-with-dependencies</id>
+    <formats>
+        <format>jar</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <unpack>true</unpack>
+            <scope>runtime</scope>
+            <!-- Exclude all JavaFX modules — they are provided by the jpackage runtime -->
+            <excludes>
+                <exclude>org.openjfx:javafx-controls</exclude>
+                <exclude>org.openjfx:javafx-controls:jar:win</exclude>
+                <exclude>org.openjfx:javafx-controls:jar:linux</exclude>
+                <exclude>org.openjfx:javafx-controls:jar:mac</exclude>
+                <exclude>org.openjfx:javafx-fxml</exclude>
+                <exclude>org.openjfx:javafx-fxml:jar:win</exclude>
+                <exclude>org.openjfx:javafx-fxml:jar:linux</exclude>
+                <exclude>org.openjfx:javafx-fxml:jar:mac</exclude>
+                <exclude>org.openjfx:javafx-graphics</exclude>
+                <exclude>org.openjfx:javafx-graphics:jar:win</exclude>
+                <exclude>org.openjfx:javafx-graphics:jar:linux</exclude>
+                <exclude>org.openjfx:javafx-graphics:jar:mac</exclude>
+                <exclude>org.openjfx:javafx-web</exclude>
+                <exclude>org.openjfx:javafx-web:jar:win</exclude>
+                <exclude>org.openjfx:javafx-web:jar:linux</exclude>
+                <exclude>org.openjfx:javafx-web:jar:mac</exclude>
+                <exclude>org.openjfx:javafx-base</exclude>
+                <exclude>org.openjfx:javafx-base:jar:win</exclude>
+                <exclude>org.openjfx:javafx-base:jar:linux</exclude>
+                <exclude>org.openjfx:javafx-base:jar:mac</exclude>
+            </excludes>
+        </dependencySet>
+    </dependencySets>
+</assembly>
+

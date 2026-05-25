@@ -419,15 +419,6 @@ public class DocumentListController implements Initializable {
 
     @FXML
     public void handleHelp() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/HelpView.fxml"));
-            javafx.scene.Parent root = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Manual do Utilizador — GAMA Filologia");
-            stage.setScene(new javafx.scene.Scene(root, 900, 700));
-            stage.show();
-        } catch (IOException e) {
-            logger.error("Failed to open Help", e);
-        }
+        HelpController.openInBrowser();
     }
 }

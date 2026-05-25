@@ -6,6 +6,7 @@ import com.digitallib.model.MultiSourcedDocument;
 import com.digitallib.utils.RobustFileDeleter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,7 +94,7 @@ public class MultiSourcedDocumentManager {
     }
 
     private static void saveFiles(MultiSourcedDocument multiSourcedDocument, String jsonText) throws IOException {
-        Files.write(getFilePath(multiSourcedDocument.getId()), jsonText.getBytes());
+        Files.write(getFilePath(multiSourcedDocument.getId()), jsonText.getBytes(StandardCharsets.UTF_8));
     }
 
     private static Path getFilePath(String id) {
@@ -133,7 +134,7 @@ public class MultiSourcedDocumentManager {
 
     private static MultiSourcedDocument getDoc(Path javaFile) throws RepositoryException {
         try {
-            return JsonGenerator.GenerateMultiSourcedDocumentFromJson(new String(Files.readAllBytes(javaFile)));
+            return JsonGenerator.GenerateMultiSourcedDocumentFromJson(new String(Files.readAllBytes(javaFile), StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new RepositoryException("Failed to read multi-source document file: " + javaFile, e);
         }
