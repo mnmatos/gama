@@ -316,9 +316,8 @@ public class DocumentCreatorUITest {
         waitForFxEvents();
         sleep(delay);
 
-        log("Filling Description and Transcription...");
+        log("Filling Description...");
         fillField(robot, "#descriptionText", "A famous play by Ariano Suassuna.");
-        fillField(robot, "#transcriptionText", "In the beginning...");
         sleep(delay);
 
         // 3. Fill "ABNT" Tab
@@ -397,7 +396,6 @@ public class DocumentCreatorUITest {
 
             // Description
             assertThat(savedDoc.getDescricao()).isEqualTo("A famous play by Ariano Suassuna.");
-            assertThat(savedDoc.getTranscricao()).isEqualTo("In the beginning...");
 
             // ABNT
             assertThat(savedDoc.getEditora()).isEqualTo("Agir");
