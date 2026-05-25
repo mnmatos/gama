@@ -204,7 +204,6 @@ $jpackageArgs = @(
     "--dest", $destPath,
     "--app-version", $projectVersion,
     "--java-options", $javaOptions,
-    "--java-options", "--add-opens=javafx.graphics/com.sun.javafx.sg.prism=ALL-UNNAMED",
     "--runtime-image", $jlinkDir
 )
 
