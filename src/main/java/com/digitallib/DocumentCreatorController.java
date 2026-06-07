@@ -63,6 +63,7 @@ public class DocumentCreatorController implements Initializable {
     @FXML private TextField subTituloPublicacaoField;
     @FXML private TextField editoraField;
     @FXML private TextField anoPubliField;
+    @FXML private CheckBox edicaoCheckBox;
     @FXML private Spinner<Integer> edicaoSpinner;
     @FXML private Spinner<Integer> numPubliSpinner;
     @FXML private TextField volumeField;
@@ -193,7 +194,8 @@ public class DocumentCreatorController implements Initializable {
         numPaginaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
         colunaSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10000, 1));
 
-        edicaoSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        edicaoSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0));
+        edicaoCheckBox.selectedProperty().addListener((obs, oldVal, newVal) -> edicaoSpinner.setDisable(!newVal));
         numPubliSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10000, 0));
 
         teatroPersonagemSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100, 0));
@@ -360,7 +362,12 @@ public class DocumentCreatorController implements Initializable {
 
             tituloPublicacaoField.setText(doc.getTituloPublicacao());
             subTituloPublicacaoField.setText(doc.getSubtituloPublicacao());
-            if (doc.getEdicao() != null) edicaoSpinner.getValueFactory().setValue(doc.getEdicao());
+            if (doc.getEdicao() != null) {
+                edicaoCheckBox.setSelected(true);
+                edicaoSpinner.getValueFactory().setValue(doc.getEdicao());
+            } else {
+                edicaoCheckBox.setSelected(false);
+            }
             editoraField.setText(doc.getEditora());
             anoRevistaField.setText(doc.getAnoRevista());
             volumeField.setText(doc.getVolume());
@@ -459,7 +466,7 @@ public class DocumentCreatorController implements Initializable {
         documento.setTituloPublicacao(tituloPublicacaoField.getText());
         documento.setSubtituloPublicacao(subTituloPublicacaoField.getText());
         documento.setAutoresPubli(new ArrayList<>(authorPubliMap.values()));
-        documento.setEdicao(edicaoSpinner.getValue());
+        documento.setEdicao(edicaoCheckBox.isSelected() ? edicaoSpinner.getValue() : null);
         documento.setEditora(editoraField.getText());
         documento.setAnoRevista(anoRevistaField.getText());
         documento.setVolume(volumeField.getText());
