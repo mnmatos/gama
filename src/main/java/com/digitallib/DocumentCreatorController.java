@@ -88,8 +88,6 @@ public class DocumentCreatorController implements Initializable {
     @FXML private ListView<String> teatroKeywordList;
 
     @FXML private ComboBox<TIPO_RELACAO> linkDropDown;
-    @FXML private Button adicionarButton;
-    @FXML private Button removeLinkButton;
     @FXML private TextField linkCodeField;
     @FXML private ListView<Relacao> linkList;
     @FXML private TextField testimonyField;
@@ -288,6 +286,8 @@ public class DocumentCreatorController implements Initializable {
             if (doc.getSubClasseProducao() != null) {
                 tipoDrop.getSelectionModel().select(doc.getSubClasseProducao().getDesc());
             }
+
+            checkForTeatro(classeDrop.getSelectionModel().getSelectedIndex());
 
             // Dates
             if (doc.getDataDocumento() != null) {

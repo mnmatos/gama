@@ -2,7 +2,6 @@ package com.digitallib;
 
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.exception.ValidationException;
-import com.digitallib.exporter.docx.FichaExporter;
 import com.digitallib.exporter.docx.InventarioExporter;
 import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
@@ -117,6 +116,25 @@ public class DocumentListController implements Initializable {
             alert.setTitle("Error");
             alert.setHeaderText("Could not load the project management window.");
             alert.setContentText("An unexpected error occurred. Please check the logs for more details.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    public void handleManageGroups() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/GroupManager.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Gerenciar Tradições");
+            stage.setScene(new Scene(loader.load()));
+            stage.show();
+            // Refresh main table if user modified traditions (e.g. removed them or renamed them)
+            stage.setOnHidden(e -> refreshTable());
+        } catch (IOException e) {
+            logger.error("Failed to load Group Manager", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText("Could not load the group management window.");
             alert.showAndWait();
         }
     }
@@ -332,8 +350,25 @@ public class DocumentListController implements Initializable {
 
     @FXML
     public void handleExportCatalog() {
-        FichaExporter exporter = new FichaExporter();
-        exporter.export(RepositoryManager.getEntries());
+        if (System.getProperty("selected.project.path") == null) {
+            new Alert(Alert.AlertType.WARNING, "Selecione um projeto primeiro.").showAndWait();
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/FichaExportConfigEditor.fxml"));
+            javafx.scene.Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Ficha-catálogo");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setResizable(true);
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open FichaExportConfigEditor", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setContentText("Não foi possível abrir o editor de ficha-catálogo: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void handleEdit(Documento doc) {
