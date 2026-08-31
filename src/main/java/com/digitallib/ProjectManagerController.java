@@ -89,6 +89,8 @@ public class ProjectManagerController {
         if (selected.getCodeType() != null) System.setProperty("code_type", selected.getCodeType());
         System.setProperty("selected.project.name", selected.getName());
 
+        com.digitallib.manager.ProjectManager.getInstance().setCurrentProject(selected);
+
         // Build loading stage
         Stage loadingStage = new Stage(StageStyle.UNDECORATED);
         loadingStage.initModality(Modality.APPLICATION_MODAL);

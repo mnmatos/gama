@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -18,10 +17,11 @@
                     <SeparatorMenuItem />
                     <MenuItem text="Adicionar monotestemunhal" onAction="#handleAddMono"/>
                     <MenuItem text="Adicionar politestemunhal" onAction="#handleAddPoli"/>
+                    <MenuItem text="Gerenciar tradições" onAction="#handleManageGroups"/>
                 </Menu>
                 <Menu text="Exportar">
                     <MenuItem text="Exportar Inventário" onAction="#handleExportInventory"/>
-                    <MenuItem text="Exportar Ficha-catálogo" onAction="#handleExportCatalog"/>
+                    <MenuItem text="Ficha-catálogo…" onAction="#handleExportCatalog"/>
                 </Menu>
                 <Menu text="Ferramentas">
                     <MenuItem text="Configurações de Transcrição…" onAction="#handleLlmSettings"/>

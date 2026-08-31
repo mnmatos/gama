@@ -332,6 +332,20 @@ public class DocumentCreatorUITest {
         fillField(robot, "#lugarPublicacaoText", "Rio de Janeiro");
         sleep(delay);
 
+        log("Enabling edicaoCheckBox to allow setting edition...");
+        Platform.runLater(() -> {
+            try {
+                CheckBox edicaoCb = (CheckBox) robot.lookup("#edicaoCheckBox").query();
+                if (edicaoCb != null && !edicaoCb.isSelected()) {
+                    edicaoCb.setSelected(true);
+                }
+            } catch (Exception e) {
+                log("Exception while selecting edicaoCheckBox: " + e.getMessage());
+            }
+        });
+        waitForFxEvents();
+        sleep(shortDelay);
+
         log("Setting Spinner values (Edition, Pages, Date)...");
         // Handling Spinners using FxRobot write if defaults allow editing, or Platform.runLater
         Platform.runLater(() -> {

@@ -7,7 +7,6 @@ import com.digitallib.model.Documento;
 import com.digitallib.model.MultiSourcedDocument;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -123,6 +122,51 @@ public class MultiSourceDocumentListController implements Initializable {
             }
         } catch (Exception e) {
             logger.error("Failed during selecting documents", e);
+        }
+    }
+
+    @FXML
+    private void handleCreateNew() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/DocumentCreator.fxml"));
+            DialogPane pane = loader.load();
+            DocumentCreatorController controller = loader.getController();
+            controller.setDocumento(null);
+
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setDialogPane(pane);
+            dialog.setTitle("Criar Documento para Tradição");
+            dialog.setResizable(true);
+
+            Button okBtn = (Button) dialog.getDialogPane().lookupButton(ButtonType.OK);
+            okBtn.addEventFilter(javafx.event.ActionEvent.ACTION, ev -> {
+                try {
+                    controller.saveDocument();
+                    Documento doc = controller.getDocumento();
+                    if (doc != null && doc.getCodigo() != null && !doc.getCodigo().isEmpty()) {
+                        if (multiDoc != null) {
+                            multiDoc.getDocuments().add(doc.getCodigo());
+                            refreshTable();
+                        }
+                    }
+                } catch (com.digitallib.exception.ValidationException | com.digitallib.exception.RepositoryException e) {
+                    logger.error("Error saving doc", e);
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Erro");
+                    alert.setHeaderText("Erro ao salvar documento");
+                    alert.setContentText(e.getMessage());
+                    alert.showAndWait();
+                    ev.consume();
+                }
+            });
+
+            dialog.showAndWait();
+        } catch (Exception e) {
+            logger.error("Failed to open DocumentCreator", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setContentText("Não foi possível abrir a janela de criação: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 

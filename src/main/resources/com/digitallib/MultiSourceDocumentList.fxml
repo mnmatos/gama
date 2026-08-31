@@ -29,7 +29,8 @@
             </TableView>
 
             <HBox spacing="10">
-                <Button text="Adicionar" onAction="#handleAdd"/>
+                <Button text="Adicionar Existente" onAction="#handleAdd"/>
+                <Button text="Criar Novo" onAction="#handleCreateNew"/>
                 <Button text="Comparar Transcrições" onAction="#handleCompareTranscriptions"/>
             </HBox>
         </VBox>

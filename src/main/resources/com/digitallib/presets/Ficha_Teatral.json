@@ -1,0 +1,152 @@
+{
+  "name" : "Ficha Teatral",
+  "filterRules" : [ {
+    "classeCode" : "01",
+    "subClasseCode" : "01a"
+  } ],
+  "blocks" : [ {
+    "type" : "AUTHOR",
+    "enabled" : true,
+    "fields" : [ {
+      "source" : "AUTORES",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    } ],
+    "relationType" : "ESTUDADO_EM"
+  }, {
+    "type" : "TITLE",
+    "enabled" : true,
+    "fields" : [ {
+      "source" : "TITULO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : true
+    }, {
+      "source" : "LITERAL",
+      "literalValue" : ". ",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "LOCAL_PUBLICACAO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "LITERAL",
+      "literalValue" : ", ",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "ANO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "LITERAL",
+      "literalValue" : ". ",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "NUM_PAGINA",
+      "format" : "%df",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "LITERAL",
+      "literalValue" : ". Testemunho ",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "source" : "TESTEMUNHO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    } ],
+    "relationType" : "ESTUDADO_EM"
+  }, {
+    "type" : "INFO",
+    "enabled" : true,
+    "fields" : [ {
+      "label" : "Localização",
+      "source" : "INSTITUICAO_CUSTODIA",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "label" : "Classificação",
+      "source" : "LITERAL",
+      "literalValue" : "Adulto",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "label" : "Personagens",
+      "source" : "TEXTO_TEATRAL_PERSONAGENS",
+      "format" : "%02d",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "label" : "Número de Atos",
+      "source" : "TEXTO_TEATRAL_ATOS",
+      "format" : "%02d",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "label" : "Número de Cenas",
+      "source" : "TEXTO_TEATRAL_CENAS",
+      "format" : "%02d",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    } ],
+    "relationType" : "ESTUDADO_EM"
+  }, {
+    "type" : "DESCRIPTION",
+    "enabled" : true,
+    "fields" : [ {
+      "source" : "TESTEMUNHO",
+      "format" : "Testemunho(%s)",
+      "labelBold" : true,
+      "valueBold" : true,
+      "italic" : false
+    }, {
+      "label" : "Descrição",
+      "source" : "DESCRICAO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    } ],
+    "relationType" : "ESTUDADO_EM"
+  }, {
+    "type" : "RESUME_KEYWORDS",
+    "enabled" : true,
+    "fields" : [ {
+      "label" : "Resumo",
+      "source" : "TEXTO_TEATRAL_RESUMO",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    }, {
+      "label" : "Palavras-chave",
+      "source" : "TEXTO_TEATRAL_PALAVRAS_CHAVE",
+      "labelBold" : true,
+      "valueBold" : false,
+      "italic" : false
+    } ],
+    "relationType" : "ESTUDADO_EM"
+  }, {
+    "type" : "RELATED_STUDIES",
+    "label" : "Estudos",
+    "enabled" : true,
+    "fields" : [ ],
+    "relationType" : "ESTUDADO_EM"
+  } ]
+}
