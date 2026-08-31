@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GAMA – Sistema de Gerenciamento de Documentos Filológicos</title>
+  <meta name="description" content="GAMA is a free, open-source philology document management system with AI transcription, DOCX export, and multi-testimonial support." />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .hero-gradient { background: linear-gradient(135deg, #1e3a5f 0%, #2d6a9f 50%, #1a4971 100%); }
+    .feature-card:hover { transform: translateY(-4px); transition: transform 0.2s; }
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Language toggle -->
+  <div class="bg-gray-800 text-gray-300 text-sm py-1 px-4 flex justify-end gap-4">
+    <button onclick="setLang('pt')" id="btn-pt" class="hover:text-white font-semibold underline">PT</button>
+    <button onclick="setLang('en')" id="btn-en" class="hover:text-white">EN</button>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl font-extrabold text-blue-800">GAMA</span>
+        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">v1.2.7</span>
+      </div>
+      <div class="hidden md:flex gap-6 text-sm font-medium text-gray-600">
+        <a href="#features" class="hover:text-blue-700 lang-pt">Funcionalidades</a>
+        <a href="#features" class="hover:text-blue-700 lang-en hidden">Features</a>
+        <a href="#screenshots" class="hover:text-blue-700 lang-pt">Capturas de Tela</a>
+        <a href="#screenshots" class="hover:text-blue-700 lang-en hidden">Screenshots</a>
+        <a href="#install" class="hover:text-blue-700 lang-pt">Instalação</a>
+        <a href="#install" class="hover:text-blue-700 lang-en hidden">Install</a>
+        <a href="https://github.com/mnmatos/gama-filologia" target="_blank" class="hover:text-blue-700">GitHub</a>
+      </div>
+      <a href="https://github.com/mnmatos/gama-filologia/releases/latest"
+         target="_blank"
+         class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+        <span class="lang-pt">⬇ Download</span>
+        <span class="lang-en hidden">⬇ Download</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero-gradient text-white py-20 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="text-6xl mb-4">📖</div>
+      <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
+        <span class="lang-pt">Sistema GAMA</span>
+        <span class="lang-en hidden">GAMA System</span>
+      </h1>
+      <p class="text-xl md:text-2xl font-light text-blue-100 mb-6">
+        <span class="lang-pt">Gerenciamento de Documentos Filológicos</span>
+        <span class="lang-en hidden">Philology Document Management</span>
+      </p>
+      <p class="text-base md:text-lg text-blue-200 max-w-2xl mx-auto mb-10">
+        <span class="lang-pt">
+          Software livre para organização, transcrição com IA e exportação de documentos do
+          <strong class="text-white">Acervo Alcina Dantas (AAD)</strong>. Gratuito, open-source, sem instalação.
+        </span>
+        <span class="lang-en hidden">
+          Free and open-source software for organizing, AI transcription, and exporting documents from the
+          <strong class="text-white">Alcina Dantas Collection (AAD)</strong>. Free, open-source, no installation required.
+        </span>
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="https://github.com/mnmatos/gama-filologia/releases/latest"
+           target="_blank"
+           class="bg-white text-blue-800 font-bold px-8 py-3 rounded-xl hover:bg-blue-50 transition text-lg shadow-lg">
+          <span class="lang-pt">⬇ Baixar GAMA.exe</span>
+          <span class="lang-en hidden">⬇ Download GAMA.exe</span>
+        </a>
+        <a href="https://github.com/mnmatos/gama"
+           target="_blank"
+           class="border-2 border-white text-white font-semibold px-8 py-3 rounded-xl hover:bg-white hover:text-blue-800 transition text-lg">
+          ⭐ GitHub
+        </a>
+      </div>
+      <p class="mt-5 text-blue-300 text-sm">
+        <span class="lang-pt">Extraia e execute <code class="bg-blue-900 px-1 rounded">GAMA.exe</code> — sem instalar nada.</span>
+        <span class="lang-en hidden">Extract and run <code class="bg-blue-900 px-1 rounded">GAMA.exe</code> — no installation needed.</span>
+      </p>
+    </div>
+  </header>
+
+  <!-- Badges -->
+  <div class="bg-white border-b py-4 px-4">
+    <div class="max-w-4xl mx-auto flex flex-wrap justify-center gap-4 text-sm text-gray-500">
+      <span class="flex items-center gap-1">🔓 <span class="lang-pt">AGPL-3.0 — Software Livre</span><span class="lang-en hidden">AGPL-3.0 — Free Software</span></span>
+      <span class="flex items-center gap-1">☕ Java 17+</span>
+      <span class="flex items-center gap-1">🖥️ Windows</span>
+      <span class="flex items-center gap-1">🤖 <span class="lang-pt">IA: Claude, GPT-4o, Ollama…</span><span class="lang-en hidden">AI: Claude, GPT-4o, Ollama…</span></span>
+      <span class="flex items-center gap-1">📄 DOCX Export</span>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <section id="features" class="py-20 px-4 bg-gray-50">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">
+        <span class="lang-pt">Funcionalidades</span>
+        <span class="lang-en hidden">Features</span>
+      </h2>
+      <p class="text-center text-gray-500 mb-12">
+        <span class="lang-pt">Tudo que você precisa para edições críticas e estudos filológicos</span>
+        <span class="lang-en hidden">Everything you need for critical editions and philological studies</span>
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Card 1 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">📋</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Cadastro de Documentos</span>
+            <span class="lang-en hidden">Document Registration</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Formulário detalhado com classes, subclasses e geração automática de código único (NBR 6023).</span>
+            <span class="lang-en hidden">Detailed form with classes, subclasses, and automatic unique ID generation (NBR 6023).</span>
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">🤖</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Transcrição com IA</span>
+            <span class="lang-en hidden">AI Transcription</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Transcrição automática de fac-símiles via Claude, GPT-4o, AWS Bedrock, Ollama, LM Studio ou Tesseract OCR local.</span>
+            <span class="lang-en hidden">Automatic facsimile transcription via Claude, GPT-4o, AWS Bedrock, Ollama, LM Studio, or local Tesseract OCR.</span>
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">📄</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Exportação DOCX</span>
+            <span class="lang-en hidden">DOCX Export</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Gera Inventário completo e Fichas-Catálogo em formato Word (.docx) prontas para publicação.</span>
+            <span class="lang-en hidden">Generates full Inventory and Catalog Cards in Word format (.docx) ready for publication.</span>
+          </p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">🔍</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Comparação de Transcrições</span>
+            <span class="lang-en hidden">Transcription Comparison</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Visualização lado a lado com destaque visual: amarelo = texto diferente; vermelho = bloco ausente.</span>
+            <span class="lang-en hidden">Side-by-side view with visual highlights: yellow = different text; red = missing/extra block.</span>
+          </p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">🗂️</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Multi-testemunhal</span>
+            <span class="lang-en hidden">Multi-testimonial</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Suporte a documentos mono e poli-testemunhais, com indexação de pessoas e instituições citadas.</span>
+            <span class="lang-en hidden">Support for single and multi-testimonial documents, with indexing of cited persons and institutions.</span>
+          </p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="feature-card bg-white rounded-2xl shadow p-6 border border-gray-100">
+          <div class="text-3xl mb-3">💾</div>
+          <h3 class="font-bold text-lg mb-2 text-gray-800">
+            <span class="lang-pt">Armazenamento Local JSON</span>
+            <span class="lang-en hidden">Local JSON Storage</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Dados salvos localmente em JSON. Sem nuvem obrigatória, sem conta, sem assinatura.</span>
+            <span class="lang-en hidden">Data saved locally in JSON. No mandatory cloud, no account, no subscription.</span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Screenshots -->
+  <section id="screenshots" class="py-20 px-4 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">
+        <span class="lang-pt">Capturas de Tela</span>
+        <span class="lang-en hidden">Screenshots</span>
+      </h2>
+      <p class="text-center text-gray-500 mb-12">
+        <span class="lang-pt">Veja o GAMA em ação</span>
+        <span class="lang-en hidden">See GAMA in action</span>
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/gama-inicio-de-uso.png" alt="Tela inicial do GAMA" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Tela Inicial</span>
+            <span class="lang-en hidden">Home Screen</span>
+          </figcaption>
+        </figure>
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/gama-instalador.png" alt="Instalador GAMA" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Instalador</span>
+            <span class="lang-en hidden">Installer</span>
+          </figcaption>
+        </figure>
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/gama-licenca-de-uso.png" alt="Licença de uso" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Licença de Uso</span>
+            <span class="lang-en hidden">License</span>
+          </figcaption>
+        </figure>
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/preenchimento-nome-do-projeto.png" alt="Preenchimento do nome do projeto" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Nome do Projeto</span>
+            <span class="lang-en hidden">Project Name</span>
+          </figcaption>
+        </figure>
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/preenchimento-sigla-do-acervo.png" alt="Sigla do acervo" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Sigla do Acervo</span>
+            <span class="lang-en hidden">Collection Code</span>
+          </figcaption>
+        </figure>
+        <figure class="rounded-xl overflow-hidden shadow border border-gray-200">
+          <img src="images/preencher-o-arquivo-de-series.png" alt="Arquivo de séries" class="w-full object-cover" loading="lazy" />
+          <figcaption class="text-center text-xs text-gray-500 py-2 bg-gray-50">
+            <span class="lang-pt">Arquivo de Séries</span>
+            <span class="lang-en hidden">Series File</span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section id="install" class="py-20 px-4 bg-gray-50">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">
+        <span class="lang-pt">Como Instalar</span>
+        <span class="lang-en hidden">How to Install</span>
+      </h2>
+      <p class="text-center text-gray-500 mb-12">
+        <span class="lang-pt">Sem Java, sem configuração — pronto em 3 passos</span>
+        <span class="lang-en hidden">No Java, no configuration — ready in 3 steps</span>
+      </p>
+
+      <div class="flex flex-col md:flex-row gap-6 justify-center mb-12">
+        <div class="flex-1 bg-white rounded-2xl shadow p-6 border border-gray-100 text-center">
+          <div class="text-4xl mb-3">1️⃣</div>
+          <h3 class="font-bold text-gray-800 mb-1">
+            <span class="lang-pt">Baixe o pacote</span>
+            <span class="lang-en hidden">Download the package</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Clique em "Releases" no GitHub e baixe o <code class="bg-gray-100 px-1 rounded">.zip</code> mais recente.</span>
+            <span class="lang-en hidden">Click "Releases" on GitHub and download the latest <code class="bg-gray-100 px-1 rounded">.zip</code>.</span>
+          </p>
+        </div>
+        <div class="flex-1 bg-white rounded-2xl shadow p-6 border border-gray-100 text-center">
+          <div class="text-4xl mb-3">2️⃣</div>
+          <h3 class="font-bold text-gray-800 mb-1">
+            <span class="lang-pt">Extraia o arquivo</span>
+            <span class="lang-en hidden">Extract the file</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Extraia o conteúdo para qualquer pasta no seu computador.</span>
+            <span class="lang-en hidden">Extract the contents to any folder on your computer.</span>
+          </p>
+        </div>
+        <div class="flex-1 bg-white rounded-2xl shadow p-6 border border-gray-100 text-center">
+          <div class="text-4xl mb-3">3️⃣</div>
+          <h3 class="font-bold text-gray-800 mb-1">
+            <span class="lang-pt">Execute GAMA.exe</span>
+            <span class="lang-en hidden">Run GAMA.exe</span>
+          </h3>
+          <p class="text-gray-500 text-sm">
+            <span class="lang-pt">Dê duplo-clique em <code class="bg-gray-100 px-1 rounded">GAMA.exe</code>. Pronto!</span>
+            <span class="lang-en hidden">Double-click <code class="bg-gray-100 px-1 rounded">GAMA.exe</code>. Done!</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <a href="https://github.com/mnmatos/gama-filologia/releases/latest"
+           target="_blank"
+           class="inline-block bg-blue-700 hover:bg-blue-800 text-white font-bold px-10 py-4 rounded-xl text-lg transition shadow-lg">
+          <span class="lang-pt">⬇ Baixar Última Versão</span>
+          <span class="lang-en hidden">⬇ Download Latest Release</span>
+        </a>
+        <p class="mt-3 text-gray-400 text-sm">
+          <span class="lang-pt">Requer Windows. Java JRE incluído no pacote.</span>
+          <span class="lang-en hidden">Requires Windows. Java JRE included in the package.</span>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="py-16 px-4 bg-blue-800 text-white">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-2xl font-bold mb-4">
+        <span class="lang-pt">Sobre o Projeto</span>
+        <span class="lang-en hidden">About the Project</span>
+      </h2>
+      <p class="text-blue-200 text-base leading-relaxed">
+        <span class="lang-pt">
+          O GAMA foi desenvolvido para o projeto
+          <em>"Acervo Alcina Dantas (AAD): interação entre filologia, arquivística e TICs"</em>
+          de <strong class="text-white">Pollianna dos Santos Ferreira Silva</strong> e <strong class="text-white">Rosa Borges</strong>.
+          Concebido a partir de uma perspectiva dialógica entre a Filologia e as TICs.
+        </span>
+        <span class="lang-en hidden">
+          GAMA was developed for the project
+          <em>"Alcina Dantas Collection (AAD): interaction between philology, archival science, and ICTs"</em>
+          by <strong class="text-white">Pollianna dos Santos Ferreira Silva</strong> and <strong class="text-white">Rosa Borges</strong>.
+          Conceived from a dialogical perspective between Philology and ICTs.
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-400 py-8 px-4 text-center text-sm">
+    <p class="mb-2">
+      <strong class="text-white">GAMA</strong> ·
+      <span class="lang-pt">Licenciado sob</span>
+      <span class="lang-en hidden">Licensed under</span>
+      <a href="https://www.gnu.org/licenses/agpl-3.0.html" class="underline hover:text-white" target="_blank">AGPL-3.0</a>
+    </p>
+    <p>
+      <a href="https://github.com/mnmatos/gama-filologia" class="underline hover:text-white" target="_blank">
+        GitHub · mnmatos/gama-filologia
+      </a>
+    </p>
+  </footer>
+
+  <script>
+    function setLang(lang) {
+      document.querySelectorAll('.lang-pt').forEach(el => el.classList.toggle('hidden', lang !== 'pt'));
+      document.querySelectorAll('.lang-en').forEach(el => el.classList.toggle('hidden', lang !== 'en'));
+      document.getElementById('btn-pt').classList.toggle('underline', lang === 'pt');
+      document.getElementById('btn-pt').classList.toggle('font-semibold', lang === 'pt');
+      document.getElementById('btn-en').classList.toggle('underline', lang === 'en');
+      document.getElementById('btn-en').classList.toggle('font-semibold', lang === 'en');
+      localStorage.setItem('gama-lang', lang);
+    }
+    // Restore saved language
+    const saved = localStorage.getItem('gama-lang') || 'pt';
+    setLang(saved);
+  </script>
+</body>
+</html>
+
