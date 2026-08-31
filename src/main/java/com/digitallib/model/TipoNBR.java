@@ -10,7 +10,7 @@ import java.util.Map;
 public enum TipoNBR {
 
     JORNAL ("Jornal", new NewspaperReferenceGenerator()), //7.7.7
-    MONOGRAFIA_LIVRO("Livro", new BookReferenceGenerator()), //7.1
+    MONOGRAFIA_LIVRO("Obra Monográfica", new BookReferenceGenerator()), //7.1
     MONOGRAFIA_ACADEMICO("Trabalho acadêmico", new AcademicReferenceGenerator()), //7.1.2
     ARTIGO("Artigo", new PaperReferenceGenerator()), //7.7.5
     ENTREVISTA("Entrevista", new InterviewReferenceGenerator()), //8.1.1.9

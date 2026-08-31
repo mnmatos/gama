@@ -2,7 +2,6 @@ package com.digitallib;
 
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.exception.ValidationException;
-import com.digitallib.exporter.docx.FichaExporter;
 import com.digitallib.exporter.docx.InventarioExporter;
 import com.digitallib.manager.CategoryManager;
 import com.digitallib.manager.EntityManager;
@@ -21,6 +20,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -47,6 +47,8 @@ public class DocumentListController implements Initializable {
     @FXML private TableColumn<Documento, String> colEncontradoEm;
     @FXML private TableColumn<Documento, String> colAcoes;
     @FXML private Label projectNameLabel;
+    @FXML private HBox failureBanner;
+    @FXML private Label failureBannerLabel;
 
 
     private CategoryManager categoryManager = new CategoryManager();
@@ -58,6 +60,10 @@ public class DocumentListController implements Initializable {
         initializeFilters();
         initializeTable();
         refreshTable();
+        // Scan for failed documents once at project open; this is kept separate from
+        // refreshTable() so the normal refresh cycle has no extra overhead.
+        RepositoryManager.scanForFailedDocuments();
+        updateFailureBanner();
     }
 
     private void initializeFilters() {
@@ -115,6 +121,25 @@ public class DocumentListController implements Initializable {
     }
 
     @FXML
+    public void handleManageGroups() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/GroupManager.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Gerenciar Tradições");
+            stage.setScene(new Scene(loader.load()));
+            stage.show();
+            // Refresh main table if user modified traditions (e.g. removed them or renamed them)
+            stage.setOnHidden(e -> refreshTable());
+        } catch (IOException e) {
+            logger.error("Failed to load Group Manager", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setContentText("Could not load the group management window.");
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
     private void handleRefresh() {
         updateTestemunhoVisibility(classeFilter.getSelectionModel().getSelectedIndex());
         refreshTable();
@@ -135,6 +160,7 @@ public class DocumentListController implements Initializable {
         colSerie.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getClasseProducao().getDesc()));
         colEncontradoEm.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getEncontradoEm()));
 
+
         colAcoes.setCellFactory(new Callback<>() {
             @Override
             public TableCell<Documento, String> call(TableColumn<Documento, String> param) {
@@ -146,29 +172,32 @@ public class DocumentListController implements Initializable {
                             setGraphic(null);
                         } else {
                             Documento doc = getTableView().getItems().get(getIndex());
-                            HBox hbox = new HBox(5);
+                            FlowPane flow = new FlowPane(4, 4);
+                            flow.setPadding(new javafx.geometry.Insets(2, 2, 2, 2));
+                            // Bind wrap width to the column width so buttons reflow when the column is resized
+                            flow.prefWrapLengthProperty().bind(getTableColumn().widthProperty());
 
                             if (doc.getGrupo() != null) {
                                 Button btnGroup = new Button("Tradição");
                                 btnGroup.setOnAction(e -> handleEditGroup(doc));
-                                hbox.getChildren().add(btnGroup);
+                                flow.getChildren().add(btnGroup);
                             }
 
                             Button btnEdit = new Button("Editar");
                             btnEdit.setOnAction(e -> handleEdit(doc));
-                            hbox.getChildren().add(btnEdit);
+                            flow.getChildren().add(btnEdit);
 
                             if (hasActiveTranscription(doc)) {
                                 Button btnImg = new Button("Transcrição");
                                 btnImg.setOnAction(e -> handleOpenImageTranscription(doc));
-                                hbox.getChildren().add(btnImg);
+                                flow.getChildren().add(btnImg);
                             }
 
                             Button btnRemove = new Button("Remover");
                             btnRemove.setOnAction(e -> handleRemove(doc));
-                            hbox.getChildren().add(btnRemove);
+                            flow.getChildren().add(btnRemove);
 
-                            setGraphic(hbox);
+                            setGraphic(flow);
                         }
                     }
                 };
@@ -196,7 +225,11 @@ public class DocumentListController implements Initializable {
 
         filterList.clear();
         String codigoTxt = filtroCodigo.getText();
-        filterList.add(new Filter("Código", d -> codigoTxt.isEmpty() || d.getCodigo().startsWith(codigoTxt)));
+        String codigoTxtLower = codigoTxt.toLowerCase();
+        filterList.add(new Filter("Código/Título", d ->
+                codigoTxt.isEmpty()
+                || d.getCodigo().toLowerCase().contains(codigoTxtLower)
+                || (d.getTitulo() != null && d.getTitulo().toLowerCase().contains(codigoTxtLower))));
 
         int classeIdx = classeFilter.getSelectionModel().getSelectedIndex();
         filterList.add(new Filter("Série", d -> classeIdx < 1 || d.getClasseProducao().equals(categoryManager.getClasseForIndex(classeIdx - 1))));
@@ -317,8 +350,25 @@ public class DocumentListController implements Initializable {
 
     @FXML
     public void handleExportCatalog() {
-        FichaExporter exporter = new FichaExporter();
-        exporter.export(RepositoryManager.getEntries());
+        if (System.getProperty("selected.project.path") == null) {
+            new Alert(Alert.AlertType.WARNING, "Selecione um projeto primeiro.").showAndWait();
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/FichaExportConfigEditor.fxml"));
+            javafx.scene.Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Ficha-catálogo");
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setResizable(true);
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open FichaExportConfigEditor", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setContentText("Não foi possível abrir o editor de ficha-catálogo: " + e.getMessage());
+            alert.showAndWait();
+        }
     }
 
     private void handleEdit(Documento doc) {
@@ -414,6 +464,43 @@ public class DocumentListController implements Initializable {
             stage.show();
         } catch (IOException e) {
             logger.error("Failed to open LlmSettings", e);
+        }
+    }
+
+    private void updateFailureBanner() {
+        int count = RepositoryManager.getFailedDocuments().size();
+        boolean show = count > 0;
+        failureBanner.setVisible(show);
+        failureBanner.setManaged(show);
+        if (show) {
+            failureBannerLabel.setText(
+                count == 1
+                    ? "1 documento não pôde ser carregado neste projeto."
+                    : count + " documentos não puderam ser carregados neste projeto."
+            );
+        }
+    }
+
+    @FXML
+    public void handleRepairFailedDocs() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/digitallib/FailedDocumentsRepair.fxml"));
+            javafx.scene.Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Reparar Documentos com Falha");
+            stage.setScene(new javafx.scene.Scene(root));
+            // Re-scan and update the banner when the repair window is closed
+            stage.setOnHidden(e -> {
+                RepositoryManager.scanForFailedDocuments();
+                updateFailureBanner();
+            });
+            stage.show();
+        } catch (IOException e) {
+            logger.error("Failed to open FailedDocumentsRepair", e);
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erro");
+            alert.setContentText("Não foi possível abrir a janela de reparo: " + e.getMessage());
+            alert.showAndWait();
         }
     }
 

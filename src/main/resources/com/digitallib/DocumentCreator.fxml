@@ -88,8 +88,10 @@
                             <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
                             <Label text="Descrição" style="-fx-font-weight: bold"/>
                             <TextArea fx:id="descriptionText" VBox.vgrow="ALWAYS"/>
-                            <Label text="Transcrição" style="-fx-font-weight: bold"/>
-                            <TextArea fx:id="transcriptionText" VBox.vgrow="ALWAYS"/>
+                            <!-- Transcription panel — populated dynamically by the controller -->
+                            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" minHeight="150">
+                                <VBox fx:id="transcriptionPanel" spacing="8"/>
+                            </ScrollPane>
                         </VBox>
                     </Tab>
 
@@ -123,12 +125,15 @@
                                         </HBox>
 
                                         <Label text="Edição" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                                        <Spinner fx:id="edicaoSpinner" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                        <HBox spacing="10" alignment="CENTER_LEFT" GridPane.rowIndex="5" GridPane.columnIndex="1">
+                                            <CheckBox fx:id="edicaoCheckBox" text="Informar edição"/>
+                                            <Spinner fx:id="edicaoSpinner" disable="true"/>
+                                        </HBox>
 
                                         <Label text="Editora" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                                         <TextField fx:id="editoraField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-                                        <Label text="Ano da Revista" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                        <Label text="Ano do Periódico" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
                                         <TextField fx:id="anoRevistaField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
                                         <Label text="Volume" GridPane.rowIndex="8" GridPane.columnIndex="0"/>

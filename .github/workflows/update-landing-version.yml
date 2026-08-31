@@ -1,0 +1,54 @@
+name: Update landing page version
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: |
+          # Removes "v" prefix from tag: v1.3.0 → 1.3.0
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Update version in index.html
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Update navbar version badge
+          sed -i "s|<span class=\"badge\">v[0-9]*\.[0-9]*\.[0-9]*</span>|<span class=\"badge\">v${VERSION}</span>|g" docs/index.html
+
+          # Update all MSI download URLs
+          sed -i "s|releases/latest/download/GAMA-[0-9]*\.[0-9]*\.[0-9]*\.msi|releases/latest/download/GAMA-${VERSION}.msi|g" docs/index.html
+
+          # Update visible filename references in step descriptions
+          sed -i "s|GAMA-[0-9]*\.[0-9]*\.[0-9]*\.msi|GAMA-${VERSION}.msi|g" docs/index.html
+
+          echo "Updated to version $VERSION"
+          grep -n "1\.[0-9]*\.[0-9]*" docs/index.html || true
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: update landing page to v${{ steps.version.outputs.version }} [skip ci]"
+            git push origin ${{ github.event.repository.default_branch }}
+            echo "Landing page updated to v${{ steps.version.outputs.version }}"
+          fi
+

@@ -316,9 +316,8 @@ public class DocumentCreatorUITest {
         waitForFxEvents();
         sleep(delay);
 
-        log("Filling Description and Transcription...");
+        log("Filling Description...");
         fillField(robot, "#descriptionText", "A famous play by Ariano Suassuna.");
-        fillField(robot, "#transcriptionText", "In the beginning...");
         sleep(delay);
 
         // 3. Fill "ABNT" Tab
@@ -332,6 +331,20 @@ public class DocumentCreatorUITest {
         fillField(robot, "#anoPubliField", "1990");
         fillField(robot, "#lugarPublicacaoText", "Rio de Janeiro");
         sleep(delay);
+
+        log("Enabling edicaoCheckBox to allow setting edition...");
+        Platform.runLater(() -> {
+            try {
+                CheckBox edicaoCb = (CheckBox) robot.lookup("#edicaoCheckBox").query();
+                if (edicaoCb != null && !edicaoCb.isSelected()) {
+                    edicaoCb.setSelected(true);
+                }
+            } catch (Exception e) {
+                log("Exception while selecting edicaoCheckBox: " + e.getMessage());
+            }
+        });
+        waitForFxEvents();
+        sleep(shortDelay);
 
         log("Setting Spinner values (Edition, Pages, Date)...");
         // Handling Spinners using FxRobot write if defaults allow editing, or Platform.runLater
@@ -397,7 +410,6 @@ public class DocumentCreatorUITest {
 
             // Description
             assertThat(savedDoc.getDescricao()).isEqualTo("A famous play by Ariano Suassuna.");
-            assertThat(savedDoc.getTranscricao()).isEqualTo("In the beginning...");
 
             // ABNT
             assertThat(savedDoc.getEditora()).isEqualTo("Agir");

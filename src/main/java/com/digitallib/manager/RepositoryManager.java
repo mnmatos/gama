@@ -3,6 +3,7 @@ package com.digitallib.manager;
 import com.digitallib.JsonGenerator;
 import com.digitallib.exception.RepositoryException;
 import com.digitallib.model.Documento;
+import com.digitallib.model.FailedDocument;
 import com.digitallib.model.SubClasse;
 import com.digitallib.utils.RobustFileDeleter;
 import org.apache.logging.log4j.LogManager;
@@ -26,6 +27,41 @@ import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 public class RepositoryManager {
     public static final String DOCUMENTS_FOLDER = "repo/documents";
     private static Logger logger = LogManager.getLogger();
+
+    /** Documents that failed to deserialize during the last call to {@link #getEntries()}. */
+    private static final List<FailedDocument> failedDocuments = new ArrayList<>();
+
+    /** Returns a snapshot of documents that failed to load in the last {@link #scanForFailedDocuments()} call. */
+    public static List<FailedDocument> getFailedDocuments() {
+        return new ArrayList<>(failedDocuments);
+    }
+
+    /**
+     * Walks the repository once, attempts to deserialize every JSON file, and
+     * records any failures in the internal list returned by {@link #getFailedDocuments()}.
+     * <p>
+     * This is intentionally <b>separate</b> from {@link #getEntries()} so that the
+     * normal refresh cycle (which is called on every table refresh) is not burdened
+     * with the extra I/O of building the failure list. Call this method once at
+     * project startup or when the user explicitly requests a re-scan.
+     */
+    public static void scanForFailedDocuments() {
+        failedDocuments.clear();
+        try (Stream<Path> paths = Files.walk(getRepoPath())) {
+            paths.filter(Files::isRegularFile).filter(p -> p.toString().endsWith("json")).forEach(javaPath -> {
+                try {
+                    getDoc(javaPath); // attempt deserialization; discard result
+                } catch (RepositoryException e) {
+                    logger.warn("Failed to read document at path: " + javaPath, e);
+                    String raw = "";
+                    try { raw = new String(Files.readAllBytes(javaPath), StandardCharsets.UTF_8); } catch (Exception ignored) {}
+                    failedDocuments.add(new FailedDocument(javaPath.toString(), raw, e.getMessage()));
+                }
+            });
+        } catch (Exception e) {
+            logger.error("Erro ao escanear documentos no repositório", e);
+        }
+    }
 
     public static void addEntry(Documento documento, List<File> files) throws RepositoryException {
         try {
