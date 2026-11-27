@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,6 +28,7 @@ import static com.digitallib.JsonGenerator.GenerateJsonFromDoc;
 public class EntityManager {
 
     private static final Logger logger = LogManager.getLogger(EntityManager.class);
+    private static final AtomicBoolean migrationChecked = new AtomicBoolean(false);
 
     public static final String ENTITIES_FOLDER_NAME = "repo/entities";
 
@@ -38,6 +40,10 @@ public class EntityManager {
         Path path = Paths.get(projectPath, ENTITIES_FOLDER_NAME);
         try {
             Files.createDirectories(path);
+            // Executa migração apenas uma vez por processo; idempotencia final garantida por marcador.
+            if (migrationChecked.compareAndSet(false, true)) {
+                EntityMigration.performMigration(path);
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to create entities directory: " + path, e);
         }

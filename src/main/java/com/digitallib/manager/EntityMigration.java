@@ -18,15 +18,17 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * Classe responsável pela migração automática de entidades AUTOR para PESSOA.
- * Executada uma única vez durante a inicialização do aplicativo.
- * Trata casos de IDs duplicadas renomeando o arquivo se necessário.
+ * Classe responsavel pela migracao automatica de entidades AUTOR para PESSOA.
+ * Executada uma unica vez durante a inicializacao do aplicativo.
+ * Trata casos de IDs duplicadas renomeando o arquivo se necessario.
  */
 public class EntityMigration {
 
     private static final Logger logger = LogManager.getLogger(EntityMigration.class);
     private static final String MIGRATION_MARKER_FILE = ".migration_completed";
     private static final String BACKUP_DIR = ".backup_pre_migration";
+    private static final Pattern TYPE_AUTOR_PATTERN = Pattern.compile("\\\"type\\\"\\s*:\\s*\\\"AUTOR\\\"");
+    private static final Pattern TYPE_PESSOA_PATTERN = Pattern.compile("\\\"type\\\"\\s*:\\s*\\\"PESSOA\\\"");
 
     /**
      * Executa a migração automática de entidades AUTOR para PESSOA.
@@ -41,55 +43,58 @@ public class EntityMigration {
 
             // Verifica se a migração já foi executada
             if (Files.exists(migrationMarker)) {
-                logger.info("Migração de entidades já foi executada anteriormente. Pulando...");
+                logger.info("Migracao de entidades ja foi executada anteriormente. Pulando...");
                 return;
             }
 
-            logger.info("Iniciando migração automática de entidades AUTOR para PESSOA...");
+            logger.info("Iniciando migracao automatica de entidades AUTOR para PESSOA...");
 
-            // Cria diretório de backup
-            Path backupDir = repoPath.resolve(BACKUP_DIR);
+            // Backup fora do repositorio de entidades para nao entrar em scans recursivos.
+            Path backupDir = repoPath.resolveSibling(BACKUP_DIR);
             Files.createDirectories(backupDir);
 
             List<Path> migratedFiles = new ArrayList<>();
-            Map<String, String> idMappings = new HashMap<>();  // oldId → newId
+            Map<String, String> idMappings = new HashMap<>();
+            List<Path> failedFiles = new ArrayList<>();
 
             // Procura por arquivos JSON antigos com tipo AUTOR
             try (Stream<Path> paths = Files.walk(repoPath)) {
                 paths.filter(Files::isRegularFile)
-                     .filter(path -> path.toString().endsWith(".json"))
-                     .forEach(jsonPath -> {
-                         try {
-                             String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
-
-                             // Verifica se é um arquivo AUTOR antigo
-                             if (jsonContent.contains("\"type\":\"AUTOR\"") || jsonContent.contains("\"type\": \"AUTOR\"")) {
-                                 migrateFile(jsonPath, repoPath, backupDir, migratedFiles, idMappings);
-                             }
-                         } catch (IOException e) {
-                             logger.error("Erro ao processar arquivo para migração: " + jsonPath, e);
-                         }
-                     });
+                        .filter(path -> path.toString().endsWith(".json"))
+                        .forEach(jsonPath -> {
+                            try {
+                                String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
+                                if (TYPE_AUTOR_PATTERN.matcher(jsonContent).find()) {
+                                    migrateFile(jsonPath, repoPath, backupDir, migratedFiles, idMappings);
+                                }
+                            } catch (Exception e) {
+                                failedFiles.add(jsonPath);
+                                logger.error("Erro ao processar arquivo para migracao: " + jsonPath, e);
+                            }
+                        });
             }
 
-            // Atualiza referências em documentos se houver IDs mapeados
+            if (!failedFiles.isEmpty()) {
+                throw new IOException("Migracao incompleta. Arquivos com falha: " + failedFiles.size());
+            }
+
             if (!idMappings.isEmpty()) {
-                logger.info("Atualizando referências de autores em documentos...");
+                logger.info("Atualizando referencias de autores em documentos...");
                 Path docRepoPath = repoPath.getParent().resolve("documents");
                 if (Files.exists(docRepoPath)) {
                     DocumentMigrationHelper.updateDocumentReferences(docRepoPath, idMappings);
                 } else {
-                    logger.info("Repositório de documentos não encontrado em: " + docRepoPath);
+                    logger.info("Repositorio de documentos nao encontrado em: " + docRepoPath);
                 }
             }
 
             // Cria arquivo marcador de migração
             Files.write(migrationMarker,
-                       ("Migração executada em: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "\n" +
-                        "Arquivos migrados: " + migratedFiles.size() + "\n" +
-                        "IDs renomeadas: " + idMappings.size()).getBytes(StandardCharsets.UTF_8));
+                    ("Migracao executada em: " + LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME) + "\n" +
+                            "Arquivos migrados: " + migratedFiles.size() + "\n" +
+                            "IDs renomeadas: " + idMappings.size()).getBytes(StandardCharsets.UTF_8));
 
-            logger.info("Migração concluída com sucesso. Total de entidades migradas: " + migratedFiles.size());
+            logger.info("Migracao concluida com sucesso. Total de entidades migradas: " + migratedFiles.size());
             if (!idMappings.isEmpty()) {
                 logger.info("IDs renomeadas (com documentos atualizados): " + idMappings.size());
             }
@@ -98,7 +103,7 @@ public class EntityMigration {
             }
 
         } catch (IOException e) {
-            logger.error("Erro durante a migração de entidades", e);
+            logger.error("Erro durante a migracao de entidades", e);
         }
     }
 
@@ -113,56 +118,48 @@ public class EntityMigration {
      * @param migratedFiles Lista para rastrear arquivos migrados
      * @param idMappings Mapa para rastrear IDs antigos → novos (para atualizar documentos)
      */
-    private static void migrateFile(Path jsonPath, Path repoPath, Path backupDir, List<Path> migratedFiles, Map<String, String> idMappings) {
-        try {
-            String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
-            String originalContent = jsonContent;
-            String fileName = jsonPath.getFileName().toString();
+    private static void migrateFile(Path jsonPath, Path repoPath, Path backupDir, List<Path> migratedFiles, Map<String, String> idMappings) throws IOException {
+        String jsonContent = new String(Files.readAllBytes(jsonPath), StandardCharsets.UTF_8);
+        String fileName = jsonPath.getFileName().toString();
 
-            // Extrai o ID do arquivo
-            String currentId = fileName.replace(".json", "");
+        // Extrai o ID do arquivo
+        String currentId = fileName.replace(".json", "");
 
-            // Cria backup do arquivo original
-            Path backupPath = backupDir.resolve(fileName);
-            Files.write(backupPath, originalContent.getBytes(StandardCharsets.UTF_8));
+        // Cria backup do arquivo original
+        Path backupPath = backupDir.resolve(fileName);
+        Files.write(backupPath, jsonContent.getBytes(StandardCharsets.UTF_8));
 
-            // Realiza conversão de AUTOR para PESSOA diretamente no JSON
-            String migratedJson = jsonContent.replaceAll("\"type\"\\s*:\\s*\"AUTOR\"", "\"type\":\"PESSOA\"");
+        // Realiza conversão de AUTOR para PESSOA diretamente no JSON
+        String migratedJson = TYPE_AUTOR_PATTERN.matcher(jsonContent).replaceAll("\"type\":\"PESSOA\"");
 
-            // Verifica se já existe um arquivo PESSOA com o mesmo ID
-            Path targetPath = jsonPath;
-            String newId = currentId;
+        // Verifica se já existe um arquivo PESSOA com o mesmo ID
+        Path targetPath = jsonPath;
+        String newId = currentId;
 
-            if (idJaExisteComTipoPessoa(repoPath, currentId)) {
-                // Encontra um novo ID disponível
-                newId = findAvailableId(repoPath, currentId);
-                targetPath = repoPath.resolve(newId + ".json");
+        if (idJaExisteComTipoPessoa(repoPath, currentId)) {
+            // Encontra um novo ID disponível
+            newId = findAvailableId(repoPath, currentId);
+            targetPath = repoPath.resolve(newId + ".json");
+            migratedJson = atualizarIdNoJson(migratedJson, newId);
 
-                // Atualiza o ID no JSON migrado
-                migratedJson = atualizarIdNoJson(migratedJson, newId);
-
-                logger.warn("Conflito de ID detectado: " + currentId + ". Entidade AUTOR renomeada para ID: " + newId);
-            }
-
-            // Rastreia mapeamento de IDs se houve renomeação
-            if (!newId.equals(currentId)) {
-                idMappings.put(currentId, newId);
-            }
-
-            // Salva o arquivo migrado (pode ser no mesmo caminho ou em caminho novo)
-            Files.write(targetPath, migratedJson.getBytes(StandardCharsets.UTF_8));
-
-            // Remove arquivo antigo se foi renomeado
-            if (!targetPath.equals(jsonPath)) {
-                Files.delete(jsonPath);
-            }
-
-            migratedFiles.add(targetPath);
-            logger.info("Entidade migrada com sucesso: " + fileName + " -> ID final: " + newId);
-
-        } catch (Exception e) {
-            logger.error("Erro ao migrar arquivo: " + jsonPath, e);
+            logger.warn("Conflito de ID detectado: " + currentId + ". Entidade AUTOR renomeada para ID: " + newId);
         }
+
+        // Rastreia mapeamento de IDs se houve renomeação
+        if (!newId.equals(currentId)) {
+            idMappings.put(currentId, newId);
+        }
+
+        // Salva o arquivo migrado (pode ser no mesmo caminho ou em caminho novo)
+        Files.write(targetPath, migratedJson.getBytes(StandardCharsets.UTF_8));
+
+        // Remove arquivo antigo se foi renomeado
+        if (!targetPath.equals(jsonPath)) {
+            Files.delete(jsonPath);
+        }
+
+        migratedFiles.add(targetPath);
+        logger.info("Entidade migrada com sucesso: " + fileName + " -> ID final: " + newId);
     }
 
     /**
@@ -177,7 +174,7 @@ public class EntityMigration {
         try {
             String content = new String(Files.readAllBytes(targetPath), StandardCharsets.UTF_8);
             // Verifica se é uma PESSOA (não é AUTOR nem outro tipo)
-            return content.contains("\"type\":\"PESSOA\"") || content.contains("\"type\": \"PESSOA\"");
+            return TYPE_PESSOA_PATTERN.matcher(content).find();
         } catch (IOException e) {
             logger.error("Erro ao verificar tipo de entidade: " + id, e);
             return false;
@@ -189,31 +186,29 @@ public class EntityMigration {
      * Incrementa o número até encontrar um ID não utilizado.
      */
     private static String findAvailableId(Path repoPath, String baseId) throws IOException {
-        // Extrai o número do ID
-        int baseNumber;
         try {
-            baseNumber = Integer.parseInt(baseId);
+            int baseNumber = Integer.parseInt(baseId);
+            int newNumber = baseNumber + 1;
+            while (Files.exists(repoPath.resolve(newNumber + ".json"))) {
+                newNumber++;
+            }
+            return String.valueOf(newNumber);
         } catch (NumberFormatException e) {
-            // Se não for numérico, apenas adiciona sufixo
-            return baseId + "_migrated";
+            String candidate = baseId + "_migrated";
+            int suffix = 1;
+            while (Files.exists(repoPath.resolve(candidate + ".json"))) {
+                candidate = baseId + "_migrated_" + suffix++;
+            }
+            return candidate;
         }
-
-        int newNumber = baseNumber + 1;
-        while (Files.exists(repoPath.resolve(newNumber + ".json"))) {
-            newNumber++;
-        }
-
-        return String.valueOf(newNumber);
     }
 
     /**
      * Atualiza o campo ID no JSON.
      */
     private static String atualizarIdNoJson(String json, String novoId) {
-        // Substitui o valor do campo "id"
-        Pattern pattern = Pattern.compile("\"id\"\\s*:\\s*\"[^\"]*\"");
+        Pattern pattern = Pattern.compile("\\\"id\\\"\\s*:\\s*\\\"[^\\\"]*\\\"");
         Matcher matcher = pattern.matcher(json);
         return matcher.replaceFirst("\"id\":\"" + novoId + "\"");
     }
 }
-
