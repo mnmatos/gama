@@ -1,11 +1,19 @@
 package com.digitallib.model.entity;
 
+import java.time.LocalDate;
+
 public class Entity {
     EntityType type;
     String name;
 
     String description;
     String id;
+
+    // Campos específicos para Pessoa (Autor e Pessoa consolidados)
+    String genero;
+    LocalDate dataNascimento;
+    LocalDate dataObito;
+    String localNascimento;
 
     public Entity() {
     }
@@ -53,6 +61,39 @@ public class Entity {
 
     public void setType(EntityType type) {
         this.type = type;
+    }
+
+    // Getters e setters para campos de Pessoa
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
+
+    public LocalDate getDataNascimento() {
+        return dataNascimento;
+    }
+
+    public void setDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
+    }
+
+    public LocalDate getDataObito() {
+        return dataObito;
+    }
+
+    public void setDataObito(LocalDate dataObito) {
+        this.dataObito = dataObito;
+    }
+
+    public String getLocalNascimento() {
+        return localNascimento;
+    }
+
+    public void setLocalNascimento(String localNascimento) {
+        this.localNascimento = localNascimento;
     }
 }
 
